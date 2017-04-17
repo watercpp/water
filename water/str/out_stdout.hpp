@@ -1,0 +1,38 @@
+// Copyright 2017 Johan Paulsson
+// This file is part of the Water C++ Library. It is licensed under the MIT License.
+// See the license.txt file in this distribution or https://watercpp.com/license.txt
+//\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
+#ifndef WATER_STR_OUT_STDOUT_HPP
+#define WATER_STR_OUT_STDOUT_HPP
+#include <water/str/buffer_lines.hpp>
+#ifdef WATER_NO_CHEADERS
+	#include <stdio.h>
+#else
+	#include <cstdio>
+#endif
+namespace water { namespace str {
+
+/*
+
+Easy way to write to stdout.
+
+str::out_stdout{} << "hello world!";
+
+Note that this will add a newline by itself, see buffer_lines.hpp
+
+*/
+
+struct write_to_stdout {
+	void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
+		#ifdef WATER_NO_CHEADERS
+		fputs(cstring, stdout);
+		#else
+		std::fputs(cstring, stdout); // stdout is a macro
+		#endif
+		}
+	};
+
+using out_stdout = out<buffer_lines<write_to_stdout>>;
+
+}}
+#endif

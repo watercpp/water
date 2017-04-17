@@ -1,0 +1,67 @@
+<hello q1="'" q2='"'>
+	
+	<attribute a
+	
+	
+	
+	 	 	 		
+		 	 	 	 	 	 		
+	 	
+		 
+	
+		 	 	 	 		
+	
+	= 	 	 	 	 
+		 
+		 	 
+		 	 	
+		 	 	 
+		 	 	 	 
+		 	 	 	 		
+		 	 	 	 		 
+		 	 	 	 		 	 
+		 	 	 	 		 	 	 
+		 	 	 	 		 	 	 	
+		 	 	 	 		 	 	 	 	
+		 	 	 	 		 	 	 	 	  	
+		 	 	 	 		 	 	 	 	  		
+		 	 	 	 		 	 	 	 	  		 	
+		 	 	 	 		 	 	 	 	  		 		 	 	     
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 "
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 &#x20;
+		 	 	 	 		 	 	 	 	  		 		 	 	              	 a
+		 	 	 	 		 	 	 	 	  &#x1;		 		 	 	      	 	 	 
+		 	 	 	&#xa;&#xd; 		 	 	 	 	  		 		 	 	      	 	 	 b
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	&#xb; &#x9; 	  		 		 	 	      	 	 	          c
+		 	 	 	 		 	 	 	 	  		 &#x85;
+		 	 	 	 		 	 	 	 	  		 
+		 	 	 	 		 	 	 	 	  		 &#x2028;		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 "
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 >
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	     
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	   
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 begin
+	indented with tab
+ indented with 1 space
+end
+		 	 	 	 		 	 	 	 	   		 		 	 	       	 	 	 
+		 	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 
+		 	 	 	 	 		 	 	 	 	  	 	 		 		  	      	 	 	  
+		  	 	 	 		 	 	 	 	  		 		 	 	      	 	 	 </attribute>
+</hello>
+<!-- 
+
+<hello q1="&apos;" q2="&quot;">
+	<attribute a="a b c">begin
+	indented with tab
+ indented with 1 space
+end</attribute>
+</hello>
+
+-->

@@ -1,0 +1,27 @@
+<!DOCTYPE one [
+<!ELEMENT one (#PCDATA)>
+<!ELEMENT two (#PCDATA)>
+]>
+<one>
+<two>
+<![IGNORE[
+Everything is ignored within an ignored section, except the
+sub-section delimiters '<![' and ']]>'.  These must be balanced,
+but it is no section keyword is required:
+<![]]>
+<![DUNNO[ ]]>
+<![INCLUDE[
+asdfasdfasdf
+<!OK
+]]>
+] ]> ]] > ]]>
+text
+</two>
+<![IGNORE[ < ![ <! [ <![]]>]]>
+</one>
+<!--
+
+this is not proper xml, should not contain <![IGNORE things, but wihtout them it should be:
+<one><two>text</two><one>
+
+-->

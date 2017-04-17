@@ -1,0 +1,23 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!-- there is a nel+lf in the text line break, should convert to 1 linebreak -->
+ 
+<hello hello="hello
+
+"
+world
+
+=
+
+'world'
+>
+	<world>
+	
+		text with a line
+break inside!
+			</world>
+</hello
+
+>
+
+
+
