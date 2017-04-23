@@ -5,7 +5,7 @@
 #ifndef WATER_XML_TESTS_PARSE_HPP
 #define WATER_XML_TESTS_PARSE_HPP
 #include <water/xml/xml.hpp>
-#include <water/str/str.hpp>
+#include <water/str/out_stdout.hpp>
 #include <water/allocator_nothrow.hpp>
 #ifdef WATER_NO_CHEADERS
 	#include <stdio.h>
@@ -13,6 +13,20 @@
 	#include <cstdio>
 #endif
 namespace water { namespace xml { namespace tests {
+
+/*
+
+Simple command line program for manual testing. It will parse files from the input and then write
+them to stdout together with some information.
+
+To build it, create a main.cpp that looks like this:
+
+#include <water/xml/tests/parse.hpp>
+int main(int argc, char **argv) {
+    return water::xml::tests::parse_main(argc, argv);
+    }
+
+*/
 
 #ifndef WATER_NO_CHEADERS
 using std::fopen;
@@ -22,6 +36,7 @@ using std::ftell;
 using std::fread;
 using std::fputs;
 using std::fflush;
+using std::FILE;
 #endif
 
 template<typename out_> struct
@@ -93,7 +108,8 @@ template<typename char_> class
 						++success;
 						o << "parse success! "
 							<< write_indented_length(document) << " characters, "
-							<< document.memory_allocations() << " allocations, " << document.memory_use() << " bytes, " << document.memory_unused() << " unused bytes"
+							<< document.memory_allocations() << " allocations, " << document.memory_use() << " bytes allocated, " << (document.memory_use() - document.memory_unused()) << " bytes used. "
+							<< "bytes used / file size: " << (static_cast<double>(document.memory_use() - document.memory_unused()) / bytes)
 							<< str::el;
 						if(!quiet) {
 							write_indented(write_to_str(o), document);
@@ -125,18 +141,6 @@ template<typename char_> class
 			}
 	};
 
-struct out_write {
-	void operator()(char const* a) const {
-		fputs(a, stdout);
-		fflush(stdout);
-		}
-	template<typename a_> void operator()(char const* a, a_) const {
-		(*this)(a);
-		}
-	};
-	
-using out_type = str::out<str::buffer_lines<out_write>>;
-
 inline bool cequal(char const *a, char const *b) {
 	if(a == b)
 		return true;
@@ -148,7 +152,7 @@ inline bool cequal(char const *a, char const *b) {
 	}
 
 inline int parse_main(int c, char **v) {
-	out_type o;
+	str::out_stdout_simple_buffer o;
 	if(c <= 1)
 		o << "Parse xml files. Use -utf16 to parse into UTF-16 instead of UTF-8. Use -quiet to output less. Use -tags to output tag names as they are parsed\n";
 	else {
