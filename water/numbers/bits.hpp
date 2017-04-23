@@ -9,8 +9,8 @@
 #include <water/iterator.hpp>
 #include <water/signed_representation.hpp>
 #include <water/numeric_limits.hpp>
-#include <water/encodings/ascii.hpp>
-#include <water/encodings/utf.hpp>
+#include <water/ascii_lower_upper.hpp>
+#include <water/unicode/utf.hpp>
 #include <water/cmath.hpp>
 namespace water { namespace numbers {
 
@@ -69,7 +69,7 @@ template<typename type_, typename result_ = nothing> using if_not_begin_end = ty
 // ascii lowercase used when parsing numbers
 struct transform_lowercase {
 	char32_t operator()(char32_t a) const {
-		return encodings::ascii_to_lower(a);
+		return ascii_to_lower(a);
 		}
 	};
 

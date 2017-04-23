@@ -42,13 +42,13 @@ inline void utf() {
 	o << "utf-32 pointer " << utf_pointer(utf32_korean);
 	o << "utf-32 pointer " << utf_pointer(utf32_arabic);
 	
-	o << "utf-8  range " << encodings::utf_range_from_cstring<8 >(utf8_korean );
-	o << "utf-8  range " << encodings::utf_range_from_cstring<8 >(utf8_arabic );
+	o << "utf-8  range " << unicode::utf_range_from_cstring<8 >(utf8_korean );
+	o << "utf-8  range " << unicode::utf_range_from_cstring<8 >(utf8_arabic );
 	//___breakpoint();
-	o << "utf-16 range " << encodings::utf_range_from_cstring<16>(utf16_korean);
-	o << "utf-16 range " << encodings::utf_range_from_cstring<16>(utf16_arabic);
-	o << "utf-32 range " << encodings::utf_range_from_cstring<32>(utf32_korean);
-	o << "utf-32 range " << encodings::utf_range_from_cstring<32>(utf32_arabic);
+	o << "utf-16 range " << unicode::utf_range_from_cstring<16>(utf16_korean);
+	o << "utf-16 range " << unicode::utf_range_from_cstring<16>(utf16_arabic);
+	o << "utf-32 range " << unicode::utf_range_from_cstring<32>(utf32_korean);
+	o << "utf-32 range " << unicode::utf_range_from_cstring<32>(utf32_arabic);
 	
 	o << "char16 A " << u'A';
 	o << "char32 A " << U'A';

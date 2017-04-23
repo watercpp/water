@@ -4,6 +4,7 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_STR_OUT_STDOUT_HPP
 #define WATER_STR_OUT_STDOUT_HPP
+#include <water/str/buffer.hpp>
 #include <water/str/buffer_lines.hpp>
 #ifdef WATER_NO_CHEADERS
 	#include <stdio.h>
@@ -18,7 +19,14 @@ Easy way to write to stdout.
 
 str::out_stdout{} << "hello world!";
 
-Note that this will add a newline by itself, see buffer_lines.hpp
+Note that this will add a newline by itself, and cut off long lines, see buffer_lines.hpp
+
+If the program is writing to stdout using a single str::out object at a time, from a single thread,
+and it needs to write long lines use:
+
+str::out_stdout_simple_buffer{} << "hello world\n";
+
+This will not add newlines by itself or cut off long lines, see buffer.hpp
 
 */
 
@@ -33,6 +41,8 @@ struct write_to_stdout {
 	};
 
 using out_stdout = out<buffer_lines<write_to_stdout>>;
+
+using out_stdout_simple_buffer = out<buffer<write_to_stdout>>;
 
 }}
 #endif

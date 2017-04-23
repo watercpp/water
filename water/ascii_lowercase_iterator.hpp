@@ -2,10 +2,19 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_ENCODINGS_ASCII_LOWERCASE_ITERATOR_HPP
-#define WATER_ENCODINGS_ASCII_LOWERCASE_ITERATOR_HPP
-#include <water/encodings/ascii.hpp>
-namespace water { namespace encodings {
+#ifndef WATER_ASCII_LOWERCASE_ITERATOR_HPP
+#define WATER_ASCII_LOWERCASE_ITERATOR_HPP
+#include <water/ascii_lower_upper.hpp>
+#include <water/iterator.hpp>
+#include <water/types/types.hpp>
+namespace water {
+
+/*
+
+Iterator that converts another iterators ASCII output to lowercase.
+Non-ASCII values are not changed, it is safe to use on UTF-8, UTF-16 and UTF-32.
+
+*/
 
 template<typename iterator_> class
  ascii_lowercase_iterator {
@@ -93,5 +102,5 @@ template<typename iterator_> class
 
 template<typename iterator_> ascii_lowercase_iterator<iterator_> ascii_lowercase_iterator_from(iterator_ a) { return {a}; }
 
-}}
+}
 #endif

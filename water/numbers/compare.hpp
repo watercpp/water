@@ -27,8 +27,8 @@ class compare_and_move {
 			auto i1 = begin1;
 			while(i1 != end1 && begin2 != end2) {
 				char32_t c;
-				size_t n = encodings::utf_decode_and_move<encodings::utf_from_iterator<iterator1_>::result>(c, i1, end1);
-				if(!n || transform(c) != transform(encodings::cast(*begin2)))
+				size_t n = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>::result>(c, i1, end1);
+				if(!n || transform(c) != transform(unicode::cast(*begin2)))
 					return *this;
 				u += n;
 				++begin2;
@@ -90,12 +90,12 @@ class compare_one_of_and_move {
 			// compare first character of begin1,end1 against range of characters
 			auto i1 = begin1;
 			char32_t c;
-			size_t u = encodings::utf_decode_and_move<encodings::utf_from_iterator<iterator1_>::result>(c, i1, end1);
+			size_t u = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>::result>(c, i1, end1);
 			if(u && c) {
 				c = transform(c);
 				size_t w = 0;
 				while(begin2 != end2) {
-					if(transform(encodings::cast(*begin2)) == c) {
+					if(transform(unicode::cast(*begin2)) == c) {
 						myused = u;
 						mywhich = w;
 						begin1 = i1;

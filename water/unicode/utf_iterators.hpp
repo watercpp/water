@@ -2,10 +2,10 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_ENCODINGS_UTF_ITERATORS_HPP
-#define WATER_ENCODINGS_UTF_ITERATORS_HPP
-#include <water/encodings/utf.hpp>
-namespace water { namespace encodings {
+#ifndef WATER_UNICODE_UTF_ITERATORS_HPP
+#define WATER_UNICODE_UTF_ITERATORS_HPP
+#include <water/unicode/utf.hpp>
+namespace water { namespace unicode {
 
 // utf_iterator_with_end
 /////////////////////////////////////////////////////////////////////

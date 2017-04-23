@@ -19,6 +19,8 @@ struct function_ {
 
 *end == 0 always. end[-1] is linefeed always. its a non-empty cstring.
 
+Important: buffer_size_ - 2 is the maximum line length. Longer lines will be truncated.
+
 The destrucor will flush(), that will call function_. If it throws bad things happen.
 If you always flush() so the destructor does not have to, the function_ can throw and it wont hurt.
 
@@ -32,8 +34,6 @@ flush() will add a newline if the buffer does not end with one:
 	// output:
 	// hello
 	// world
-
-buffer_size_ - 2 is the maximum line length. Longer lines will be truncated.
 
 */
 
@@ -95,7 +95,7 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 				unsigned s = mysize; // if function throws, set mysize to 0 first
 				myline = mysize = 0;
 				if(my[s - 1] != static_cast<char_type>(u'\n')) {
-					auto end = encodings::utf_adjust_end<encodings::utf_from_char<char_type>::result>(my + 0, my + s);
+					auto end = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(my + 0, my + s);
 					s = static_cast<unsigned>(end - my);
 					my[s++] = static_cast<char_type>(u'\n');
 					}

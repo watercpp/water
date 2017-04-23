@@ -2,10 +2,10 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_ENCODINGS_BYTERATOR_HPP
-#define WATER_ENCODINGS_BYTERATOR_HPP
-#include <water/encodings/bits.hpp>
-namespace water { namespace encodings {
+#ifndef WATER_UNICODE_BYTERATOR_HPP
+#define WATER_UNICODE_BYTERATOR_HPP
+#include <water/unicode/bits.hpp>
+namespace water { namespace unicode {
 
 // byte unpacking iterator, to read 16-bit or 24-bit or 32-bit from raw bytes. it expects 1 byte to have 8 bits
 

@@ -7,10 +7,10 @@
 #include <water/water.hpp>
 #include <water/types/types.hpp>
 #include <water/int.hpp>
-#include <water/encodings/utf_iterators.hpp>
-#include <water/encodings/utf_length.hpp>
-#include <water/encodings/utf.hpp>
-#include <water/encodings/byterator.hpp>
+#include <water/unicode/utf_iterators.hpp>
+#include <water/unicode/utf_length.hpp>
+#include <water/unicode/utf.hpp>
+#include <water/unicode/byterator.hpp>
 #include <water/swap.hpp>
 namespace water { namespace json {
 
@@ -114,10 +114,14 @@ namespace _ {
 			auto e = begin + to;
 			unsigned x = 0;
 			while(++x != 8) {
-				auto n = encodings::utf8_first_of(*--e);
-				if(n && n <= x) break;
 				--to;
+				auto n = unicode::utf8_first_of(*--e);
+				if(n && n <= x) {
+					to += n;
+					break;
+					}
 				}
+			___water_assert(!x || unicode::utf8_first_of(*(begin + to)));
 			return true;
 			}
 		};

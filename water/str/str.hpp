@@ -6,6 +6,7 @@
 #define WATER_STR_STR_HPP
 #include <water/str/out.hpp>
 #include <water/str/begin_end.hpp>
+#include <water/str/buffer.hpp>
 #include <water/str/buffer_lines.hpp>
 #include <water/str/container.hpp>
 #include <water/str/function.hpp>

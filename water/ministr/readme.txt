@@ -51,7 +51,7 @@ float.hpp
 Optional floating point formatting, depends on cmath / math.h and numeric_limits
 
 utf.hpp
-Optional UTF-16 and UTF-32, depends on water::encodings
+Optional UTF-16 and UTF-32, depends on water::unicode
 Include this to write char16_t, char32_t, wchar_t and UTF-16 and UTF-32 ranges.
 
 // Configuration

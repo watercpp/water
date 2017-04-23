@@ -68,9 +68,9 @@ template<typename memory_> class
 				if(e.utf32()) {
 					if(s % 4)
 						return *this;
-					auto from = encodings::byterator<32>(p, e.big_endian());
+					auto from = unicode::byterator<32>(p, e.big_endian());
 					// can convert in place
-					auto convert = encodings::utf_from_utf_verify<8, 32>(p, from, s / 4);
+					auto convert = unicode::utf_from_utf_verify<8, 32>(p, from, s / 4);
 					if(!convert.size())
 						return *this;
 					s = convert.size();
@@ -78,14 +78,14 @@ template<typename memory_> class
 				else if(e.utf16()) {
 					if(s % 2)
 						return *this;
-					auto from = encodings::byterator<16>(p, e.big_endian());
-					auto length = encodings::utf_length<16>(from, s / 2);
+					auto from = unicode::byterator<16>(p, e.big_endian());
+					auto length = unicode::utf_length<16>(from, s / 2);
 					if(!length)
 						return *this;
 					p = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1));
 					if(!p)
 						return *this;
-					auto convert = encodings::utf_from_utf<8, 16>(p, from, s / 2);
+					auto convert = unicode::utf_from_utf<8, 16>(p, from, s / 2);
 					s = convert.size();
 					___water_assert(convert.size() == length.utf8());
 					}
@@ -98,7 +98,7 @@ template<typename memory_> class
 		template<typename iterator_>
 		 read& operator()(iterator_ begin, iterator_ end) {
 			reset();
-			if(encodings::utf_from_iterator<iterator_>::result == 8)
+			if(unicode::utf_from_iterator<iterator_>::result == 8)
 				copy_and_parse(begin, size(begin, end));
 			else
 				convert_and_parse(begin, end);
@@ -107,7 +107,7 @@ template<typename memory_> class
 		template<typename iterator_>
 		 read& operator()(iterator_ begin, size_t size) {
 			reset();
-			if(encodings::utf_from_iterator<iterator_>::result == 8)
+			if(unicode::utf_from_iterator<iterator_>::result == 8)
 				copy_and_parse(begin, size);
 			else
 				convert_and_parse(begin, size);
@@ -143,9 +143,9 @@ template<typename memory_> class
 			}
 		template<typename iterator_, typename iterator_or_size_>
 		 void convert_and_parse(iterator_ begin, iterator_or_size_ end_or_size) {
-			auto length = encodings::utf_length_from(begin, end_or_size);
+			auto length = unicode::utf_length_from(begin, end_or_size);
 			if(length.utf8() && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1)))) {
-				auto convert = encodings::utf_from_utf(myat, begin, end_or_size);
+				auto convert = unicode::utf_from_utf(myat, begin, end_or_size);
 				myend = convert.end();
 				___water_assert(convert.size() == length.utf8());
 				myat = parse();

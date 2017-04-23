@@ -38,7 +38,7 @@ namespace _ {
 			}
 		template<typename to_, typename char_> static unsigned do_it(to_& to, char_ from) {
 			unsigned char c[4];
-			unsigned s = encodings::utf8_encode(c, from);
+			unsigned s = unicode::utf8_encode(c, from);
 			to(static_cast<char const*>(static_cast<void const*>(c)), s);
 			return s;
 			}
@@ -66,7 +66,7 @@ namespace _ {
 			}
 		template<typename to_> static unsigned do_it(to_& to, char32_t from) {
 			char16_t c[2];
-			unsigned s = encodings::utf16_encode(c, from);
+			unsigned s = unicode::utf16_encode(c, from);
 			to(static_cast<char16_t const*>(c), s);
 			return s;
 			}
@@ -87,7 +87,7 @@ namespace _ {
 		public:
 			template<typename to_, typename from_>
 			 if_not_begin_end<from_, size_t> operator()(to_& to, from_ const& from) {
-				size_t r = write_one<utf_>::do_it(to, encodings::cast(from));
+				size_t r = write_one<utf_>::do_it(to, unicode::cast(from));
 				my += r;
 				return r;
 				}
@@ -96,7 +96,7 @@ namespace _ {
 				size_t r = 0;
 				auto f = from.begin();
 				while(f != from.end()) {
-					r += write_one<utf_>::do_it(to, encodings::cast(*f));
+					r += write_one<utf_>::do_it(to, unicode::cast(*f));
 					++f;
 					}
 				my += r;

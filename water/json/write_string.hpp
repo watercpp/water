@@ -27,7 +27,7 @@ template<typename to_> void write_string(to_ to, char8_t const* begin, char8_t c
 	char32_t last = 0;
 	while(begin != end) {
 		char32_t u = 0;
-		unsigned n = encodings::utf8_decode_and_move(u, begin, end);
+		unsigned n = unicode::utf8_decode_and_move(u, begin, end);
 		___water_assert(n && "bad utf8");
 		if(!n) return;
 		bool escape =
@@ -64,7 +64,7 @@ template<typename to_> void write_string(to_ to, char8_t const* begin, char8_t c
 				if(u <= 0xffff)
 					u0 = static_cast<char16_t>(u);
 				else
-					encodings::utf16_pack(u0, u1, u);
+					unicode::utf16_pack(u0, u1, u);
 				write_hex(to, u0);
 				if(u1)
 					write_hex(to, u1);

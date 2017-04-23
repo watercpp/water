@@ -2,12 +2,12 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_ENCODINGS_TESTS_ALL_HPP
-#define WATER_ENCODINGS_TESTS_ALL_HPP
-#include <water/encodings/encodings.hpp>
+#ifndef WATER_UNICODE_TESTS_ALL_HPP
+#define WATER_UNICODE_TESTS_ALL_HPP
+#include <water/unicode/unicode.hpp>
 #include <water/downgrade_iterators/downgrade_iterators.hpp>
 #include <water/test.hpp>
-namespace water { namespace encodings { namespace tests {
+namespace water { namespace unicode { namespace tests {
 
 /*
 

@@ -55,21 +55,21 @@ inline char8_t* read_string(char8_t*& from, char8_t* end) {
 						auto u = read_hex(from, end);
 						if(u >= 0) {
 							from += 4;
-							if(encodings::utf16_is_1_of_2(u) && end - from >= 6 && from[0] == '\\' && from[1] == 'u') { // 1 of 2
+							if(unicode::utf16_is_1_of_2(u) && end - from >= 6 && from[0] == '\\' && from[1] == 'u') { // 1 of 2
 								from += 2;
 								auto u1 = read_hex(from, end);
-								if(encodings::utf16_is_2_of_2(u1)) {
-									u = encodings::utf16_unpack(u, u1);
+								if(unicode::utf16_is_2_of_2(u1)) {
+									u = unicode::utf16_unpack(u, u1);
 									from += 4;
 									}
 								else
 									u = -1;
 								}
-							else if(!encodings::utf16_is_1_of_1(u))
+							else if(!unicode::utf16_is_1_of_1(u))
 								u = -1;
 							}
 						if(u >= 0) {
-							encodings::utf8_encode_and_move(to, static_cast<char32_t>(u));
+							unicode::utf8_encode_and_move(to, static_cast<char32_t>(u));
 							break;
 							}
 						}
@@ -77,7 +77,7 @@ inline char8_t* read_string(char8_t*& from, char8_t* end) {
 				}
 			}
 		else {
-			ptrdiff_t n = static_cast<ptrdiff_t>(encodings::utf8_first_of(*from));
+			ptrdiff_t n = static_cast<ptrdiff_t>(unicode::utf8_first_of(*from));
 			if(!n || n > end - from)
 				return 0;
 			switch(n) {
@@ -85,18 +85,18 @@ inline char8_t* read_string(char8_t*& from, char8_t* end) {
 					*to++ = *from++;
 					break;
 				case 2:
-					if(!encodings::utf8_verify(from[0], from[1])) return 0;
+					if(!unicode::utf8_verify(from[0], from[1])) return 0;
 					*to++ = *from++;
 					*to++ = *from++;
 					break;
 				case 3:
-					if(!encodings::utf8_verify(from[0], from[1], from[2])) return 0;
+					if(!unicode::utf8_verify(from[0], from[1], from[2])) return 0;
 					*to++ = *from++;
 					*to++ = *from++;
 					*to++ = *from++;
 					break;
 				case 4:
-					if(!encodings::utf8_verify(from[0], from[1], from[2], from[3])) return 0;
+					if(!unicode::utf8_verify(from[0], from[1], from[2], from[3])) return 0;
 					*to++ = *from++;
 					*to++ = *from++;
 					*to++ = *from++;

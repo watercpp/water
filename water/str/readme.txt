@@ -83,6 +83,9 @@ For a pair of iterators.
 template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> class buffer_lines
 Buffering and writing lines to function_, the one used by out_stdout
 
+template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> class buffer
+Simpler buffering than buffer_lines.
+
 template<typename container_> struct container
 Inherit a container like std::string or std::vector. Ugly but useful.
 

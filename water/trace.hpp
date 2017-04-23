@@ -15,7 +15,7 @@
 			}}}
 		#else
 			#include <water/windows.hpp>
-			#include <water/encodings/utf_iterators.hpp>
+			#include <water/unicode/utf_iterators.hpp>
 			namespace water { namespace _ { namespace trace_hpp {
 				WATER_WINDOWS_FUNCTION(void, OutputDebugStringW, (wchar_t const*));
 				}}}
@@ -50,14 +50,14 @@ inline void trace(char const* c) noexcept {
 		#elif defined(WATER_SYSTEM_WINDOWS) && !defined(WATER_COMPILER_GCC) && defined(WATER_TRACE_NO_UTF16)
 		_::trace_hpp::OutputDebugStringA(c);
 		#elif defined(WATER_SYSTEM_WINDOWS) && !defined(WATER_COMPILER_GCC)
-		auto i = encodings::utf_iterator_from_cstring<16>(c);
+		auto i = unicode::utf_iterator_from_cstring<16>(c);
 		constexpr unsigned size = 4096;
 		wchar_t w[size], x = 0;
 		while(i) {
 			unsigned s = 0;
 			if(x) w[s++] = x;
 			do w[s++] = *i; while(++i && s != size - 1);
-			if(encodings::utf16_is_1_of_2(w[s - 1])) x = w[--s];
+			if(unicode::utf16_is_1_of_2(w[s - 1])) x = w[--s];
 			else x = 0;
 			w[s] = 0;
 			if(s) _::trace_hpp::OutputDebugStringW(w);

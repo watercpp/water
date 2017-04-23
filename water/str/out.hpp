@@ -6,8 +6,8 @@
 #define WATER_STR_OUT_HPP
 #include <water/int.hpp>
 #include <water/numbers/write.hpp>
-#include <water/encodings/utf.hpp>
-#include <water/encodings/utf_iterators.hpp>
+#include <water/unicode/utf.hpp>
+#include <water/unicode/utf_iterators.hpp>
 #include <water/swap.hpp>
 namespace water { namespace str {
 
@@ -65,7 +65,7 @@ template<typename write_> class
  out : public write_ {
 	public:
 		using char_type = char_type_of<write_>;
-		static unsigned constexpr utf = encodings::utf_from_char<char_type>::result;
+		static unsigned constexpr utf = unicode::utf_from_char<char_type>::result;
 	private:
 		str::settings mysettings;
 	public:
@@ -97,20 +97,20 @@ template<typename write_> class
 			}
 		template<typename iterator_> out& operator()(iterator_ begin, iterator_ end) {
 			if(begin != end)
-				write(begin, end, typename types::ifel<utf == encodings::utf_from_iterator<iterator_>::result, short*, long*>::result{});
+				write(begin, end, typename types::ifel<utf == unicode::utf_from_iterator<iterator_>::result, short*, long*>::result{});
 			return *this;
 			}
 		template<typename char_> out& operator()(char_ *begin, char_ *end) {
 			___water_assert(begin == end || (begin && begin < end));
 			if(begin && begin < end)
-				write(begin, end, typename types::ifel<utf == encodings::utf_from_iterator<char_*>::result, short*, long*>::result{});
+				write(begin, end, typename types::ifel<utf == unicode::utf_from_iterator<char_*>::result, short*, long*>::result{});
 			return *this;
 			}
 		template<typename char_> out& operator()(char_ *cstring) { // not char_ const* because then non-const pointers go to single char_ operator 
 			if(cstring && *cstring) {
 				auto end = cstring;
 				while(*++end);
-				write(cstring, end, typename types::ifel<utf == encodings::utf_from_char<char_>::result, short*, long*>::result{});
+				write(cstring, end, typename types::ifel<utf == unicode::utf_from_char<char_>::result, short*, long*>::result{});
 				}
 			return *this;
 			}
@@ -122,12 +122,12 @@ template<typename write_> class
 					stop = cstring + max_size,
 					end = cstring;
 				while(++end != stop && *end);
-				write(cstring, end, typename types::ifel<utf == encodings::utf_from_char<char_>::result, short*, long*>::result{});
+				write(cstring, end, typename types::ifel<utf == unicode::utf_from_char<char_>::result, short*, long*>::result{});
 				}
 			return *this;
 			}
 		template<typename char_> out& operator()(char_ a) {
-			write(a, typename types::ifel<utf >= encodings::utf_from_char<char_>::result, short*, long*>::result{});
+			write(a, typename types::ifel<utf >= unicode::utf_from_char<char_>::result, short*, long*>::result{});
 			return *this;
 			}
 		template<typename number_> out& number(number_ a) {
@@ -151,7 +151,7 @@ template<typename write_> class
 			(*static_cast<write_*>(this))(begin, end);
 			}
 		template<typename iterator_> void write(iterator_ begin, iterator_ end, long*) {
-			encodings::utf_iterator_with_end<utf, iterator_> b{begin, end}, e;
+			unicode::utf_iterator_with_end<utf, iterator_> b{begin, end}, e;
 			(*static_cast<write_*>(this))(b, e);
 			}
 		template<typename char_> void write(char_ a, short*) {
@@ -159,7 +159,7 @@ template<typename write_> class
 			}
 		template<typename char_> void write(char_ a, long*) {
 			char_type x[4];
-			unsigned n = encodings::utf_encode<utf>(x, encodings::cast(a));
+			unsigned n = unicode::utf_encode<utf>(x, unicode::cast(a));
 			(*static_cast<write_*>(this))(x + 0, x + n);
 			}
 	};

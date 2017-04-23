@@ -2,13 +2,12 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_ENCODINGS_ASCII_HPP
-#define WATER_ENCODINGS_ASCII_HPP
-#include <water/encodings/bits.hpp>
-namespace water { namespace encodings {
+#ifndef WATER_ASCII_LOWER_UPPER_HPP
+#define WATER_ASCII_LOWER_UPPER_HPP
+namespace water {
 
 /*
-ascii
+ASCII
 0x09 tab
 0x0a line feed
 0x0b tab vertical
@@ -53,21 +52,21 @@ ascii
 0x7f delete
 */
 
-template<typename char_> bool ascii_is_lower(char_ a) {
+template<typename char_> constexpr bool ascii_is_lower(char_ a) {
 	return static_cast<char_>(0x61) <= a && a <= static_cast<char_>(0x7a);
 	}
 
-template<typename char_> bool ascii_is_upper(char_ a) {
+template<typename char_> constexpr bool ascii_is_upper(char_ a) {
 	return static_cast<char_>(0x41) <= a && a <= static_cast<char_>(0x5a);
 	}
 
-template<typename char_> char_ ascii_to_lower(char_ a) {
+template<typename char_> constexpr char_ ascii_to_lower(char_ a) {
 	return ascii_is_upper(a) ? a + 0x20 : a;
 	}
 
-template<typename char_> char_ ascii_to_upper(char_ a) {
+template<typename char_> constexpr char_ ascii_to_upper(char_ a) {
 	return ascii_is_lower(a) ? a - 0x20 : a;
 	}
 
-}}
+}
 #endif

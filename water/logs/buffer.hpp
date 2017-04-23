@@ -10,7 +10,7 @@
 #include <water/fixed/memory_atomic.hpp>
 #include <water/threads/mutex.hpp>
 #include <water/allocator.hpp>
-#include <water/encodings/utf.hpp>
+#include <water/unicode/utf.hpp>
 namespace water { namespace logs {
 
 /*
@@ -267,7 +267,7 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
 							// worst case is it ends in 3 out of a 4 sequence, and the sequence before is 4, then it needs to go back 7
 							unsigned utf8 = 0;
 							while(to != begin && to > end - 8) {
-								if((utf8 = encodings::utf8_first_of(static_cast<unsigned char>(*--to))) && static_cast<unsigned>(end - to) >= utf8) {
+								if((utf8 = unicode::utf8_first_of(static_cast<unsigned char>(*--to))) && static_cast<unsigned>(end - to) >= utf8) {
 									to += utf8;
 									break;
 									}

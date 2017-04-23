@@ -77,7 +77,7 @@ template<typename function_, typename char_ = typename _::function_char<function
 				*b = buffer;
 			while(begin != end) {
 				if(b == buffer + size) {
-					auto e = encodings::utf_adjust_end<encodings::utf_from_char<char_type>::result>(buffer + 0, b);
+					auto e = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(buffer + 0, b);
 					operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(e));
 					auto b2 = buffer;
 					while(e != b) *b2++ = *e++;

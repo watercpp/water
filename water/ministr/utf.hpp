@@ -5,11 +5,11 @@
 #ifndef WATER_MINISTR_UTF_HPP
 #define WATER_MINISTR_UTF_HPP
 #include <water/ministr/out.hpp>
-#include <water/encodings/utf_iterators.hpp>
-#include <water/encodings/utf_length.hpp>
+#include <water/unicode/utf_iterators.hpp>
+#include <water/unicode/utf_length.hpp>
 namespace water { namespace ministr {
 
-// utf16 and utf32 using water::encodings
+// utf16 and utf32 using water::unicode
 
 template<typename iterator_, typename settings_, unsigned size_, unsigned utf_> class
  write_utf_string : public write_size<size_ ? size_ : settings_::string_size> {
@@ -25,8 +25,8 @@ template<typename iterator_, typename settings_, unsigned size_, unsigned utf_> 
 			{}
 		template<typename iterator2_>
 		 iterator2_ operator()(iterator2_ begin, iterator2_ end) const {
-			encodings::utf_length<utf_> length(mybegin, myend);
-			encodings::utf_iterator_with_end<8, iterator_, false, utf_> f(mybegin, myend);
+			unicode::utf_length<utf_> length(mybegin, myend);
+			unicode::utf_iterator_with_end<8, iterator_, false, utf_> f(mybegin, myend);
 			if(!length.utf8())
 				return begin;
 			unsigned size = static_cast<unsigned>(end - begin);
@@ -48,8 +48,8 @@ template<typename iterator_, typename settings_, unsigned size_, unsigned utf_> 
 template<
 	typename iterator_,
 	bool if_ =
-		encodings::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ||
-		encodings::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 32
+		unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ||
+		unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 32
 	>
 	struct write_range_select_utf;
 
@@ -57,19 +57,19 @@ template<typename iterator_> struct write_range_select_utf<iterator_, true> { us
 
 template<typename iterator_, typename settings_, unsigned size_> struct
  write_range_select<iterator_, settings_, size_, typename write_range_select_utf<iterator_>::result> {
-	using result = write_utf_string<iterator_, settings_, size_, encodings::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ? 16 : 32>;
+	using result = write_utf_string<iterator_, settings_, size_, unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ? 16 : 32>;
 	};
 
 template<typename char_, typename settings_, bool utf8_ = settings_::utf8> class
- write_utf_char : public write_size<encodings::utf_from_char<char_>::result == 16 ? 3 : 4> {
-	static constexpr unsigned utf_ = encodings::utf_from_char<char_>::result;
+ write_utf_char : public write_size<unicode::utf_from_char<char_>::result == 16 ? 3 : 4> {
+	static constexpr unsigned utf_ = unicode::utf_from_char<char_>::result;
 	char my[4];
 	unsigned mylength = 0;
 	public:
 		write_utf_char(char_ a) {
-			if(encodings::utf_from_char<char_>::result == 16 ? encodings::utf16_is_1_of_1(a) : encodings::utf32_verify(a)) {
+			if(unicode::utf_from_char<char_>::result == 16 ? unicode::utf16_is_1_of_1(a) : unicode::utf32_verify(a)) {
 				auto *m = static_cast<unsigned char*>(static_cast<void*>(my));
-				mylength = encodings::utf8_encode_and_move(m, a);
+				mylength = unicode::utf8_encode_and_move(m, a);
 				}
 			}
 		template<typename iterator_>
@@ -92,7 +92,7 @@ template<typename char_> struct utf_char_const_pointer {
 	utf_char_const_pointer(char_ const* a) : pointer{a} {}
 	};
 
-unsigned constexpr wchar_utf = encodings::utf_from_char<wchar_t>::result == 16 ? 16 : 32;
+unsigned constexpr wchar_utf = unicode::utf_from_char<wchar_t>::result == 16 ? 16 : 32;
 
 template<typename p_, typename w_> out<out<p_, w_>, write_utf_char<char16_t, typename out<p_, w_>::settings>>
  operator<<(out<p_, w_> const& o, char16_t a) {
