@@ -7,6 +7,16 @@
 #include <water/xml/xml.hpp>
 #include <water/str/str.hpp>
 #include <water/allocator_nothrow.hpp>
+#ifdef WATER_NO_CHEADERS
+	#include <string.h>
+#else
+	#include <cstring>
+	namespace water {
+	using std::memcmp;
+	using std::memcpy;
+	using std::memmove;
+	}
+#endif
 namespace water { namespace xml { namespace tests {
 /*
 <unicode>
@@ -91,12 +101,12 @@ class
 		template<typename o_>
 		 void operator()(str::out<o_>& o) {
 			o << "water::xml::tests::unicode start" << str::el;
-			
+
 			// the generated contains cr nel and 0x2028, this will be gone from the others
 			generate();
 			o << "generated UTF-16 document. memory_use=" << my16.memory_use() << " memory_unused=" << my16.memory_unused() << " memory_allocations=" << my16.memory_allocations() << str::el;
 			auto memory16 = write_to_memory(o, my16);
-			
+
 			// parse 8 from 16
 			auto node8 = my8.parse_in_place(memory16->pointer, memory16->size);
 			___water_assert(node8);
@@ -109,7 +119,7 @@ class
 			___water_assert(node16);
 			o << "parsed UTF-16 document from UTF-8 text. memory_use=" << my16.memory_use() << " memory_unused=" << my16.memory_unused() << " memory_allocations=" << my16.memory_allocations() << str::el;
 			auto memory16b = write_to_memory(o, my16);
-			
+
 			// parse 16 from 16
 			my16.clear();
 			memory16b[1].copy(memory16b[0]);
@@ -121,7 +131,7 @@ class
 				o << "  success, memory is the same" << str::el;
 			else
 				o << "  error :( memory is not same" << str::el;
-			
+
 			// parse 8 from 8
 			my8.clear();
 			memory16c[1].copy(memory8[0]);
@@ -133,7 +143,7 @@ class
 				o << "  success, memory is the same" << str::el;
 			else
 				o << "  error :( memory is not same" << str::el;
-			
+
 			my16.clear();
 			memory8b[1].copy(memory16c[0]);
 			memory8b[1].flip_endian();
@@ -145,11 +155,11 @@ class
 				o << "  success, memory is the same" << str::el;
 			else
 				o << "  error :( memory is not same" << str::el;
-			
-			
+
+
 			// parse 16 from 8 and 16 buffer, compare to original 16
 			// parse 8 from 8 buffer, compare to original 8
-			
+
 			o << "water::xml::tests::unicode done" << str::el;
 			}
 		void const* utf8_memory_pointer() const {
@@ -186,14 +196,14 @@ class
 			my16.clear();
 			my8.memory_block_size(0x10000);
 			my16.memory_block_size(0x10000);
-			
+
 			auto root = my16.node().name("unicode");
 			my16.nodes(root);
-			
+
 			auto plane = my16.node().name("plane");
 			root.nodes(plane);
 			plane.attributes(my16.node().name("number").value(number(0)));
-			
+
 			unsigned char const ascii[] {
 				'h', 'e', 'l', 'l', 'o', // will keep whitespace below
 				0x9, 0xa, 0xd, // tab lf cr
@@ -208,7 +218,7 @@ class
 			plane.nodes(n);
 			n.attributes(my16.node().name("first").value(number(0x9)));
 			n.attributes(my16.node().name("last").value(number(0x7e)));
-			
+
 			unsigned char byte1[0x60]; // 0xa0 - 0xff
 			unsigned char b = 0;
 			do byte1[b] = 0xa0 + b; while(++b != 0x60);
@@ -216,7 +226,7 @@ class
 			plane.nodes(n);
 			n.attributes(my16.node().name("first").value(number(0xa0)));
 			n.attributes(my16.node().name("last").value(number(0xff)));
-			
+
 			char16_t
 				chars[0x200],
 				*c = chars;
@@ -235,7 +245,7 @@ class
 						u = 0xfdef;
 					}
 				} while(++u != 0xfffe);
-			
+
 			char32_t hi = 0x10000;
 			do {
 				c = chars;

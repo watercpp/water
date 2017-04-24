@@ -4,6 +4,7 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_INT_HPP
 #define WATER_INT_HPP
+#include <water/water.hpp>
 #include <water/numeric_limits.hpp>
 #include <water/types/types.hpp>
 namespace water {
@@ -24,30 +25,30 @@ int_largest_t + uint_largest_t are the largest integer types
 */
 
 namespace _ { namespace int_uint {
-	
+
 	using types::type_plain;
 	using types::ifel;
-	
+
 	// lookup in order of preference
-	
+
 	template<typename sign_, unsigned at_> struct lookup;
-	
+
 	template<> struct lookup<signed, 0> : ifel<char(-1) >= char(0), void, char> {};
 	template<> struct lookup<signed, 1> : type_plain<int> {};
 	template<> struct lookup<signed, 2> : type_plain<signed char> {};
 	template<> struct lookup<signed, 3> : type_plain<short> {};
 	template<> struct lookup<signed, 4> : type_plain<long> {};
 	template<> struct lookup<signed, 5> : type_plain<long long> {};
-	
+
 	template<> struct lookup<unsigned, 0> : ifel<char(-1) >= char(0), char, void> {};
 	template<> struct lookup<unsigned, 1> : type_plain<unsigned char> {};
 	template<> struct lookup<unsigned, 2> : type_plain<unsigned int> {};
 	template<> struct lookup<unsigned, 3> : type_plain<unsigned short> {};
 	template<> struct lookup<unsigned, 4> : type_plain<unsigned long> {};
 	template<> struct lookup<unsigned, 5> : type_plain<unsigned long long> {};
-	
+
 	unsigned constexpr lookup_size = 6;
-	
+
 	template<
 		template<size_t, typename, typename> class select_,
 		typename sign_,
@@ -72,7 +73,7 @@ namespace _ { namespace int_uint {
 	 find<select_, sign_, size_, lookup_size, result_> :
 		type_plain<result_>
 			{};
-			
+
 	template<size_t digits_, typename old_, typename new_> struct
 	 digits2_at_least :
 		ifel<(digits_ <= numeric_limits<new_>::digits && numeric_limits<old_>::digits > numeric_limits<new_>::digits), new_, old_>
@@ -89,7 +90,7 @@ namespace _ { namespace int_uint {
 	 digits2_at_least<digits_, void, new_> :
 		ifel<digits_ <= numeric_limits<new_>::digits, new_, void>
 			{};
-	
+
 	template<size_t size_, typename old_, typename new_> struct
 	 size_at_least :
 		ifel<(size_ <= sizeof(new_) && sizeof(old_) > sizeof(new_)), new_, old_>
@@ -106,7 +107,7 @@ namespace _ { namespace int_uint {
 	 size_at_least<size_, void, new_> :
 		ifel<size_ <= sizeof(new_), new_, void>
 			{};
-	
+
 	template<size_t digits_, typename old_, typename new_> struct
 	 digits10_at_least :
 		ifel<(digits_ <= numeric_limits<new_>::digits10 && numeric_limits<old_>::digits10 > numeric_limits<new_>::digits10), new_, old_>
@@ -123,12 +124,12 @@ namespace _ { namespace int_uint {
 	 digits10_at_least<digits_, void, new_> :
 		ifel<digits_ <= numeric_limits<new_>::digits10, new_, void>
 			{};
-			
+
 	template<size_t, typename old_, typename new_> struct
 	 largest :
 		ifel<(numeric_limits<old_>::digits >= numeric_limits<new_>::digits), old_, new_>
 			{};
-	
+
 	template<typename int_, size_t size_> struct
 	 if_size_exactly :
 	 	ifel<sizeof(int_) == size_, int_, void>

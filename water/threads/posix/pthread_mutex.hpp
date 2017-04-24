@@ -18,7 +18,7 @@ inline void lock(pthread_mutex_t& a) {
 inline bool try_lock(pthread_mutex_t& a) noexcept {
 	return pthread_mutex_trylock(&a) == 0;
 	}
-	
+
 inline void unlock(pthread_mutex_t& a) {
 	int e = pthread_mutex_unlock(&a);
 	___water_assert(!e && "pthread_mutex_lock error");
@@ -34,7 +34,7 @@ inline bool lock(pthread_mutex_t& a, deadline_clock<clockid::realtime> d) noexce
 	___water_assert(!e || e == ETIMEDOUT);
 	return e == 0;
 	}
-	
+
 #else
 
 using pthread_mutex_timeout = need_nothing;
@@ -77,7 +77,7 @@ class pthread_mutex {
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "pthread_mutex"); })
 	};
-	
+
 #ifdef WATER_POSIX_MUTEX_RECURSIVE
 
 // non portable
@@ -85,9 +85,9 @@ class pthread_mutex {
 // PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP (linux only?)
 
 class pthread_mutex_recursive {
-	
+
 	#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER
-	
+
 	public:
 		using needs = threads::needs<need_system, need_recursive, need_constexpr_constructor, pthread_mutex_timeout>;
 	private:
@@ -98,9 +98,9 @@ class pthread_mutex_recursive {
 		~pthread_mutex_recursive() noexcept {
 			pthread_mutex_destroy(&my);
 			}
-	
+
 	#else
-	
+
 	public:
 		using needs = threads::needs<need_system, need_recursive, pthread_mutex_timeout>;
 	private:
@@ -112,7 +112,7 @@ class pthread_mutex_recursive {
 			pthread_mutexattr_t a;
 			if(!pthread_mutexattr_init(&a)) {
 				if(!pthread_mutexattr_settype(&a, PTHREAD_MUTEX_RECURSIVE))
-					myok = pthread_mutex_init(my, &a) == 0;
+					myok = pthread_mutex_init(&my, &a) == 0;
 				pthread_mutexattr_destroy(&a);
 				}
 			___water_assert(myok);
@@ -121,9 +121,9 @@ class pthread_mutex_recursive {
 		~pthread_mutex_recursive() noexcept {
 			if(myok) pthread_mutex_destroy(&my);
 			}
-	
+
 	#endif
-	
+
 	pthread_mutex_recursive(pthread_mutex_recursive const&) = delete;
 		pthread_mutex_recursive& operator=(pthread_mutex_recursive const&) = delete;
 		void lock() {
@@ -149,7 +149,7 @@ class pthread_mutex_recursive {
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "pthread_mutex_recursive"); })
 	};
-	
+
 #else
 
 class pthread_mutex_recursive {

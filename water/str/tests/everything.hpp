@@ -144,6 +144,7 @@ template<typename o_> void everything(out<o_>&& o) {
 template<typename char_> void everything_type() {
 	everything(out<begin_end<everything_iterator<char_>>>{});
 	everything(out<buffer_lines<everything_function, char_, 128>>{});
+	everything(out<buffer<everything_function, char_, 128>>{});
 	everything(out<container<everything_container<char_>>>{});
 	everything(out_function([](char_ const*, char_ const*){}));
 	}

@@ -6,6 +6,7 @@
 #define WATER_XML_TESTS_MAKE_HPP
 #include <water/xml/xml.hpp>
 #include <water/str/str.hpp>
+#include <water/allocator_nothrow.hpp>
 namespace water { namespace xml { namespace tests {
 
 /*
@@ -30,11 +31,9 @@ template<typename document_> void
 	document.node().value("hello world!").insert_after(tag);
 	tag.attributes(document.node().name("attribute").value("value with <>'\" that must be encoded"));
 	tag.first_value("first value");
-	tag.nodes(
-		document.node().name("empty") <<
-		document.node().value("Text with <>&'\" characters that must be encoded.") <<
-		document.node().value("More text in separate node")
-		);
+	tag.nodes(tag.create().name("empty"));
+	tag.nodes(document.node().value("Text with <>&'\" characters that must be encoded."));
+	tag.nodes(document.node().value("More text in separate node"));
 	tag.first_value("changed first value");
 	}
 
@@ -55,7 +54,7 @@ template<typename document_> void
 	attribute.value("value");
 	tag.attributes(attribute);
 	}
-	
+
 template<typename document_> void
  make3(document_& document) {
 	// xml::document<char, water::allocator_nothrow> document;
@@ -73,19 +72,19 @@ template<typename o_> void
 	o << "water::xml::tests::make char" << str::el;
 	write_indented(write_to_str(o), dc);
 	o << str::el;
-	
+
 	dc.clear();
 	make2(dc);
 	o << "water::xml::tests::make2 char" << str::el;
 	write_indented(write_to_str(o), dc);
 	o << str::el;
-	
+
 	dc.clear();
 	make3(dc);
 	o << "water::xml::tests::make2 char" << str::el;
 	write_indented(write_to_str(o), dc);
 	o << str::el;
-	
+
 	document<wchar_t, water::allocator_nothrow> dw;
 	make(dw);
 	o << "water::xml::tests::make wchar_t" << str::el;

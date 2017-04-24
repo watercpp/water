@@ -25,7 +25,7 @@ int constexpr futex_syscall =
 	futex_operation_cmp_requeue = FUTEX_CMP_REQUEUE | FUTEX_PRIVATE_FLAG,
 	futex_operation_wake = FUTEX_WAKE | FUTEX_PRIVATE_FLAG,
 	futex_operation_wait = FUTEX_WAIT | FUTEX_PRIVATE_FLAG;
-	
+
 // futex syscall returns -1 on error, and sets errno. positive values are number of woken threads
 
 inline int futex(void* futex1, int operation, unsigned value1) noexcept {
@@ -37,7 +37,7 @@ inline int futex(void* futex1, int operation, unsigned value1, timespec const* t
 inline int futex(void* futex1, int operation, unsigned value1, unsigned long value2, void* futex2, unsigned value3) noexcept {
 	return static_cast<int>(syscall(futex_syscall, futex1, operation, value1, value2, futex2, value3));
 	}
-	
+
 #else
 
 bool constexpr futex_exists = false;
@@ -50,7 +50,7 @@ enum futex_return {
 	futex_signal = -EINTR,
 	futex_timeout = -ETIMEDOUT
 	};
-	
+
 unsigned constexpr futex_max = numeric_limits<int>::max();
 
 template<typename int_, typename result_> using
@@ -62,7 +62,6 @@ template<typename int_> typename types::ifel<sizeof(int_) == sizeof(int), void*>
  	}
 template<typename int_> typename types::ifel<(sizeof(int_) > sizeof(int)), void*>::result
  futex_address(int_& a) {
- 	unsigned char *c = static_cast<unsigned char*>(static_cast<void*>(a));
  	#ifdef WATER_ENDIAN_LITTLE
  	return &a;
  	#elif defined(WATER_ENDIAN_BIG)
@@ -101,7 +100,7 @@ template<typename int_> if_futex<int_, int>
 			r = -EAGAIN;
 		}
 	___water_assert(!r || r == futex_again || r == futex_signal || (timeout && r == futex_timeout));
-	return r; 
+	return r;
 	}
 
 template<typename int_> if_futex<int_, int>
@@ -166,6 +165,6 @@ template<typename int1_, typename int2_> if_futex<int1_, int>
 	return r;
 	}
 
-	
+
 }}
 #endif

@@ -59,7 +59,7 @@ template<bool exists_ = futex_exists> class
 			if(!locked)
 				if(a.write_timeout(locked)) {
 					write_wake();
-					futex_wake_all(my);	
+					futex_wake_all(my);
 					}
 			___water_threads_statistics(add.timeout(locked));
 			return locked;
@@ -71,7 +71,7 @@ template<bool exists_ = futex_exists> class
 			}
 		void unlock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "read_write_count"); add.wake(true));
-			if(auto n = algorithm(my).write_unlock()) {
+			if(algorithm(my).write_unlock()) {
 				write_wake();
 				futex_wake_all(my);
 				___water_threads_statistics(add.wake(false));
@@ -133,6 +133,6 @@ template<> class
 	public:
 		using needs = threads::needs<>;
  	};
- 
+
 }}
 #endif

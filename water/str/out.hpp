@@ -14,7 +14,7 @@ namespace water { namespace str {
 using numbers::settings;
 
 namespace _ {
-	
+
 	template<typename a_, typename = void> struct
 	 locale {
 		static numbers::locale from(a_&) {
@@ -27,7 +27,7 @@ namespace _ {
 			return a.locale();
 			}
 		};
-	
+
 	template<typename a_, typename = void> struct
 	 default_settings {
 		#ifdef WATER_STR_DEFAULT_SETTINGS
@@ -46,7 +46,7 @@ namespace _ {
 			return a.default_settings();
 			}
 		};
-	
+
 	template<typename a_, typename = void> struct
 	 flush {
 	 	static void do_it(a_&) {}
@@ -54,8 +54,8 @@ namespace _ {
 	template<typename a_> struct
 	 flush<a_, types::to_void<decltype(types::make<a_&>().flush())>> {
 	 	static void do_it(a_& a) { a.flush(); }
-	 	}; 
-	
+	 	};
+
 	template<typename a_, typename = void> struct char_type_of : types::type_plain<char> {};
 	template<typename a_> struct char_type_of<a_, types::to_void<typename a_::char_type>> : types::type_plain<typename a_::char_type> {};
 }
@@ -106,7 +106,7 @@ template<typename write_> class
 				write(begin, end, typename types::ifel<utf == unicode::utf_from_iterator<char_*>::result, short*, long*>::result{});
 			return *this;
 			}
-		template<typename char_> out& operator()(char_ *cstring) { // not char_ const* because then non-const pointers go to single char_ operator 
+		template<typename char_> out& operator()(char_ *cstring) { // not char_ const* because then non-const pointers go to single char_ operator
 			if(cstring && *cstring) {
 				auto end = cstring;
 				while(*++end);
@@ -202,7 +202,7 @@ class write_complete {
 // auto r = restore_settings(out)
 // out << base(16) << 123;
 // out << base(2) << 123;
-// 
+//
 // restore settings at the end of the expression:
 //
 // out << restore_settings << base(16) << 123;
@@ -437,17 +437,17 @@ struct el_do : callback<el_do> {
 
 template<typename type_> class
  repeat_do : public callback<repeat_do<type_>> {
-	type_ const *my;
+	type_ my;
 	size_t mytimes;
 	public:
 		repeat_do(type_ const& value, size_t times) :
-			my{&value},
+			my{value},
 			mytimes{times}
 			{}
 		template<typename write_> void operator()(out<write_>& o) const {
 			size_t times = mytimes;
 			while(times) {
-				o << *my;
+				o << my;
 				--times;
 				}
 			}
@@ -474,7 +474,7 @@ template<typename number_> class
 	};
 
 template<typename number_> number_with_settings<number_> number(number_ t, settings s = {}) { return {t, s}; }
- 
+
 template<typename iterator_> class
  string_do : public callback<string_do<iterator_>> {
 	iterator_ mybegin, myend;

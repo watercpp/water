@@ -20,61 +20,61 @@ locale_uppercase has uppercase bases
 */
 
 namespace _ { namespace locales {
-	
+
 	locale_const_string<char16_t> constexpr infinities[] {
 		{u"infinity", 8},
 		{u"inf", 3},
 		{u"\u221E", 1} // oo
 		};
-	
+
 	locale_const_string<char> constexpr nans_lowercase[] {
 		{u8"nan", 3}
 		};
-	
+
 	locale_const_string<char> constexpr nans[] {
 		{u8"NaN", 3}
 		};
-	
+
 	locale_const_base<char> constexpr bases_lowercase[] {
-		{16, "0x", 2},
-		{8, "0o", 2},
-		{2, "0b", 2},
-		{16, "#", 1},
-		{16, 0, 0, "h", 1},
-		{8, 0, 0, "o", 1},
-		{2, 0, 0, "b", 1} // works if parser is set to read base 2
+		{16, {"0x", 2}},
+		{8, {"0o", 2}},
+		{2, {"0b", 2}},
+		{16, {"#", 1}},
+		{16, {0, 0}, {"h", 1}},
+		{8, {0, 0}, {"o", 1}},
+		{2, {0, 0}, {"b", 1}} // works if parser is set to read base 2
 		};
-	
+
 	locale_const_base<char> constexpr bases_uppercase[] {
-		{16, "0X", 2},
-		{8, "0O", 2},
-		{2, "0B", 2},
-		{16, "#", 1},
-		{16, 0, 0, "H", 1},
-		{8, 0, 0, "O", 1},
-		{2, 0, 0, "B", 1} // works if parser is set to read base 2
+		{16, {"0X", 2}},
+		{8, {"0O", 2}},
+		{2, {"0B", 2}},
+		{16, {"#", 1}},
+		{16, {0, 0}, {"H", 1}},
+		{8, {0, 0}, {"O", 1}},
+		{2, {0, 0}, {"B", 1}} // works if parser is set to read base 2
 		};
-	
+
 	locale_const_exponent<char> constexpr exponents_lowercase[] {
-		{10, u8"e", 1},
-		{2, u8"p", 1}
+		{10, {u8"e", 1}},
+		{2, {u8"p", 1}}
 		};
-	
+
 	locale_const_exponent<char> constexpr exponents_uppercase[] {
-		{10, u8"E", 1},
-		{2, u8"P", 1}
+		{10, {u8"E", 1}},
+		{2, {u8"P", 1}}
 		};
-	
+
 	locale_const_string<char> constexpr trues[] {
 		{u8"true", 4},
 		{u8"yes", 3}
 		};
-		
+
 	locale_const_string<char> constexpr falses[] {
 		{u8"false", 5},
 		{u8"no", 2}
 		};
-	
+
 	}}
 
 struct locale {

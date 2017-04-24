@@ -80,7 +80,7 @@ class priority_translate { // between posix range and water range 1 or more
 			mymin(sched_get_priority_min(sched)), // returns -1 if error
 			mymax(sched_get_priority_max(sched)) // returns -1 if error
 			{
-			___water_assert(mymin >= 0 && mymax > mymin); // deal with this if it ever happens
+			___water_assert(mymin >= 0 && mymax >= mymin); // deal with this if it ever happens
 			if(mymin < 0 || mymax <= mymin)
 				mymin = mymax = 0;
 			}
@@ -100,7 +100,7 @@ class priority_translate { // between posix range and water range 1 or more
 			return static_cast<unsigned>(mymax - mymin) + 1;
 			}
 	};
-	
+
 inline unsigned priority_default() noexcept {
 	unsigned r = 0;
 	#ifdef WATER_POSIX_PRIORITY_SCHEDULING
@@ -126,7 +126,7 @@ inline unsigned priority_default() noexcept {
 	#endif
 	return r;
 	}
-	
+
 class priority {
 	thread_t my;
 	int mysched = 0;
@@ -184,7 +184,7 @@ class priority {
 			return true;
 			}
 	};
-	
+
 #else //WATER_POSIX_THREAD_PRIORITY_SCHEDULING
 
 inline unsigned priority_default() noexcept {
@@ -230,7 +230,7 @@ enum qos_t {
 	qos_background = QOS_CLASS_BACKGROUND + 1,
 	qos_unspecified = QOS_CLASS_UNSPECIFIED + 1 // is 0
 	};
-	
+
 inline qos_t qos(thread_t a) noexcept {
 	if(&pthread_get_qos_class_np == NULL)
 		return qos_error;
