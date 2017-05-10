@@ -11,7 +11,7 @@
 #include <water/threads/mutex.hpp>
 #include <water/allocator.hpp>
 #include <water/unicode/utf.hpp>
-#include <water/atomic_old/atomic.hpp>
+#include <water/atomic.hpp>
 namespace water { namespace logs {
 
 /*
@@ -116,7 +116,7 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  		using write_type = write_to_buffer<buffer<output_, tag_, memory_statistics_>>;
  	private:
  		fixed::memory_atomic<void, memory_statistics_> mymemory;
- 		atomic_old::alias<piece_type*> mylist {};
+ 		atomic<piece_type*> mylist {};
  	private:
  		// below locked
  		threads::mutex<threads::need_constexpr_constructor> mylock;
@@ -175,14 +175,14 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  				first = first->list();
  				}
  			first->first(true);
- 			piece_type *now = atomic_old::get<atomic_old::none>(mylist);
- 			do first->list(now); while(!atomic_old::compare_set_else_non_atomic_get(mylist, now, list, now));
+ 			piece_type *now = mylist.load(memory_order_relaxed);
+ 			do first->list(now); while(!mylist.compare_exchange_weak(now, list));
  			}
  		write_type write(tag_type const& tag = {}) {
  			return {*this, tag};
  			}
  		void flush() {
- 			if(atomic_old::get<atomic_old::acquire>(mylist)) {
+ 			if(mylist.load(memory_order_acquire)) {
  				auto lock = lock_move(mylock);
 				flush_locked();
 				}
@@ -190,7 +190,7 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  		void flush_if_not_flushing() {
  			// flush only if nobody else is flushing right now
  			// use flush() if it's important that the message just written by the current thread is flushed 
- 			if(atomic_old::get<atomic_old::acquire>(mylist) && try_lock(mylock)) {
+ 			if(mylist.load(memory_order_acquire) && try_lock(mylock)) {
  				auto unlock = unlock_move(mylock);
  				flush_locked();
  				}
@@ -208,7 +208,7 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  			// then write one line at a time, end a "run" with newline if it does not, run ends when the next piece is "first"
  			// free each line at once
  			// do not write 0 characters, stop the current run of pieces at the first 0
- 			auto piece = atomic_old::get_set(mylist, 0); // must pop locked to preserve order
+ 			auto piece = mylist.exchange(0); // must pop locked to preserve order
  			if(!piece)
  				return;
 			piece = reverse(piece);
