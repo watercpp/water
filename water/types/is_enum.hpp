@@ -10,19 +10,27 @@
 #include <water/types/to_void.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename a_, typename = void> struct
+	/*template<typename a_, typename = void> struct
 	 do_is_enum_test : false_result
 	 	{};
 	template<typename a_> struct
-	 do_is_enum_test<a_, to_void<decltype(static_cast<int>(types::make<a_ const&>()))>> : true_result
-	 	{};
+	 do_is_enum_test<a_, to_void<decltype(static_cast<int>(types::make<a_>()))>> : true_result
+	 	{};*/
 	
+	// intel c++ did not like the above, below works
+	
+	template<typename a_> false_size do_is_enum_test(...);
+	template<typename a_> true_size do_is_enum_test(a_*, decltype(static_cast<int>(types::make<a_>())));
+
 	template<typename a_, bool select_ = is_bool_float_int<a_>::result || is_void<a_>::result || is_class_struct_union<a_>::result> struct
 	 do_is_enum : false_result
 		{};
 	template<typename a_> struct
-	 do_is_enum<a_, false> : do_is_enum_test<a_>
+	 do_is_enum<a_, false> : bool_result<sizeof(do_is_enum_test<a_>(0, 0)) == sizeof(true)>
 		{};
+	/*template<typename a_> struct
+	 do_is_enum<a_, false> : do_is_enum_test<a_>
+		{};*/
 	template<typename a_> struct
 	 do_is_enum<a_&, false> : false_result
 		{};
