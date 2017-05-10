@@ -18,7 +18,6 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  		using tag_type = tag_;
  		using piece_type = logs::piece<tag_type>;
  		using write_type = write_to_buffer<buffer_forever<output_, tag_, memory_statistics_>>;
- 		using memory_statistics_type = typename buffer::memory_statistics_type;
  	private:
  		size_t
  			mypiecesize,
@@ -77,7 +76,7 @@ template<typename output_, typename tag_, bool memory_statistics_ = false> class
  		buffer_statistics statistics() {
  			return get()->statistics();
  			}
- 		memory_statistics_type memory_statistics() {
+ 		fixed::memory_atomic_statistics memory_statistics() {
  			return get()->memory_statistics();
  			}
  	private:
