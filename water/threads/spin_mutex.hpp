@@ -12,8 +12,8 @@ template<bool exists_ = spin_exists> class
 	public:
 		using needs = threads::needs<need_water, need_spin, need_constexpr_constructor, need_trivial_destructor>;
 	private:
-		atomic::uint_t
-			my = 0,
+		atomic_uint
+			my{0},
 			myspin;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
@@ -24,10 +24,10 @@ template<bool exists_ = spin_exists> class
 		spin_mutex(spin_mutex const&) = delete;
 		spin_mutex& operator=(spin_mutex const&) = delete;
 		void spin_times(unsigned a) noexcept {
-			atomic::set(myspin, a);
+			myspin.store(a);
 			}
 		unsigned spin_times() noexcept {
-			unsigned r = static_cast<unsigned>(atomic::get<atomic::none>(myspin));
+			unsigned r = static_cast<unsigned>(myspin.load(memory_order_relaxed));
 			return r ? r : threads::spin_times();
 			}
 		void lock() noexcept {
@@ -43,12 +43,12 @@ template<bool exists_ = spin_exists> class
 			return r;
 			}
 		void unlock() noexcept {
-			atomic::set<atomic::release>(my, 0);
+			my.store(0, memory_order_release);
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "spin_mutex"); })
 	private:
 		bool lock_once() noexcept {
-			return atomic::get_set<atomic::acquire>(my, 1) == 0;
+			return my.exchange(1, memory_order_acquire) == 0;
 			}
 	};
 template<> class

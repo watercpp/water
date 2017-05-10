@@ -9,7 +9,7 @@ namespace water { namespace threads {
 
 /*
 
-atomic::uint_t
+atomic
 - bit 0 is leave_bit, set if threads should leave
 - the other bits are thread count
 
@@ -22,13 +22,13 @@ because it returns true for the last thread out, and the --count is the last thi
 */
 
 class barrier_semaphore {
- 	using unsigned_ = atomic::uint_t;
+ 	using unsigned_ = decltype(atomic_uint{}.load());
  	public:
  		using needs = threads::needs<need_water, need_constexpr_constructor>;
  	private:
-		unsigned_ my = 0;
+		atomic_uint my{0};
 		unsigned_ mycount;
-		atomic::alias<void*> mysemaphore {};
+		handle_atomic mysemaphore {};
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 	public:
 		constexpr barrier_semaphore(unsigned count) noexcept :
@@ -37,11 +37,11 @@ class barrier_semaphore {
 		barrier_semaphore(barrier_semaphore const&) = delete;
 		barrier_semaphore& operator=(barrier_semaphore const&) = delete;
 		~barrier_semaphore() noexcept {
-			if(void *h = atomic::get<atomic::acquire>(mysemaphore))
+			if(void *h = mysemaphore.load(memory_order_relaxed))
 				CloseHandle(h);
 			}
 		bool reset(unsigned count) noexcept {
-			atomic::set(mycount, count);
+			mycount = count;
 			return true;
 			}
 		explicit operator bool() const noexcept {
@@ -52,7 +52,7 @@ class barrier_semaphore {
 			if(mycount <= 1)
 				return true;
 			pause p;
-			unsigned_ now = my;
+			unsigned_ now = my.load(memory_order_relaxed);
 			bool
 				inside = false,
 				last_out = false;
@@ -76,7 +76,7 @@ class barrier_semaphore {
 							}
 						}
 					}
-				if(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (leave_bit ? 1 : 0), now))
+				if(!my.compare_exchange_weak(now, (count << 1) | (leave_bit ? 1 : 0)))
 					continue; // retry
 				if(hold) { // pause untill they have left
 					if(!p.once())
@@ -87,14 +87,14 @@ class barrier_semaphore {
 				else if(leave) {
 					if(last_in) {
 						if(!semaphore)
-							semaphore = atomic::get<atomic::none>(mysemaphore);
+							semaphore = mysemaphore.load(memory_order_relaxed);
 						if(semaphore && semaphore != handle_bad)
 							ReleaseSemaphore(semaphore, static_cast<long_t>(mycount - 1), 0);
 						// now --count, this means last_out is truly the last to use the atomic or semaphore
 						do {
 							count = now >> 1;
 							last_out = --count == 0;
-							} while(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (count ? 1 : 0), now));
+							} while(!my.compare_exchange_weak(now, (count << 1) | (count ? 1 : 0)));
 						}
 					break;
 					}
@@ -104,7 +104,7 @@ class barrier_semaphore {
 					if(!p.once())
 						p = pause_wait();
 					if(!semaphore) {
-						semaphore = atomic::get<atomic::none>(mysemaphore);
+						semaphore = mysemaphore.load(memory_order_relaxed);
 						if(!semaphore || semaphore == handle_bad) {
 							semaphore = atomic_create(mysemaphore, []{ return semaphore_create(); });
 							___water_threads_statistics(add.wait_object_created(semaphore));
@@ -115,7 +115,7 @@ class barrier_semaphore {
 					else if(handle_wait(semaphore))
 						p();
 					}
-				now = my; // re-read after wait
+				now = my.load(memory_order_relaxed); // re-read after wait
 				}
 			return last_out;
 			}

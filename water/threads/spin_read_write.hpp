@@ -32,8 +32,8 @@ template<bool exists_ = spin_exists> class
  	public:
  		using needs = threads::needs<need_water, need_spin, need_constexpr_constructor, need_trivial_destructor>;
  	private:
-		atomic::uint_t
-			my = 0,
+		atomic_uint
+			my{0},
 			myspin;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
@@ -44,10 +44,10 @@ template<bool exists_ = spin_exists> class
 		spin_read_write(spin_read_write const&) = delete;
 		spin_read_write& operator=(spin_read_write const&) = delete;
 		void spin_times(unsigned a) noexcept {
-			atomic::set(myspin, a);
+			myspin.store(a);
 			}
 		unsigned spin_times() noexcept {
-			unsigned r = static_cast<unsigned>(atomic::get<atomic::none>(myspin));
+			unsigned r = static_cast<unsigned>(myspin.load(memory_order_relaxed));
 			return r ? r : threads::spin_times();
 			}
 		void lock() noexcept {
@@ -64,7 +64,7 @@ template<bool exists_ = spin_exists> class
 			return r;
 			}
 		void unlock() noexcept {
-			atomic::set<atomic::release>(my, 0);
+			my.store(0, memory_order_release);
 			}
 		void read_lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "spin_read_write"); add.wait(true));
@@ -79,20 +79,20 @@ template<bool exists_ = spin_exists> class
 			return r;
 			}
 		void read_unlock() noexcept {
-			atomic::subtract<atomic::release>(my, 4);
+			my.fetch_sub(4, memory_order_release);
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "spin_read_write"); })
 	private:
 		bool read_once() noexcept {
 			bool l;
-			atomic::uint_t a = my;
-			while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(my, a, (l = !(a & 1)) ? a + 4 : a, a));
+			auto a = my.load(memory_order_relaxed);
+			while(!my.compare_exchange_weak(a, (l = !(a & 1)) ? a + 4 : a));
 			return l;
 			}
 		bool write_once(bool wait) noexcept {
 			bool l;
-			atomic::uint_t a = my;
-			while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(my, a, (l = a <= 1) ? a | 3 : (wait ? a | 1 : a), a));
+			auto a = my.load(memory_order_relaxed);
+			while(!my.compare_exchange_weak(a, (l = a <= 1) ? a | 3 : (wait ? a | 1 : a)));
 			return l;
 			}
 	};

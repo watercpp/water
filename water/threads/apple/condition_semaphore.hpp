@@ -13,53 +13,57 @@ class
  		using needs = threads::needs<need_water, need_constexpr_constructor, need_timeout>;
  		using mutex = mutex_semaphore;
  	private:
- 		mach_t mylock = 0;
+ 		mach_atomic mylock{0};
 		mach_t mywait = 0;
 	public:
 		constexpr condition_semaphore() noexcept = default;
 		condition_semaphore(condition_semaphore const&) = delete;
 		condition_semaphore& operator=(condition_semaphore const&) = delete;
 		~condition_semaphore() noexcept {
-			if(atomic::get(mylock)) {
-				semaphore_destroy(mylock);
+			if(auto l = mylock.load()) {
+				semaphore_destroy(l);
 				semaphore_destroy(mywait);
 				}
 			}
 		template<typename mutex_>
 		 bool wait(mutex_& l) {
-			if(!mylock) {
+			auto l2 = mylock.load(memory_order_relaxed);
+			if(!l2) {
 				if(!create())
 					return false;
+				l2 = mylock.load(memory_order_relaxed);
 				}
-			else if(!semaphore_lock(mylock))
+			else if(!semaphore_lock(l2))
 				return false;
 			unlock(l);
-			int e = semaphore_wait_signal(mywait, mylock);
+			int e = semaphore_wait_signal(mywait, l2);
 			lock(l);
 			return !e || e == mach_aborted;
 			}
 		template<typename mutex_>
 		 bool wait(mutex_& l, deadline d) {
-			if(!mylock) {
+			auto l2 = mylock.load(memory_order_relaxed);
+			if(!l2) {
 				if(!create())
 					return false;
+				l2 = mylock.load(memory_order_relaxed);
 				}
 			else {
 				int e;
-				while((e = semaphore_wait(mylock, d.left())) == mach_aborted);
+				while((e = semaphore_wait(l2, d.left())) == mach_aborted);
 				if(e) return false;
 			}
 			if(!d.left()) {
-				semaphore_signal(mylock);
+				semaphore_signal(l2);
 				return false;
 				}
 			unlock(l);
-			int e = semaphore_wait_signal(mywait, mylock, d.left());
+			int e = semaphore_wait_signal(mywait, l2, d.left());
 			lock(l);
 			return e == 0;
 			}
 		bool wake() noexcept {
-			auto l = atomic::get<atomic::none>(mylock);
+			auto l = mylock.load(memory_order_relaxed);
 			if(!l) return true;
 			if(!semaphore_lock(l)) return false;
 			semaphore_wake(mywait);
@@ -67,7 +71,7 @@ class
 			return true;
 			}
 		bool wake_all() noexcept {
-			auto l = atomic::get<atomic::none>(mylock);
+			auto l = mylock.load(memory_order_relaxed);
 			if(!l) return true;
 			if(!semaphore_lock(l)) return false;
 			bool r = semaphore_wake_all(mywait);
@@ -84,7 +88,7 @@ class
 				return false;
 				}
 			mywait = w;
-			atomic::set(mylock, l);
+			mylock.store(l);
 			return true;
 			}
 	};

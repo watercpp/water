@@ -7,16 +7,23 @@
 #include <water/threads/linux/bits.hpp>
 namespace water { namespace threads {
 
-// http://man7.org/linux/man-pages/man2/futex.2.html
+/*
 
-using futex_t = types::if_not_void<atomic::uint_bits_at_least<numeric_limits<unsigned>::digits>, unsigned>::result;
+http://man7.org/linux/man-pages/man2/futex.2.html
+
+This depends on std::atomic<unsigned> having the same size and representation as unsigned
+
+*/
+
+using futex_atomic = atomic<unsigned>;
 
 #ifdef WATER_THREADS_LINUX_FUTEX
 
-bool constexpr futex_exists = atomic::any_exists<futex_t>::result;
+bool constexpr futex_exists = atomic_exists && sizeof(futex_atomic) == sizeof(unsigned);
 
 // FUTEX_PRIVATE_FLAG means process private
-int constexpr futex_syscall =
+int constexpr
+	futex_syscall =
 		#ifdef __NR_futex
 		__NR_futex,
 		#else
@@ -53,28 +60,11 @@ enum futex_return {
 
 unsigned constexpr futex_max = numeric_limits<int>::max();
 
-template<typename int_, typename result_> using
- if_futex = typename types::ifel<futex_exists && types::is_int<int_>::result && (sizeof(int_) >= sizeof(int)), result_>::result;
+template<typename futex_, typename result_> using
+ if_futex = typename types::ifel<futex_exists && sizeof(futex_) == sizeof(int), result_>::result;
 
-template<typename int_> typename types::ifel<sizeof(int_) == sizeof(int), void*>::result
- futex_address(int_& a) {
- 	return &a;
- 	}
-template<typename int_> typename types::ifel<(sizeof(int_) > sizeof(int)), void*>::result
- futex_address(int_& a) {
- 	#ifdef WATER_ENDIAN_LITTLE
- 	return &a;
- 	#elif defined(WATER_ENDIAN_BIG)
- 	return static_cast<unsigned char*>(static_cast<void*>(&a)) + (sizeof(int_) - sizeof(int));
- 	#else
- 	int_ const i = 1;
- 	return static_cast<unsigned char*>(static_cast<void*>(&a)) + (*static_cast<unsigned char*>(static_cast<void*>(&i)) ? 0 : (sizeof(int_) - sizeof(int)));
- 	#endif
- 	}
-
-template<typename int_> bool
- futex_is_aligned(int_& futex) noexcept {
-	return (reinterpret_cast<size_t>(futex_address(futex)) % sizeof(int)) == 0;
+template<typename futex_> bool futex_is_aligned(futex_& futex) noexcept {
+	return sizeof(futex) == sizeof(int) && (reinterpret_cast<size_t>(&futex) % sizeof(int)) == 0;
 	}
 
 template<typename int_> if_futex<int_, int>
@@ -93,7 +83,7 @@ template<typename int_> if_futex<int_, int>
 	// - int_ is integer type with sizeof >= sizeof(int)
 	//
 	___water_assert(futex_is_aligned(futex));
-	int r = threads::futex(futex_address(futex), futex_operation_wait, value, timeout);
+	int r = threads::futex(&futex, futex_operation_wait, value, timeout);
 	if(r < 0) {
 		r = -errno;
 		if(EAGAIN != EWOULDBLOCK && r == -EWOULDBLOCK) // EWOULDBLOCK and EAGAIN is probably the same
@@ -123,7 +113,7 @@ template<typename int_> if_futex<int_, int>
 	//
 	___water_assert(futex_is_aligned(futex));
 	___water_assert(count && count <= futex_max);
-	int r = threads::futex(futex_address(futex), futex_operation_wake, count);
+	int r = threads::futex(&futex, futex_operation_wake, count);
 	___water_assert(r >= 0);
 	return r;
 	}
@@ -155,7 +145,7 @@ template<typename int1_, typename int2_> if_futex<int1_, int>
 	//
 	___water_assert(futex_is_aligned(futex) && futex_is_aligned(requeue_futex));
 	___water_assert(count && count <= futex_max && requeue_count && requeue_count <= futex_max);
-	int r = threads::futex(futex_address(futex), futex_operation_cmp_requeue, count, requeue_count, futex_address(requeue_futex), value);
+	int r = threads::futex(&futex, futex_operation_cmp_requeue, count, requeue_count, &requeue_futex, value);
 	if(r < 0) {
 		r = -errno;
 		if(EAGAIN != EWOULDBLOCK && r == -EWOULDBLOCK) // EWOULDBLOCK and EAGAIN is probably the same

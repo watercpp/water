@@ -12,7 +12,7 @@ class name {
 	char my[64] = {};
 	unsigned mysize = 0;
 	public:
-		name() noexcept = default;
+		constexpr name() noexcept = default;
 		template<typename iterator_>
 		 name(iterator_ begin, iterator_ end) noexcept {
 		 	assign(begin, end);

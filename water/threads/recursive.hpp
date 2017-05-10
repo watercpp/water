@@ -15,7 +15,7 @@ bool constexpr recursive_exists =
 	false;
 	#else
 	(types::is_int<thread_t>::result || types::is_pointer<thread_t>::result) &&
-	atomic::any_exists<atomic::alias<thread_t>>::result;
+	atomic_exists;
 	#endif
 
 template<typename mutex_, bool exists_ = recursive_exists> class
@@ -30,7 +30,7 @@ template<typename mutex_, bool exists_ = recursive_exists> class
 			typename types::ifel<has_trivial_destructor<mutex_>(), need_trivial_destructor, need_nothing>::result
 			>;
 	private:
-		atomic::alias<thread_t> mythread {};
+		atomic<thread_t> mythread {};
 		size_t myrecurse = 0;
 	public:
 		void lock() {
@@ -62,19 +62,19 @@ template<typename mutex_, bool exists_ = recursive_exists> class
 		void unlock() {
 			if(--myrecurse)
 				return;
-			atomic::set<atomic::none>(mythread, thread_t{});
+			mythread.store(thread_t{}, memory_order_relaxed);
 			mutex_::unlock();
 			}
 	private:
 		bool recurse(thread_t t) noexcept {
-			if(equal(atomic::get<atomic::none>(mythread), t)) {
+			if(equal(mythread.load(memory_order_relaxed), t)) {
 				++myrecurse;
 				return true;
 				}
 			return false;
 			}
 		void locked(thread_t t) noexcept {
-			atomic::set<atomic::none>(mythread, t);
+			mythread.store(t, memory_order_relaxed);
 			myrecurse = 1;
 			}
 	};

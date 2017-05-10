@@ -7,26 +7,27 @@
 #include <water/threads/bits.hpp>
 namespace water { namespace threads { namespace statistics {
 
-using count_t = atomic::uint_t;
+using count = atomic_uint;
+using count_t = decltype(count{}.load());
 
 bool constexpr exists =
 	#ifdef WATER_THREADS_STATISTICS
-	atomic::any_exists<count_t>::result;
+	atomic_exists;
 	#else
 	false;
 	#endif
 
-template<bool = atomic::any_exists<count_t>::result> struct
+template<bool = atomic_exists> struct
  atomic_if {
-	static count_t get(count_t& a) noexcept { return atomic::get<atomic::none>(a); }
-	static void add(count_t& a) noexcept { atomic::add1<atomic::none>(a); }
-	static void set(count_t& a, count_t b) noexcept { atomic::set<atomic::none>(a, b); }
+	static count_t get(count& a) noexcept { return a.load(memory_order_relaxed); }
+	static void add(count& a) noexcept { a.fetch_add(1, memory_order_relaxed); }
+	static void set(count& a, count_t b) noexcept { a.store(b, memory_order_relaxed); }
 	};
 template<> struct
  atomic_if<false> {
-	static count_t get(count_t&) noexcept { return 0; }
-	static void add(count_t&) noexcept {}
-	static void set(count_t&, count_t) noexcept {}
+	static count_t get(count&) noexcept { return 0; }
+	static void add(count&) noexcept {}
+	static void set(count&, count_t) noexcept {}
 	};
 
 }}}

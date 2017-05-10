@@ -12,9 +12,9 @@ class barrier_semaphore {
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
 	private:
-		atomic::uint_t my = 0;
-		atomic::uint_t mycount;
-		mach_t mylock = 0;
+		atomic_uint my{0};
+		unsigned mycount;
+		mach_atomic mylock{0};
 		mach_t mywait = 0;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 	public:
@@ -24,13 +24,13 @@ class barrier_semaphore {
 		barrier_semaphore(barrier_semaphore const&) = delete;
 		barrier_semaphore& operator=(barrier_semaphore const&) = delete;
 		~barrier_semaphore() noexcept {
-			if(atomic::get(mylock)) {
-				semaphore_destroy(mylock);
+			if(auto l = mylock.load()) {
+				semaphore_destroy(l);
 				semaphore_destroy(mywait);
 				}
 			}
 		bool reset(unsigned count) noexcept {
-			atomic::set(mycount, count);
+			mycount = count;
 			return true;
 			}
 		explicit operator bool() const noexcept {
@@ -41,7 +41,7 @@ class barrier_semaphore {
 			if(mycount <= 1)
 				return true;
 			pause p;
-			atomic::uint_t now = my;
+			auto now = my.load(memory_order_relaxed);
 			mach_t l = semaphore_atomic_get(mylock);
 			bool
 				inside = false,
@@ -49,7 +49,7 @@ class barrier_semaphore {
 				locked = false;
 			while(true) {
 				last_out = false;
-				atomic::uint_t count = now >> 1;
+				auto count = now >> 1;
 				bool
 					last_in = false,
 					leave_bit = (now & 1) != 0,
@@ -66,7 +66,7 @@ class barrier_semaphore {
 							}
 						}
 					}
-				if(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (leave_bit ? 1 : 0), now))
+				if(!my.compare_exchange_weak(now, (count << 1) | (leave_bit ? 1 : 0)))
 					continue; // retry
 				if(hold) {
 					if(!p.once())
@@ -90,7 +90,7 @@ class barrier_semaphore {
 						do {
 							count = now >> 1;
 							last_out = --count == 0;
-							} while(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (count ? 1 : 0), now));
+							} while(!my.compare_exchange_weak(now, (count << 1) | (count ? 1 : 0)));
 						}
 					break;
 					}

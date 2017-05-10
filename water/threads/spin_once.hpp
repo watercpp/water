@@ -24,7 +24,7 @@ namespace _ {
 
 template<bool exists_ = spin_exists> class
  spin_once {
-	atomic::uint_t my = 0; // 1 is done, 2 is locked
+	atomic_uint my{0}; // 1 is done, 2 is locked
 	public:
 		constexpr spin_once() noexcept = default;
 		spin_once(spin_once const&) = delete;
@@ -34,11 +34,13 @@ template<bool exists_ = spin_exists> class
 			}
 		template<typename function_>
 		 bool operator()(function_ function) {
-		 	if(my == 1)
+		 	auto now = my.load(memory_order_relaxed);
+		 	if(now == 1)
 		 		return true;
 		 	spin s;
-		 	atomic::uint_t now;
-		 	while((now = atomic::get_compare_set<atomic::acquire>(my, 0, 2)) == 2) {
+		 	now = 0;
+		 	while(!my.compare_exchange_strong(now, 2, memory_order_acquire) && now == 2) {
+		 		now = 0;
 		 		if(!s.once()) s.times(spin_times());
 		 		s();
 		 		}
@@ -51,9 +53,10 @@ template<bool exists_ = spin_exists> class
 		 	}
 	private:
 		struct auto_set {
-			atomic::uint_t *to, set;
+			atomic_uint *to;
+			unsigned set;
 			~auto_set() noexcept {
-				atomic::set<atomic::release>(*to, set);
+				to->store(set, memory_order_release);
 				}
 			};
 	};

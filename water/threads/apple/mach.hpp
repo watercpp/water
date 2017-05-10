@@ -13,14 +13,11 @@
 #include <water/threads/yield.hpp>
 namespace water { namespace threads {
 
-// mach/port.h mach_port_t is unsigned integer. this is an unsigned
-// integer at least as large as mach_port_t that can be used with
-// water::atomic
-//
+// mach/port.h mach_port_t is unsigned integer.
 // 0 and MACH_PORT_DEAD (0xfff...) are not valid mach ports, because
 // MACH_PORT_NULL, MACH_PORT_DEAD and MACH_PORT_VALID macros
-//
-using mach_t = types::if_not_void<atomic::uint_bits_at_least<numeric_limits<mach_port_t>::digits>, mach_port_t>::result;
+using mach_t = mach_port_t;
+using mach_atomic = atomic<mach_t>;
 using mach_time_t = uint64_t;
 
 mach_t constexpr mach_dead = static_cast<mach_t>(MACH_PORT_DEAD); // 0xfff...
@@ -62,7 +59,7 @@ namespace _ {
 	 	template<typename type_> type_ mach_global<type_>::global;
 	
 	struct mach_time_set_resolution {
-		atomic::int_t set;
+		atomic_int set{};
 		double resolution;
 		};
 
@@ -82,7 +79,7 @@ inline double mach_time_resolution() noexcept {
 	//   on intel, numer and denom is always 1?
 	//
 	auto* a = &_::mach_global<_::mach_time_set_resolution>::global;
-	if(a->set || atomic::get<atomic::acquire>(a->set))
+	if(a->set.load(memory_order_relaxed) || a->set.load(memory_order_acquire))
 		return a->resolution;
 	mach_timebase_info_data_t i{};
 	if(!mach_timebase_info(&i) && i.numer && i.denom) {
@@ -90,7 +87,7 @@ inline double mach_time_resolution() noexcept {
 		if(r > 0) {
 			// should not hurt if another thread writes the same data at the same time
 			a->resolution = r;
-			atomic::set(a->set, 1);
+			a->set.store(1);
 			___water_debug(trace()
 				<< "water::threads::mach_time_resolution()\n"
 				<< "  numer .... " << i.numer << '\n'
@@ -230,22 +227,22 @@ inline bool semaphore_lock(mach_t semaphore) noexcept {
 	return error == 0;
 	}
 
-inline mach_t semaphore_atomic_create(mach_t& atomic, unsigned value) noexcept {
+inline mach_t semaphore_atomic_create(mach_atomic& atomic, unsigned value) noexcept {
 	mach_t a;
-	while((a = atomic::get_compare_set<atomic::acquire>(atomic, 0, mach_dead)) == mach_dead)
+	while(!atomic.compare_exchange_strong(a = 0, mach_dead, memory_order_acquire) && a == mach_dead)
 		yield();
 	if(!a) {
 		a = semaphore_create(value);
 		___water_assert(a != mach_dead);
 		if(a == mach_dead) a = 0; // leak it
-		atomic::set(atomic, a);
+		atomic.store(a);
 		}
 	return a;
 	}
 
-inline mach_t semaphore_atomic_create(mach_t& atomic, unsigned value, mach_t& two, unsigned two_value) noexcept {
+inline mach_t semaphore_atomic_create(mach_atomic& atomic, unsigned value, mach_t& two, unsigned two_value) noexcept {
 	mach_t a;
-	while((a = atomic::get_compare_set<atomic::acquire>(atomic, 0, mach_dead)) == mach_dead)
+	while(!atomic.compare_exchange_strong(a = 0, mach_dead, memory_order_acquire) && a == mach_dead)
 		yield();
 	if(!a) {
 		mach_t a2 = semaphore_create(two_value);
@@ -260,14 +257,14 @@ inline mach_t semaphore_atomic_create(mach_t& atomic, unsigned value, mach_t& tw
 				}
 			}
 		two = a2;
-		atomic::set(atomic, a);
+		atomic.store(a);
 		}
 	return a;
 	}
 
-inline mach_t semaphore_atomic_get(mach_t& atomic) noexcept {
+inline mach_t semaphore_atomic_get(mach_atomic& atomic) noexcept {
 	// useful together with semaphore_atomic_create, it returns 0 if mach_dead (locked)
-	mach_t a = atomic::get<atomic::none>(atomic);
+	mach_t a = atomic.load(memory_order_relaxed);
 	if(a == mach_dead) a = 0;
 	return a;
 	}

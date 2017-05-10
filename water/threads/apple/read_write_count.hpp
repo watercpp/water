@@ -11,12 +11,12 @@
 namespace water { namespace threads {
 
 class read_write_count {
-	using algorithm = algorithms::read_write_count<atomic::uint_t>;
+	using algorithm = algorithms::read_write_count<atomic_uint>;
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
 	private:
-		atomic::uint_t my = 0;
-		mach_t mylock = 0;
+		atomic_uint my{0};
+		mach_atomic mylock{0};
 		mach_t mywait = 0;
 		mach_t mywrite_thread = 0; // mach_thread() of waiting writer
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
@@ -26,8 +26,8 @@ class read_write_count {
 		read_write_count(read_write_count const&) = delete;
 		read_write_count& operator=(read_write_count const&) = delete;
 		~read_write_count() noexcept {
-			if(atomic::get(mylock)) {
-				semaphore_destroy(mylock);
+			if(auto l = mylock.load()) {
+				semaphore_destroy(l);
 				semaphore_destroy(mywait);
 				}
 			}

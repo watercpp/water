@@ -11,12 +11,12 @@
 namespace water { namespace threads {
 
 class semaphore_semaphore {
-	using algoritm = algorithms::semaphore<atomic::uint_t>;
+	using algoritm = algorithms::semaphore<atomic_uint>;
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
 	private:
-		atomic::uint_t my;
-		mach_t mysemaphore = 0;
+		atomic_uint my;
+		mach_atomic mysemaphore{0};
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:

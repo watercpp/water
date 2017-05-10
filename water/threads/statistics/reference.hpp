@@ -8,18 +8,16 @@
 namespace water { namespace threads { namespace statistics {
 
 class reference {
-	public:
-		using atomic_tag = atomic::atomic_tag;
-		using value_type = data*;
-		using atomic_type = types::if_not_void<atomic::alias_type_from<value_type>, value_type>::result;
-	private:
-		atomic_type my = 0;
+	atomic<data*> my{};
 	public:
 		constexpr reference() noexcept = default;
 		reference(reference const&) = delete;
 		reference& operator=(reference const&) = delete;
-		atomic_type& atomic() noexcept {
-			return my;
+		data* get() const noexcept {
+			return my.load(memory_order_relaxed);
+			}
+		void set(data *a) noexcept {
+			my.store(a, memory_order_relaxed);
 			}
 	};
 

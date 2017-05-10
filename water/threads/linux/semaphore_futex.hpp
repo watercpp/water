@@ -23,7 +23,7 @@ template<bool exists_ = futex_exists> class
 	public:
 		using needs = threads::needs<need_water, need_constexpr_constructor, need_trivial_destructor, need_timeout>;
 	private:
-		futex_t my;
+		futex_atomic my;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
@@ -75,7 +75,7 @@ template<bool exists_ = futex_exists> class
 			}
 		bool up(unsigned a = 1) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "semaphore_futex"); add.wake(true));
-			if(a && (atomic::get_add(my, a) >> shift)) {
+			if(a && (my.fetch_add(a) >> shift)) {
 				futex_wake(my, a);
 				___water_threads_statistics(add.wake(false));
 				}
@@ -84,7 +84,7 @@ template<bool exists_ = futex_exists> class
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "semaphore_futex"); })
 	private:
 		bool down_do(unsigned& now, int wait_change) noexcept {
-			futex_t a = my;
+			auto a = my.load(memory_order_relaxed);
 			bool r;
 			do {
 				r = false;
@@ -102,7 +102,7 @@ template<bool exists_ = futex_exists> class
 				else if(wait_change == -2)
 					--wait;
 				now = value | (wait << shift);
-				} while(!atomic::compare_set_else_non_atomic_get(my, a, now, a));
+				} while(!my.compare_exchange_weak(a, now));
 			return r;
 			}
 	};

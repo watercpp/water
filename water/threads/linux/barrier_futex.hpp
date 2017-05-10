@@ -21,8 +21,8 @@ template<bool exists_ = futex_exists> class
 	public:
 		using needs = threads::needs<need_water, need_constexpr_constructor, need_trivial_destructor>;
 	private:
-		futex_t my = 0;
-		futex_t mycount;
+		futex_atomic my{0};
+		unsigned mycount;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 	public:
 		constexpr barrier_futex(unsigned count) noexcept :
@@ -34,7 +34,7 @@ template<bool exists_ = futex_exists> class
 			return true;
 			}
 		bool reset(unsigned count) noexcept {
-			atomic::set(mycount, count);
+			mycount = count;
 			return true;
 			}
 		bool operator()() noexcept {
@@ -42,13 +42,13 @@ template<bool exists_ = futex_exists> class
 			if(mycount <= 1)
 				return true;
 			pause p;
-			futex_t now = my;
+			auto now = my.load(memory_order_relaxed);
 			bool
 				inside = false,
 				last_out = false;
 			while(true) {
 				last_out = false;
-				futex_t count = now >> 1;
+				auto count = now >> 1;
 				bool
 					last_in = false,
 					leave_bit = (now & 1) != 0,
@@ -65,7 +65,7 @@ template<bool exists_ = futex_exists> class
 							}
 						}
 					}
-				if(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (leave_bit ? 1 : 0), now))
+				if(!my.compare_exchange_weak(now, (count << 1) | (leave_bit ? 1 : 0)))
 					continue; // retry
 				if(hold) {
 					if(!p.once())
@@ -80,7 +80,7 @@ template<bool exists_ = futex_exists> class
 						do {
 							count = now >> 1;
 							last_out = --count == 0;
-							} while(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (count ? 1 : 0), now));
+							} while(!my.compare_exchange_weak(now, (count << 1) | (count ? 1 : 0)));
 						}
 					break;
 					}

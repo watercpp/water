@@ -13,8 +13,8 @@ class mutex_event {
  	public:
  		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
  	private:
-		atomic::uint_t mylock = 0;
-		atomic::alias<void*> myevent{}; // created open
+		atomic_uint mylock = 0;
+		handle_atomic myevent{}; // created open
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
@@ -22,16 +22,16 @@ class mutex_event {
 		mutex_event(mutex_event const&) = delete;
 		mutex_event& operator=(mutex_event const&) = delete;
 		~mutex_event() noexcept {
-			if(void *e = atomic::get<atomic::none>(myevent))
+			if(void *e = myevent.load(memory_order_relaxed))
 				CloseHandle(e);
 			}
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event"); add.wait(true);)
-			if(!atomic::get_add1<atomic::acquire>(mylock))
+			if(!mylock.fetch_add(1, memory_order_acquire))
 				return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
-			void *e = atomic::get<atomic::none>(myevent);
+			void *e = myevent.load(memory_order_relaxed);
 			do {
 				if(!e || e == handle_bad) {
 					e = create();
@@ -41,39 +41,40 @@ class mutex_event {
 					p();
 				else
 					handle_wait(e);
-				} while(atomic::get_set<atomic::acquire>(mylock, 2));
+				} while(mylock.exchange(2, memory_order_acquire));
 			}
 		bool lock(deadline d) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event"); add.wait(true).timeout(true));
-			if(!atomic::get_add1<atomic::acquire>(mylock))
+			if(!mylock.fetch_add(1, memory_order_acquire))
 				return true;
 			___water_threads_statistics(add.wait(false).timeout(false));
 			if(d.passed())
 				return false;
-			void *e = atomic::get<atomic::none>(myevent);
+			void *e = myevent.load(memory_order_relaxed);
 			if(!e || e == handle_bad) {
 				e = create();
 				if(!e) return false;
 				}
 			___water_threads_statistics(add.wait_object_created());
 			bool loop = 0;
-			atomic::uint_t l = 1;
+			decltype(mylock.load()) l = 1;
 			do {
 				dword_t m = d.milli_left();
 				loop = m && !handle_wait(e, m);
-				} while((l = atomic::get_set<atomic::acquire>(mylock, 2)) && loop);
+				} while((l = mylock.exchange(2, memory_order_acquire)) && loop);
 			___water_threads_statistics(add.timeout(l == 0));
 			return l == 0;
 			}
 		bool try_lock() noexcept {
-			bool r = atomic::compare_set<atomic::acquire>(mylock, 0, 1);
+			decltype(mylock.load()) x;
+			bool r = mylock.compare_exchange_strong(x = 0, 1, memory_order_acquire);
 			___water_threads_statistics(add_(mystatistics, this, "mutex_event").wait(r));
 			return r;
 			}
 		void unlock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event"); add.wake(true));
-			if(atomic::get_set<atomic::release>(mylock, 0) > 1) {
-				void *e = atomic::get<atomic::none>(myevent);
+			if(mylock.exchange(0, memory_order_release) > 1) {
+				void *e = myevent.load(memory_order_relaxed);
 				if(e && e != handle_bad) {
 					SetEvent(e);
 					___water_threads_statistics(add.wake(false));
@@ -92,7 +93,7 @@ class mutex_event_named {
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor, need_trivial_destructor>;
 	private:
-		atomic::uint_t mylock = 0;
+		atomic_uint mylock = 0;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
@@ -101,7 +102,7 @@ class mutex_event_named {
 		mutex_event_named& operator=(mutex_event_named const&) = delete;
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event_named"); add.wait(true);)
-			if(!atomic::get_add1<atomic::acquire>(mylock))
+			if(!mylock.fetch_add(1, memory_order_acquire))
 				return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
@@ -115,11 +116,11 @@ class mutex_event_named {
 					p();
 				else
 					handle_wait(e.get());
-				} while(atomic::get_set<atomic::acquire>(mylock, 2));
+				} while(mylock.exchange(2, memory_order_acquire));
 			}
 		bool lock(deadline d) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event_named"); add.wait(true).timeout(true));
-			if(!atomic::get_add1<atomic::acquire>(mylock))
+			if(!mylock.fetch_add(1, memory_order_acquire))
 				return true;
 			___water_threads_statistics(add.wait(false).timeout(false));
 			if(d.passed())
@@ -129,22 +130,23 @@ class mutex_event_named {
 				return false;
 			___water_threads_statistics(add.wait_object_created());
 			bool loop = 0;
-			atomic::uint_t l = 1;
+			decltype(mylock.load()) l = 1;
 			do {
 				dword_t m = d.milli_left();
 				loop = m && !handle_wait(e.get(), m);
-				} while((l = atomic::get_set<atomic::acquire>(mylock, 2)) && loop);
+				} while((l = mylock.exchange(2, memory_order_acquire)) && loop);
 			___water_threads_statistics(add.timeout(l == 0));
 			return l == 0;
 			}
 		bool try_lock() noexcept {
-			bool r = atomic::compare_set<atomic::acquire>(mylock, 0, 1);
+			decltype(mylock.load()) x;
+			bool r = mylock.compare_exchange_strong(x = 0, 1, memory_order_acquire);
 			___water_threads_statistics(add_(mystatistics, this, "mutex_event_named").wait(r));
 			return r;
 			}
 		void unlock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_event_named"); add.wake(true));
-			if(atomic::get_set<atomic::release>(mylock, 0) > 1) {
+			if(mylock.exchange(0, memory_order_release) > 1) {
 				handle_close e(OpenEventW(event_modify_state, 0, name("mutex_event_named", this)));
 				if(e.get()) {
 					SetEvent(e.get());

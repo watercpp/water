@@ -6,7 +6,8 @@
 #define WATER_THREADS_BITS_HPP
 #include <water/threads/configuration.hpp>
 #include <water/types/types.hpp>
-#include <water/atomic/atomic.hpp>
+#include <water/atomic.hpp>
+#include <water/atomic_old/atomic.hpp>
 #include <water/int.hpp>
 #include <water/numeric_limits.hpp>
 namespace water { namespace threads {

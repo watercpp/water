@@ -13,15 +13,15 @@ template<bool exists_ = futex_exists> class
 		using needs = threads::needs<need_water, need_constexpr_constructor, need_trivial_destructor, need_timeout>;
 		using mutex = mutex_futex<>;
 	private:
-		futex_t my = 0;
-		futex_t* mymutex = 0; // inited locked in wait
+		futex_atomic my{0};
+		futex_atomic* mymutex = 0; // inited locked in wait
 	public:
 		constexpr condition_futex() noexcept = default;
 		condition_futex(condition_futex const&) = delete;
 		condition_futex& operator=(condition_futex const&) = delete;
 		bool wait(mutex& m) noexcept {
 			mymutex = &m.underlying();
-			auto value = atomic::get(my);
+			auto value = my.load();
 			m.unlock();
 			int e = futex_wait(my, value);
 			m.lock();
@@ -29,7 +29,7 @@ template<bool exists_ = futex_exists> class
 			}
 		bool wait(mutex& m, double seconds) noexcept {
 			mymutex = &m.underlying();
-			auto value = atomic::get(my);
+			auto value = my.load();
 			m.unlock();
 			int e = futex_wait(my, value, seconds);
 			m.lock();
@@ -44,8 +44,8 @@ template<bool exists_ = futex_exists> class
 		bool wake(unsigned n = 1) noexcept {
 			if(!n || n > futex_max)
 				n = futex_max;
-			futex_t a = my, a1;
-			while(!atomic::compare_set_else_non_atomic_get(my, a, a1 = (a + 1) & futex_max, a));
+			decltype(my.load()) a = my.load(memory_order_relaxed), a1;
+			while(!my.compare_exchange_weak(a, a1 = (a + 1) & futex_max));
 			// unless mutex is locked by this thread, other threads can read + start wait now
 			if(!mymutex || n == 1)
 				return futex_wake(my, n) >= 0;
@@ -56,7 +56,7 @@ template<bool exists_ = futex_exists> class
 				a1 = my;
 				}
 			// if mutex is not 2 the requed threads will not be woken up.
-			if(e > 1 && atomic::get(*mymutex) != 2)
+			if(e > 1 && mymutex->load() != 2)
 				return futex_wake_all(*mymutex) >= 0;
 			return true;
 			}

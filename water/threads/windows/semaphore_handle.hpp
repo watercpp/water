@@ -9,7 +9,7 @@ namespace water { namespace threads {
 
 class semaphore_handle {
 	public:
-		using needs = threads::needs<need_system, need_constexpr_constructor, need_timeout>;
+		using needs = threads::needs<need_system, need_timeout>;
 	private:
 		void *my;
 	public:

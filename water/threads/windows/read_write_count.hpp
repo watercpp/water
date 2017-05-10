@@ -10,13 +10,13 @@
 namespace water { namespace threads {
 
 class read_write_count {
-	using algorithm = algorithms::read_write_count<atomic::uint_t>;
+	using algorithm = algorithms::read_write_count<atomic_uint>;
 	public:
 		using needs = threads::needs<need_water, need_constexpr_constructor, need_timeout>;		
 	private:
-		atomic::uint_t my = 0;
-		atomic::alias<void*> mywait_all {}; // semaphore
-		atomic::alias<void*> mywait_write {}; // event
+		atomic_uint my{0};
+		handle_atomic mywait_all {}; // semaphore
+		handle_atomic mywait_write {}; // event
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
@@ -24,8 +24,8 @@ class read_write_count {
 		read_write_count(read_write_count const&) = delete;
 		read_write_count& operator=(read_write_count const&) = delete;
 		~read_write_count() {
-			if(void *h = atomic::get<atomic::acquire>(mywait_all)) CloseHandle(h);
-			if(void *h = atomic::get<atomic::none>(mywait_write)) CloseHandle(h);
+			if(void *h = mywait_all.load(memory_order_relaxed)) CloseHandle(h);
+			if(void *h = mywait_write.load(memory_order_relaxed)) CloseHandle(h);
 			}
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "read_write_count"); add.wait(true);)
@@ -33,8 +33,8 @@ class read_write_count {
 			if(a.write_lock(true)) return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
-			void *s = atomic::get<atomic::none>(mywait_all);
-			void *e = atomic::get<atomic::none>(mywait_write);
+			void *s = mywait_all.load(memory_order_relaxed);
+			void *e = mywait_write.load(memory_order_relaxed);
 			bool once = false; // have to atomic lock once after the semaphore is created, only wait after that
 			do {
 				bool wait = once;
@@ -59,10 +59,10 @@ class read_write_count {
 			___water_threads_statistics(add.wait(false).timeout(false));
 			bool locked = false;
 			if(!d.passed()) {
-				void *s = atomic::get<atomic::none>(mywait_all);
+				void *s = mywait_all.load(memory_order_relaxed);
 				if(!s || s == handle_bad)
 					s = atomic_create(mywait_all, []{ return semaphore_create(); });
-				void *e = atomic::get<atomic::none>(mywait_write);
+				void *e = mywait_write.load(memory_order_relaxed);
 				if(!e || e == handle_bad)
 					e = atomic_create(mywait_write, []{ return CreateEventW(0, 0, 0, 0); });
 				if(s && e) {
@@ -99,7 +99,7 @@ class read_write_count {
 			if(a.read_lock(true)) return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
-			void *s = atomic::get<atomic::none>(mywait_all);
+			void *s = mywait_all.load(memory_order_relaxed);
 			bool once = false; // have to atomic lock once after the semaphore is created, only wait after that
 			do {
 				bool wait = once;
@@ -121,7 +121,7 @@ class read_write_count {
 			___water_threads_statistics(add.wait(false).timeout(false));
 			bool locked = false;
 			if(!d.passed()) {
-				void *s = atomic::get<atomic::none>(mywait_all);
+				void *s = mywait_all.load(memory_order_relaxed);
 				if(!s || s == handle_bad)
 					s = atomic_create(mywait_all, []{ return semaphore_create(); });
 				if(s) {
@@ -152,13 +152,13 @@ class read_write_count {
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "read_write_count"); })
 	private:
-		void wake(atomic::uint_t n) {
-			void *s = atomic::get<atomic::acquire>(mywait_all);
+		void wake(decltype(atomic_uint{}.load()) n) {
+			void *s = mywait_all.load(memory_order_acquire);
 			if(s && s != handle_bad)
 				ReleaseSemaphore(s, static_cast<long_t>(n), 0);
 			}
 		void wake_write() {
-			void *e = atomic::get<atomic::acquire>(mywait_write);
+			void *e = mywait_write.load(memory_order_acquire);
 			if(e && e != handle_bad)
 				SetEvent(e);
 			}

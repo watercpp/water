@@ -13,8 +13,8 @@ class mutex_semaphore {
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
 	private:
-		atomic::uint_t my = 0;
-		mach_t mysemaphore = 0;
+		atomic_uint my{0};
+		mach_atomic mysemaphore{0};
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
@@ -27,7 +27,7 @@ class mutex_semaphore {
 			}
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_semaphore"); add.wait(true);)
-			if(!atomic::get_add1<atomic::acquire>(my))
+			if(!my.fetch_add(1, memory_order_acquire))
 				return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
@@ -41,11 +41,11 @@ class mutex_semaphore {
 					p();
 				else
 					semaphore_wait(s);
-				} while(atomic::get_set<atomic::acquire>(my, 2));
+				} while(my.exchange(2, memory_order_acquire));
 			}
 		bool lock(deadline d) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_semaphore"); add.wait(true).timeout(true));
-			if(!atomic::get_add1<atomic::acquire>(my))
+			if(!my.fetch_add(1, memory_order_acquire))
 				return true;
 			___water_threads_statistics(add.wait(false).timeout(false));
 			if(d.passed())
@@ -57,22 +57,23 @@ class mutex_semaphore {
 				if(!s) return false;
 				}
 			int e;
-			atomic::uint_t a;
+			decltype(my.load()) a;
 			do {
 				double left = d.left();
 				e = left >= 1e-9 ? semaphore_wait(s, left) : mach_timeout;
-				} while((a = atomic::get_set<atomic::acquire>(my, 2)) && (!e || e == mach_aborted));
+				} while((a = my.exchange(2, memory_order_acquire)) && (!e || e == mach_aborted));
 			___water_threads_statistics(add.timeout(a == 0));
 			return a == 0;
 			}
 		bool try_lock() noexcept {
-			bool r = atomic::compare_set<atomic::acquire>(my, 0, 1);
+			decltype(my.load()) x = 0;
+			bool r = my.compare_exchange_strong(x, 1, memory_order_acquire);
 			___water_threads_statistics(add_(mystatistics, this, "mutex_semaphore").wait(r));
 			return r;
 			}
 		void unlock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_semaphore"); add.wake(true));
-			if(atomic::get_set<atomic::release>(my, 0) > 1)
+			if(my.exchange(0, memory_order_release) > 1)
 				if(auto s = semaphore_atomic_get(mysemaphore)) {
 					semaphore_signal(s);
 					___water_threads_statistics(add.wake(false));

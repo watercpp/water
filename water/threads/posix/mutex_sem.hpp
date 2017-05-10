@@ -13,7 +13,7 @@
 #endif
 namespace water { namespace threads {
 
-template<bool exists_ = atomic::any_exists<atomic::uint_t>::result && sem::needs::need> class
+template<bool exists_ = atomic_exists && sem::needs::need> class
  mutex_sem;
 
 template<> class
@@ -33,8 +33,8 @@ template<bool exists_> class
 		using needs = threads::needs<need_water, need_constexpr_constructor>;
 		#endif
 	private:
-		atomic::uint_t my = 0;
-		atomic::uint_t myinit = 0;
+		atomic_uint my{0};
+		atomic_uint myinit{0};
 		sem_t mysem;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
@@ -43,12 +43,12 @@ template<bool exists_> class
 		mutex_sem(mutex_sem const&) = delete;
 		mutex_sem& operator=(mutex_sem const&) = delete;
 		~mutex_sem() noexcept {
-			if(atomic::get<atomic::none>(myinit))	
+			if(myinit.load(memory_order_relaxed))	
 				sem_destroy(&mysem);
 			}
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_sem"); add.wait(true);)
-			if(!atomic::get_add1<atomic::acquire>(my))
+			if(!my.fetch_add(1, memory_order_acquire))
 				return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
@@ -60,17 +60,17 @@ template<bool exists_> class
 					p();
 				else
 					down(mysem);
-				} while(atomic::get_set<atomic::acquire>(my, 2));
+				} while(my.exchange(2, memory_order_acquire));
 			}
 		#ifdef WATER_POSIX_TIMEOUTS
 		bool lock(deadline_clock<clockid::realtime> d) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_sem"); add.wait(true).timeout(true);)
-			if(!atomic::get_add1<atomic::acquire>(my))
+			if(!my.fetch_add(1, memory_order_acquire))
 				return true;
 			___water_threads_statistics(add.wait(false).timeout(false));
 			if(!d.left() || !init())
 				return false;
-			while(atomic::get_set<atomic::acquire>(my, 2)) {
+			while(my.exchange(2, memory_order_acquire)) {
 				if(!down(mysem, d))
 					return false;
 				}
@@ -79,14 +79,15 @@ template<bool exists_> class
 			}
 		#endif
 		bool try_lock() noexcept {
-			bool r = atomic::compare_set<atomic::acquire>(my, 0, 1);
+			decltype(my.load()) x = 0;
+			bool r = my.compare_exchange_strong(x, 1, memory_order_acquire);
 			___water_threads_statistics(add_(mystatistics, this, "mutex_sem").wait(r));
 			return r;
 			}
 		void unlock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_sem"); add.wake(true));
-			if(atomic::get_set<atomic::release>(my, 0) > 1)
-				if(atomic::get<atomic::none>(myinit) == 1) {
+			if(my.exchange(0, memory_order_release) > 1)
+				if(myinit.load(memory_order_relaxed) == 1) {
 					up(mysem);
 					___water_threads_statistics(add.wake(false));
 					}
@@ -94,13 +95,14 @@ template<bool exists_> class
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "mutex_sem"); })
 	private:
 		bool init() noexcept {
-			auto c = atomic::get<atomic::none>(myinit);
+			auto c = myinit.load(memory_order_relaxed);
 			if(c == 1)
 				return true;
-			if(!atomic::compare_set<atomic::acquire>(myinit, 0, 2))
+			c = 0;
+			if(!myinit.compare_exchange_strong(c, 2, memory_order_acquire))
 				return false;
 			bool r = sem_init(&mysem, 0, 1) == 0;
-			atomic::set<atomic::release>(myinit, r ? 1 : 0);
+			myinit.store(r ? 1 : 0, memory_order_release);
 			___water_threads_statistics(add_(mystatistics, this, "mutex_sem").wait_object_created(r));
 			return r;
 			}

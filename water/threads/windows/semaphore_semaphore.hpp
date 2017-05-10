@@ -12,8 +12,8 @@ namespace water { namespace threads {
 
 template<typename hold_ = hold_semaphore_atomic> class
  semaphore_semaphore : private hold_ {
-	using unsigned_ = atomic::uint_t;
-	using algoritm = algorithms::semaphore<unsigned_>;
+	using unsigned_ = decltype(atomic_uint{}.load());
+	using algoritm = algorithms::semaphore<atomic_uint>;
 	public:
 		using needs = typename types::ifel_type<
 			types::equal<hold_, hold_semaphore_atomic>,
@@ -21,7 +21,7 @@ template<typename hold_ = hold_semaphore_atomic> class
 			threads::needs<need_water, need_constexpr_constructor, need_trivial_destructor, need_timeout>
 			>::result;
 	private:
-		unsigned_ my;
+		atomic_uint my;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:

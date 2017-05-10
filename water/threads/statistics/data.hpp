@@ -39,11 +39,11 @@ just a bool, if the system wait object has been created
 
 class data {
 	using atomic_ = atomic_if<>;
-	count_t
-		mywait[2] = {},
-		mywake[2] = {},
-		mytimeout[2] = {},
-		mycreated = 0;
+	count
+		mywait[2] {},
+		mywake[2] {},
+		mytimeout[2] {},
+		mycreated {};
 	void const* myaddress = 0;
 	char const* myclass = 0;
 	statistics::name myname;

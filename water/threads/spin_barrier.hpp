@@ -9,7 +9,7 @@ namespace water { namespace threads {
 
 /*
 
-atomic::uint_t
+atomic
 - bit 0 is leave_bit, set if threads should leave
 - the other bits are thread count
 
@@ -20,8 +20,8 @@ template<bool exists_ = spin_exists> class
  	public:
  		using needs = threads::needs<need_water, need_spin, need_constexpr_constructor, need_trivial_destructor>;
  	private:
-		atomic::uint_t
-			my = 0,
+		atomic_uint
+			my{0},
 			mycount,
 			myspin;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
@@ -36,14 +36,14 @@ template<bool exists_ = spin_exists> class
 			return true;
 			}
 		bool reset(unsigned count) noexcept {
-			atomic::set(mycount, count);
+			mycount.store(count);
 			return true;
 			}
 		void spin_times(unsigned a) noexcept {
-			atomic::set(myspin, a);
+			myspin.store(a);
 			}
 		unsigned spin_times() noexcept {
-			unsigned r = static_cast<unsigned>(atomic::get<atomic::none>(myspin));
+			unsigned r = static_cast<unsigned>(myspin.load(memory_order_relaxed));
 			return r ? r : threads::spin_times();
 			}
 		bool operator()() noexcept {
@@ -54,9 +54,9 @@ template<bool exists_ = spin_exists> class
 				last_out = false,
 				inside = false;
 			spin s;
-			atomic::uint_t now = my;
+			auto now = my.load(memory_order_relaxed);
 			while(true) {
-				atomic::uint_t count = my >> 1;
+				auto count = my >> 1;
 				last_out = false;
 				bool
 					leave_bit = (my & 1) != 0,
@@ -75,7 +75,7 @@ template<bool exists_ = spin_exists> class
 							}
 						}
 					}
-				if(!atomic::compare_set_else_non_atomic_get(my, now, (count << 1) | (leave_bit ? 1 : 0), now))
+				if(!my.compare_exchange_weak(now, (count << 1) | (leave_bit ? 1 : 0)))
 					continue;
 				if(leave)
 					break;

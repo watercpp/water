@@ -27,24 +27,24 @@ class hold_semaphore {
 	};
 
 class hold_semaphore_atomic {
-	atomic::alias<void*> my {};
+	handle_atomic my {};
 	public:
 		using hold_type = handle_hold;
 		constexpr hold_semaphore_atomic() noexcept = default;
 		hold_semaphore_atomic(hold_semaphore_atomic const&) = delete;
 		hold_semaphore_atomic& operator=(hold_semaphore_atomic const&) = delete;
 		~hold_semaphore_atomic() noexcept {
-			if(void *h = atomic::get<atomic::none>(my))
+			if(void *h = my.load(memory_order_relaxed))
 				CloseHandle(h);
 			}
 		void get_or_create(hold_type& to) noexcept {
-			void *h = atomic::get<atomic::none>(my);
+			void *h = my.load(memory_order_relaxed);
 			if(!h || h == handle_bad)
 				h = atomic_create(my, []{ return semaphore_create(); });
 			to.set(h);
 			}
 		void get(hold_type& to) noexcept {
-			void *h = atomic::get<atomic::none>(my);
+			void *h = my.load(memory_order_relaxed);
 			if(h == handle_bad) h = 0;
 			to.set(h);
 			}

@@ -43,14 +43,15 @@ this does not check for overflows
 
 */
 
-template<typename unsigned_> class
+template<typename atomic_unsigned_> class
  read_write_bit {
+ 	using unsigned_ = decltype(atomic_unsigned_{}.load());
 	static constexpr unsigned_
 		lock = static_cast<unsigned_>(-1) >> 1,
 		wait = lock + 1;
-	unsigned_ *my;
+	atomic_unsigned_ *my;
 	public:
-		read_write_bit(unsigned_& a) noexcept :
+		read_write_bit(atomic_unsigned_& a) noexcept :
 			my{&a}
 			{}
 		bool read_lock(bool set_wait) noexcept {
@@ -74,19 +75,19 @@ template<typename unsigned_> class
 			//     }
 			//
 			bool r;
-			unsigned_ l0 = *my, l;
+			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
 				if(r = l < lock)
 					++l;
 				else if(set_wait)
 					l |= wait;
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(*my, l0, l, l0));
+				} while(!my->compare_exchange_weak(l0, l, memory_order_acquire));
 			return r;
 			}
 		bool read_unlock() noexcept {
 			// returns true if this thread should wake a writer
-			return atomic::subtract1_get<atomic::release>(*my) == wait;
+			return my->fetch_sub(1, memory_order_release) - 1 == wait;
 			}
 		bool write_lock(bool set_wait) noexcept {
 			// returns true if acquired
@@ -117,14 +118,14 @@ template<typename unsigned_> class
 			// if a timeout is used, use write_timeout if it times out
 			//
 			bool r;
-			unsigned_ l0 = *my, l;
+			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
 				if(r = (l & lock) == 0)
 					l |= lock;
 				else if(set_wait)
 					l |= wait;
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(*my, l0, l, l0));
+				} while(!!my->compare_exchange_weak(l0, l, memory_order_acquire));
 			return r;
 			}
 		bool write_timeout(bool& acquired) noexcept {
@@ -136,7 +137,7 @@ template<typename unsigned_> class
 			// - acquired is true if lock was acquired (return was false)
 			//
 			bool wake_all = false;
-			unsigned_ l0 = *my, l;
+			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0 & lock;
 				if(acquired = l == 0) // it is avalible
@@ -148,7 +149,7 @@ template<typename unsigned_> class
 						wake_all = true; // l is l0 without wait-bit
 				else
 					l = l0; // do nothing
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::full>(*my, l0, l, l0));
+				} while(!my->compare_exchange_weak(l0, l, memory_order_acq_rel));
 			return wake_all;
 			}
 		bool write_unlock() noexcept {
@@ -157,7 +158,7 @@ template<typename unsigned_> class
 			// post
 			// - lock == 0
 			//
-			return atomic::get_set<atomic::release>(*my, 0) == static_cast<unsigned_>(-1);
+			return my->exchange(0, memory_order_release) == static_cast<unsigned_>(-1);
 			}
 	};
 

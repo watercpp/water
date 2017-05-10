@@ -35,8 +35,8 @@ template<typename = void> class
 		#endif
 	private:
 		block* my = 0;
-		atomic::uint_t mysize = 0;
-		atomic::uint_t mylock = 0;
+		atomic_uint mysize{0};
+		atomic_uint mylock{0};
 	private:
 		static list me;
 		constexpr list() noexcept = default;
@@ -45,11 +45,11 @@ template<typename = void> class
 			return me;
 			}
 		data* create(reference& to, void const* address, char const* class_name) {
-		 	while(atomic::get_set<atomic::acquire>(mylock, 1))
+		 	while(mylock.exchange(1, memory_order_acquire))
 		 		yield();
-		 	data* r = atomic::get<atomic::none>(to);
+		 	data* r = to.get();
 		 	if(!r) {
-		 		auto size = atomic::get<atomic::none>(mysize);
+		 		auto size = mysize.load(memory_order_relaxed);
 		 		if(!(size % block::size)) {
 		 			void *a = allocator{}.allocate(sizeof(data) * block::size + sizeof(block));
 		 			___water_assert(a);
@@ -72,16 +72,16 @@ template<typename = void> class
 		 			}
 		 		if(r) {
 		 			new(here(r)) data(address, class_name);
-		 			atomic::set<atomic::none>(to, r);
-		 			atomic::add1<atomic::none>(mysize);
+		 			to.set(r);
+		 			mysize.fetch_add(1, memory_order_relaxed);
 		 			}
 		 		}
-		 	atomic::set<atomic::release>(mylock, 0);
+		 	mylock.store(0, memory_order_release);
 		 	return r;
 		 	}
 		size_t size() noexcept {
 			// it is safe to read up to this size
-			return atomic::get<atomic::acquire>(mysize);
+			return mysize.load(memory_order_acquire);
 			}
 		block* blocks() noexcept {
 			return my;

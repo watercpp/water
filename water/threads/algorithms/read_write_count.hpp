@@ -49,8 +49,9 @@ this does not check for overflows
 
 */
 
-template<typename unsigned_> class
+template<typename atomic_unsigned_> class
  read_write_count {
+ 	using unsigned_ = decltype(atomic_unsigned_{}.load());
 	static constexpr unsigned_
 		shift = numeric_limits<unsigned_>::digits / 2 - (numeric_limits<unsigned_>::digits % 2 ? 1 : 0),
 		lock = static_cast<unsigned_>(-1) >> shift,
@@ -58,10 +59,10 @@ template<typename unsigned_> class
 		write = read + 1,
 		wait = static_cast<unsigned_>(-1) ^ lock,
 		wait1 = lock + 1;
-	unsigned_ *my;
+	atomic_unsigned_ *my;
 	unsigned_ myvalue = 0; 
 	public:
-		read_write_count(unsigned_& a) noexcept :
+		read_write_count(atomic_unsigned_& a) noexcept :
 			my{&a}
 			{}
 		unsigned_ value() const noexcept {
@@ -95,7 +96,7 @@ template<typename unsigned_> class
 			//     }
 			//
 			bool r = false;
-			unsigned_ l0 = *my, l;
+			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
 				if(r = (l & write) == 0) {
@@ -105,29 +106,28 @@ template<typename unsigned_> class
 				else if(first_time)
 					l += wait1;
 				myvalue = l;
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(*my, l0, l, l0));
+				} while(!my->compare_exchange_weak(l0, l, memory_order_acquire));
 			return r;
 			}
 		void read_timeout() noexcept {
 			// use if read_lock times out *after* read_lock(true) was called.
 			// will only --wait-count, it will not acquire the lock ever
 			// 
-			atomic::subtract<atomic::release>(*my, wait1);
+			my->fetch_sub(wait1, memory_order_release);
 			}
 		bool read_try_lock() noexcept {
 			bool r;
-			unsigned_ l = *my;
-			while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(
-				*my,
+			unsigned_ l = my->load(memory_order_relaxed);
+			while(!my->compare_exchange_weak(
 				l,
 				(r = (l & write) == 0) ? l + 1 : l,
-				l
+				memory_order_acquire
 				));
 			return r;
 			}
 		bool read_unlock() noexcept {
 			// returns ture if this thread should wake a writer
-			return (atomic::subtract1_get<atomic::release>(*my) & lock) == write;
+			return ((my->fetch_sub(1, memory_order_release) - 1) & lock) == write;
 			}
 		bool write_lock(bool first_time) noexcept {
 			// use like read_lock
@@ -136,7 +136,7 @@ template<typename unsigned_> class
 			// - write-bit is set
 			//
 			bool r;
-			unsigned_ l0 = *my, l;
+			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				if(r = (l0 & read) == 0) {
 					l = l0 | lock;
@@ -147,7 +147,7 @@ template<typename unsigned_> class
 					if(first_time) l += wait1;
 					}
 				myvalue = l;
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(*my, l0, l, l0));
+				} while(!my->compare_exchange_weak(l0, l, memory_order_acquire));
 			return r;
 			}
 		unsigned_ write_timeout(bool& acquired) noexcept {
@@ -160,7 +160,7 @@ template<typename unsigned_> class
 			// post
 			// - acquired == true and return == 0 if lock was acquired
 			//
-			unsigned_ l0 = *my, l, wake;
+			unsigned_ l0 = my->load(memory_order_relaxed), l, wake;
 			do {
 				wake = 0;
 				l = l0 - wait1;
@@ -173,23 +173,22 @@ template<typename unsigned_> class
 						wake = l >> shift; // wake everyone, possibly no one
 						l ^= write; // drop write-bit
 						}
-				} while(!atomic::compare_set_else_non_atomic_get<atomic::full>(*my, l0, l, l0));
+				} while(!my->compare_exchange_weak(l0, l, memory_order_acq_rel));
 			return wake;
 			}
 		bool write_try_lock() noexcept {
 			bool r;
-			unsigned_ l = *my;
-			while(!atomic::compare_set_else_non_atomic_get<atomic::acquire>(
-				*my,
+			unsigned_ l = my->load(memory_order_relaxed);
+			while(!my->compare_exchange_weak(
 				l,
 				(r = (l & read) == 0) ? l | lock : l,
-				l
+				memory_order_acquire
 				));
 			return r;
 			}
 		unsigned_ write_unlock() noexcept {
 			// returns number of threads to wake up
-			return atomic::subtract_get<atomic::release>(*my, lock) >> shift;
+			return (my->fetch_sub(lock, memory_order_release) - lock) >> shift;
 			}
 	};
 

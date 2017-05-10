@@ -11,7 +11,7 @@
 #endif
 namespace water { namespace threads {
 
-bool constexpr spin_exists = atomic::any_exists<atomic::uint_t>::result;
+bool constexpr spin_exists = atomic_exists;
 
 class spin {
 	unsigned my = 0;

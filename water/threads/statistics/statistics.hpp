@@ -31,7 +31,7 @@ inline data* find(name const& n) noexcept {
 	}
 
 inline data* get(reference& to, void const* address, char const* class_name) noexcept {
-	data* r = atomic::get<atomic::none>(to);
+	data* r = to.get();
 	if(r) return r;
 	return list<>::get().create(to, address, class_name);
 	}
@@ -54,7 +54,7 @@ class add {
  		~add() noexcept {
  			// do everything here, after locking.
  			// otherwise the atomic operations will affect statistics more?
- 			data *d = atomic::get<atomic::none>(*myto);
+ 			data *d = myto->get();
  			if(!d)
  				d = list<>::get().create(*myto, myaddress, myclass);
  			if(d) {

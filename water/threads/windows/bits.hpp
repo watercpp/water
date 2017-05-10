@@ -162,6 +162,8 @@ int const
 
 void *const handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
 
+using handle_atomic = atomic<void*>;
+
 inline dword_t handle_wait(void *handle, dword_t milli = wait_forever) noexcept {
 	___water_assert(handle);
 	dword_t error = WaitForSingleObject(handle, milli);
@@ -201,7 +203,7 @@ inline dword_t milli_from_seconds(double a) noexcept {
 	return a < 0.5 ? 0 : static_cast<dword_t>(a + 0.5);
 	}
 
-template<typename create_> void* atomic_create(atomic::alias<void*>& handle, create_ create) noexcept {
+template<typename create_> void* atomic_create(handle_atomic& handle, create_ create) noexcept {
 	// this uses
 	// - handle == 0 means not inited
 	// - handle == handle_bad (INVALID_HANDLE_VALUE) means locked, someone else is initing (yield() then retry)
@@ -212,7 +214,7 @@ template<typename create_> void* atomic_create(atomic::alias<void*>& handle, cre
 	// if create() returns INVALID_HANDLE_VALUE, that handle will leak
 	//   
 	void *h;
-	while((h = atomic::get_compare_set<atomic::acquire>(handle, 0, static_cast<void*>(handle_bad))) == handle_bad)
+	while(!handle.compare_exchange_strong(h = 0, static_cast<void*>(handle_bad), memory_order_acquire) && h == handle_bad)
 		if(!SwitchToThread())
 			Sleep(1);
 	if(!h) {
@@ -220,7 +222,7 @@ template<typename create_> void* atomic_create(atomic::alias<void*>& handle, cre
 			___water_assert(h != handle_bad && "create() returned INVALID_HANDLE_VALUE");
 			h = 0; // leak it
 			}
-		atomic::set(handle, h);
+		handle.store(h);
 		}
 	return h;
 	}

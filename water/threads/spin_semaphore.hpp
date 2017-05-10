@@ -14,7 +14,7 @@ template<bool exists_ = spin_exists> class
 	public:
 		using needs = threads::needs<need_water, need_spin, need_constexpr_constructor, need_trivial_destructor>;
 	private:
-		atomic::uint_t
+		atomic_uint
 			my,
 			myspin;
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
@@ -30,10 +30,10 @@ template<bool exists_ = spin_exists> class
 			return true;
 			}
 		void spin_times(unsigned a) noexcept {
-			atomic::set(myspin, a);
+			myspin.store(a);
 			}
 		unsigned spin_times() noexcept {
-			unsigned r = static_cast<unsigned>(atomic::get<atomic::none>(myspin));
+			unsigned r = static_cast<unsigned>(myspin.load(memory_order_relaxed));
 			return r ? r : threads::spin_times();
 			}
 		bool down() noexcept {
@@ -50,15 +50,15 @@ template<bool exists_ = spin_exists> class
 			return r;
 			}
 		bool up(unsigned a = 1) noexcept {
-			atomic::add(my, a);
+			my.fetch_add(a);
 			return true;
 			}
 		___water_threads_statistics(threads::statistics::data* statistics() noexcept { return get(mystatistics, this, "spin_semaphore"); })
 	private:
 		bool down_once() noexcept {
 			bool r;
-			atomic::uint_t a = my;
-			while(!atomic::compare_set_else_non_atomic_get(my, a, (r = a != 0) ? a - 1 : a, a));
+			auto a = my.load(memory_order_relaxed);
+			while(!my.compare_exchange_weak(a, (r = a != 0) ? a - 1 : a));
 			return r;
 			}
 	};
