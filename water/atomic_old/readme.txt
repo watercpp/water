@@ -1,0 +1,5 @@
+// water::atomic
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+This is legacy code, it was designed in 2005. It is now obsolete because of std::atomic from the
+2011 C++ standard and will be removed.
