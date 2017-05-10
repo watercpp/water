@@ -12,7 +12,7 @@
 namespace water { namespace threads {
 
 // condition variable that should work almost like a pthread_cond_t
-// uses 1 semaphore and 1 atomic_old::uint_t. the semaphore is created when it is needed.
+// uses 1 semaphore and 1 atomic_uint. the semaphore is created when it is needed.
 //
 // a pthread_cond_t can be destroyed after pthread_cond_broadcast. this can not.
 //
