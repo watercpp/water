@@ -11,8 +11,6 @@ namespace char_pointers {
 
 	struct left {};
 
-	//*
-	
 	struct char_const_pointer {
 		char const *pointer;
 		char_const_pointer(char const* a) : pointer{a} {}
@@ -33,17 +31,14 @@ namespace char_pointers {
 	inline void const* operator<<(left const&, void_const_pointer) {
 		return 0;
 		}
-		
-	//*/
 
 	template<unsigned size_> inline unsigned operator<<(left const&, char const (&)[size_]) {
 		return 0;
 		}
 	
-	/*
 	// these below do not work
 	// char const* is selected over the array version
-	
+	/*
 	template<unsigned size_> inline unsigned operator<<(left const&, char (&)[size_]) {
 		return 0;
 		}
@@ -55,7 +50,7 @@ namespace char_pointers {
 	inline void const* operator<<(left const&, void const*const&) {
 		return 0;
 		}
-	//*/
+	*/
 
 }
 	
