@@ -21,7 +21,7 @@ is_modulo and traps is skipped because the llvm c++ library seems to have this w
 */
 
 template<typename type_> typename types::ifel_type<types::is_float<type_>, bool>::result no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
-	return isnan(mine) == isnan(std);
+	return isnan_strict(mine) == isnan_strict(std);
 	}
 template<typename type_> typename types::ifel_type_not<types::is_float<type_>, bool>::result no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
 	return mine == std;

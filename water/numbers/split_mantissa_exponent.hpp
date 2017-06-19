@@ -25,12 +25,12 @@ template<typename float_> struct
 		// nan is 0, infinity is max, in case the thing writing the number cannot write "nan" or "infinity"
 		//
 		minus = signbit(f);
-		nan = isnan(f);
+		nan = isnan_strict(f);
 		if(nan || f == 0)
 			return;
 		if(minus)
 			f = -f;
-		if(infinity = isinf(f))
+		if(infinity = isinf_strict(f))
 			f = numeric_limits<float_>::max();
 		if(base == 10) {
 			int p = exponent = static_cast<int>(log10(f));

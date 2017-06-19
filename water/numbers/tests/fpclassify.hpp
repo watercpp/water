@@ -50,6 +50,31 @@ template<typename float_> void fpclassify_type() {
 	___water_test(signbit(-limits::quiet_NaN()));
 	___water_test(signbit(-limits::infinity()));
 
+	// test the _strict variants, if these break with -ffast-math there could be trouble
+
+	___water_test(!isnormal_strict(static_cast<float_>(0)));
+	___water_test(isnormal_strict(static_cast<float_>(1)));
+	___water_test(!isnormal_strict(limits::min() / static_cast<float_>(2)));
+	___water_test(!isnormal_strict(limits::quiet_NaN()));
+	___water_test(!isnormal_strict(limits::infinity()));
+
+	___water_test(isfinite_strict(static_cast<float_>(0)));
+	___water_test(isfinite_strict(static_cast<float_>(1)));
+	___water_test(isfinite_strict(limits::min() / static_cast<float_>(2)));
+	___water_test(!isfinite_strict(limits::quiet_NaN()));
+	___water_test(!isfinite_strict(limits::infinity()));
+
+	___water_test(!isinf_strict(static_cast<float_>(0)));
+	___water_test(!isinf_strict(static_cast<float_>(1)));
+	___water_test(!isinf_strict(limits::min() / static_cast<float_>(2)));
+	___water_test(!isinf_strict(limits::quiet_NaN()));
+	___water_test(isinf_strict(limits::infinity()));
+
+	___water_test(!isnan_strict(static_cast<float_>(0)));
+	___water_test(!isnan_strict(static_cast<float_>(1)));
+	___water_test(!isnan_strict(limits::min() / static_cast<float_>(2)));
+	___water_test(isnan_strict(limits::quiet_NaN()));
+	___water_test(!isnan_strict(limits::infinity()));
 	}
 
 inline void fpclassify_all() {

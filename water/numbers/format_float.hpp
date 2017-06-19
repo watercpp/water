@@ -140,11 +140,11 @@ class format_float {
 			}
 		template<typename float_> formatted_mantissa_exponent<float_> operator()(float_ f) const {
 			formatted<float_iterator<float_>> m;
-			if(isinf(f)) {
+			if(isinf_strict(f)) {
 				m.infinity(true);
 				f = signbit(f) ? -numeric_limits<float_>::max() : numeric_limits<float_>::max();
 				}
-			else if(isnan(f)) {
+			else if(isnan_strict(f)) {
 				m.nan(true);
 				f = signbit(f) ? -0 : 0;
 				}

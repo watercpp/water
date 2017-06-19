@@ -116,7 +116,7 @@ template<typename float_> class
 								pow_do(static_cast<float_>(mantissa.base()), me);
 							if(e)
 								pow_do(static_cast<float_>(exponent_power_of), e);
-							myoverflow = isinf(my);
+							myoverflow = isinf_strict(my);
 							}
 						}
 					}
@@ -160,7 +160,7 @@ template<typename float_> class
 		void pow_do(float_ b, int e) {
 			// if e is very small or large, pow can become 0, subnormal or infinity
 			float_ p = pow(b, static_cast<float_>(e));
-			if(isfinite(p) && (p >= numeric_limits<float_>::min() || p <= -numeric_limits<float_>::min()))
+			if(isfinite_strict(p) && (p >= numeric_limits<float_>::min() || p <= -numeric_limits<float_>::min()))
 				my *= p;
 			else {
 				my *= pow(b, e / 2);

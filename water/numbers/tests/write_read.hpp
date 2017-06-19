@@ -104,9 +104,9 @@ template<typename float_> void write_read_float(settings s) {
 		___water_test(ws && "wrote something");
 		___water_test(ru == rs && "read used size same as acutally read");
 		___water_test(rs == ws && "read all written");
-		if(isinf(f))
+		if(isinf_strict(f))
 			___water_test(r.infinity() && "written and parsed close to original");
-		else if(isnan(f))
+		else if(isnan_strict(f))
 			___water_test(r.nan() && "written and parsed close to original");
 		else
 			___water_test(write_read_almost_equal(f, rf) && "written and parsed close to original");

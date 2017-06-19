@@ -26,7 +26,7 @@ class number {
 			if(e) normalize();
 			}
 		number(double a) {
-			if(isinf(a) || isnan(a))
+			if(isinf_strict(a) || isnan_strict(a))
 				myimprecise = true;
 			else if(a) {
 				// can still be subnormal
@@ -99,7 +99,7 @@ class number {
 					}
 				r *= pow(10., e);
 				}
-			if(!isfinite(r))
+			if(!isfinite_strict(r))
 				r = 0;
 			return r;
 			}
@@ -126,7 +126,7 @@ class number {
 			}
 		explicit operator float() const {
 			auto r = static_cast<float>(to_double());
-			if(!isfinite(r)) r = 0;
+			if(!isfinite_strict(r)) r = 0;
 			return r;
 			}
 		explicit operator long double() const {

@@ -78,9 +78,9 @@ template<typename type_, typename number_format_ = number_format<>> class
 				copy(begin, end, static_cast<char>(u'-'));
 			else if(number_format_::show_plus)
 				copy(begin, end, static_cast<char>(u'+'));
-			if(isnan(my))
+			if(isnan_strict(my))
 				copy(begin, end, number_format_::uppercase ? u8"NAN" : number_format_::mixedcase ? u8"NaN" : u8"nan", 3);
-			else if(isinf(my))
+			else if(isinf_strict(my))
 				copy(begin, end, number_format_::uppercase ? u8"INFINITY" : u8"infinity", sizeof(u8"infinity") - 1);
 			else {
 				type_ m = minus ? -my : my;
