@@ -185,6 +185,7 @@ template<typename to_, typename from_> struct
 		unsigned char *t = static_cast<unsigned char*>(static_cast<void*>(&to)), *te = t + (sizeof(to_) < sizeof(from_) ? sizeof(to_) : sizeof(from_));
 		unsigned char const *f = static_cast<unsigned char const*>(static_cast<void const*>(&from));
 		do *t++ = *f++; while(t != te);
+		return to;
 		}
  	};
 
