@@ -2,14 +2,12 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_XML_THINGS_DECODE_HPP
-#define WATER_XML_THINGS_DECODE_HPP
-#include <water/xml/things/things.hpp>
-#include <water/xml/things/utf.hpp>
-namespace water { namespace xml { namespace things {
+#ifndef WATER_XML_DECODE_HPP
+#define WATER_XML_DECODE_HPP
+#include <water/xml/bits.hpp>
+namespace water { namespace xml {
 
-template<typename char_> char_*
- decode(char_ *begin, char_ *end) {
+template<typename char_> char_* decode(char_ *begin, char_ *end) {
 	// returns new end
 	// this will leave any entity that cannot be decoded as it is, including &#0; or non-unicode chars like &#xffff;
 	// char_ must be unsigned!
@@ -21,12 +19,13 @@ template<typename char_> char_*
 	// - 0xd 0x85
 	// - 0x2028 (unicode, xml 1.1, utf-8 is 0xe2 0x80 0xa8)
 	//
+	unsigned constexpr utf = unicode::utf_from_char<char_>::result;
 	char_
 		*f = begin,
 		*t = f;
 	unsigned spaces = 0; // used to drop trailing spaces
 	while(f != end) {
-		if(*f == 0xd || (utf<char_>::utf16 && *f == 0x85) || (utf<char_>::utf8 && f[0] == 0xc2 && f + 1 < end && f[1] == 0x85)) {
+		if(*f == 0xd || (utf >= 16 && *f == 0x85) || (utf == 8 && f[0] == 0xc2 && f + 1 < end && f[1] == 0x85)) {
 			unsigned n = *f == 0xc2 ? 2 : 1;
 			if(f + n != end && f[n] == 0xa)
 				++f;
@@ -36,14 +35,14 @@ template<typename char_> char_*
 				++spaces;
 				}
 			}
-		else if(utf<char_>::utf16 && *f == 0x2028) {
+		else if(utf >= 16 && *f == 0x2028) {
 			++f;
 			if(t != begin) {
 				*t++ = 0xa;
 				++spaces;
 				}
 			}
-		else if(utf<char_>::utf8 && f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) {
+		else if(utf == 8 && f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) {
 			f += 3;
 			if(t != begin) {
 				*t++ = 0xa;
@@ -127,7 +126,7 @@ template<typename char_> char_*
 							)
 							{
 							copy = false;
-							t = utf<char_>::write(t, u); // this is safe because shortest &#1; is 4 chars
+							t += unicode::utf_encode<utf>(t, static_cast<char32_t>(u)); // this is safe because shortest &#1; is 4 chars
 							f = ee;
 							}
 						}
@@ -141,8 +140,7 @@ template<typename char_> char_*
 	return t - spaces;
 	}
 	
-template<typename char_> char_*
- decode_attribute(char_ *begin, char_ *end) {
+template<typename char_> char_* decode_attribute(char_ *begin, char_ *end) {
 	// decode() first, then replace all spaces with 1 space
 	end = decode(begin, end);
 	char_
@@ -150,11 +148,11 @@ template<typename char_> char_*
 		*t = begin;
 	bool space = false;
 	while(f != end) {
-		if(*f <= 0x20 || (utf<char_>::utf16 && (*f == 0x85 || *f == 0x2028))) {
+		if(*f <= 0x20 || (unicode::utf_from_char<char_>::result >= 16 && (*f == 0x85 || *f == 0x2028))) {
 			space = true;
 			++f;
 			}
-	else if(utf<char_>::utf8 && ((f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) || (f[0] == 0xc2 && f + 1 < end && f[1] == 0x85))) {
+		else if(unicode::utf_from_char<char_>::result == 8 && ((f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) || (f[0] == 0xc2 && f + 1 < end && f[1] == 0x85))) {
 			space = true;
 			f += f[0] == 0xe2 ? 3 : 2;
 			}
@@ -168,5 +166,5 @@ template<typename char_> char_*
 	return t;
 	}
 
-}}}
+}}
 #endif

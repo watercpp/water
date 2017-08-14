@@ -5,12 +5,10 @@
 #ifndef WATER_XML_ENCODING_HPP
 #define WATER_XML_ENCODING_HPP
 #include <water/xml/bits.hpp>
-#include <water/xml/things/things.hpp>
 namespace water { namespace xml {
 
 // try to figure out encoding from raw bytes
-class
- encoding {
+class encoding {
 	bool
 		my8 = false,
 		my16 = false,
@@ -71,7 +69,7 @@ class
 						be = x;
 						bool encoding = false;
 						while(b < be - 8) {
-							if(b[-1] <= 0x20 && things::equal("encoding", b, b + 8)) {
+							if(b[-1] <= 0x20 && equal("encoding", b, b + 8)) {
 								encoding = true;
 								b += 8;
 								break;
@@ -82,7 +80,7 @@ class
 							while(*b <= 0x20 && ++b != be);
 							if(b != be && *b == '=') {
 								while(++b != be && *b <= 0x20);
-								if(b != be && *b == '\'' || *b == '"') {
+								if(b != be && (*b == '\'' || *b == '"')) {
 									x = b;
 									while(++b != be && *b != *x);
 									if(b != be && ++x != b) {
@@ -138,7 +136,7 @@ class
 			return mybig;
 			}
 		bool litte_endian() const {
-			return my16 && !mybig;
+			return !mybig;
 			}
 		unsigned byte_order_mark() const {
 			// this many bytes are bom

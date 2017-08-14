@@ -16,7 +16,7 @@ test creating nodes
 inline void create() {
 	memory<> m;
 	
-	auto root = m.node();
+	auto root = m.create();
 	
 	root.push_front().null({});
 	root.push_back().boolean(true);
@@ -93,7 +93,7 @@ inline void create() {
 	/*trace() << ministr::size<1024> << string_from(w, ws);
 	
 	vector<char> x;
-	indent([&x](char a){ x.push_back(a); }, w, w + ws);
+	indent([&x](char a){ x.push_back(a); })(w, w + ws);
 	trace() << ministr::size<10000> << x;*/
 	}
 

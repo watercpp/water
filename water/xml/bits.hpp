@@ -4,15 +4,15 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_XML_BITS_HPP
 #define WATER_XML_BITS_HPP
-// no dependency on anything
+#include <water/water.hpp>
+#include <water/types/types.hpp>
+#include <water/unicode/utf.hpp>
+#include <water/swap.hpp>
 namespace water { namespace xml {
 
-using size_t = decltype(sizeof(0));
-
 template<typename range_, typename result_, typename iterator_ = typename range_::iterator> struct
- if_range {
-	using result = result_;
-	};
+ if_range : types::type_plain<result_>
+	{};
 
 namespace _ {
 	template<typename iterator_, typename = size_t> struct
@@ -52,46 +52,15 @@ namespace _ {
 			}
 		};
 }
-template<typename range_> size_t
- range_size(range_ const& a) {
+template<typename range_> size_t range_size(range_ const& a) {
 	return _::range_size<range_>::do_it(a);
-	}
-
-// do not have swap_from_swap in this namespace baecause that will cause argument dependant look up
-namespace _ {
-	namespace hidden_from_name_lookup {
-		template<typename t_> void
-		 swap(t_& a, t_& b) {
-			// anything will be more specialized than this
-			t_ s(static_cast<t_&&>(a));
-			a = static_cast<t_&&>(b);
-			b = static_cast<t_&&>(s);
-			}
-		template<typename t_, size_t s_> void
-		 swap(t_ (&a)[s_], t_ (&b)[s_]) {
-			size_t i = 0;
-			do swap(a[i], b[i]); while(++i != s_);
-			}
-		}
-	template<typename a_> void
-	 swap_from_swap(a_& a, a_& b) {
-		using hidden_from_name_lookup::swap;
-		swap(a, b);
-		}
-}
-
-namespace _ {
-	template<typename type_> struct text_char_type { using result = type_; };
-	template<typename type_> struct text_char_type<type_&> { using result = type_; };
-	template<typename type_> struct text_char_type<type_ const> { using result = type_; };
-	template<typename type_> struct text_char_type<type_ const&> { using result = type_; };
 	}
 
 template<typename iterator_> class
  text {
 	public:
 		using iterator = iterator_;
-		using char_type = typename _::text_char_type<decltype(*iterator{})>::result;
+		using char_type = typename types::no_const<types::no_reference<decltype(*iterator{})>>::result;
 		using value_type = char_type;
 		using size_type = size_t;
 	private:
@@ -123,52 +92,72 @@ template<typename iterator_> class
 			}
 	};
 	
-template<typename iterator_> text<iterator_>
- text_from(iterator_ begin, iterator_ end) {
- 	return { begin, end };
- 	}
-template<typename iterator_> text<iterator_>
- text_from(iterator_ begin, size_t size) {
- 	return { begin, size };
- 	}
+template<typename iterator_> text<iterator_> text_from(iterator_ begin, iterator_ end) {
+	return { begin, end };
+	}
+
+template<typename iterator_> text<iterator_> text_from(iterator_ begin, size_t size) {
+	return { begin, size };
+	}
 	
 template<typename char_> inline char32_t text_compare_cast(char_ a) { return static_cast<char32_t>(a); }
 inline char16_t      text_compare_cast(char16_t a)      { return a; }
 inline unsigned char text_compare_cast(unsigned char a) { return a; }
 inline unsigned char text_compare_cast(signed char a)   { return static_cast<unsigned char>(a); }
 inline unsigned char text_compare_cast(char a)          { return static_cast<unsigned char>(a); }
- 
-template<typename a_, typename b_> bool
- operator==(text<a_> const& a, text<b_> const& b) {
-	if(a.size() != b.size())
+
+template<typename iterator1_, typename iterator2_> bool equal(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterator2_ e2) {
+	if(e1 - b1 != e2 - b2)
 		return false;
-	auto ai = a.begin();
-	auto bi = b.begin();
-	while(ai != a.end() && text_compare_cast(*ai) == text_compare_cast(*bi)) ++ai, ++bi;
-	return ai == a.end();
+	while(b1 != e1 && text_compare_cast(*b1) == text_compare_cast(*b2)) ++b1, ++b2;
+	return b1 == e1;
 	}
 
-template<typename a_, typename b_> bool
- operator!=(text<a_> const& a, text<b_> const& b) {
+template<typename iterator_, typename char_, size_t size_> bool equal(char_ const (&a)[size_], iterator_ b, iterator_ e) {
+	return equal(a + 0, a + size_ - 1, b, e);
+	}
+ 
+template<typename a_, typename b_> bool operator==(text<a_> const& a, text<b_> const& b) {
+	return equal(a.begin(), a.end(), b.begin(), b.end());
+	}
+
+template<typename a_, typename b_> bool operator!=(text<a_> const& a, text<b_> const& b) {
 	return !(a == b);
 	}
 
-template<typename iterator_, size_t size_> bool
- operator==(text<iterator_> const& a, char const (&b)[size_]) {
+template<typename iterator_, size_t size_> bool operator==(text<iterator_> const& a, char const (&b)[size_]) {
 	return a == text_from(b, size_ - 1);
 	}
-template<typename iterator_, size_t size_> bool
- operator==(char const (&a)[size_], text<iterator_> const& b) {
+
+template<typename iterator_, size_t size_> bool operator==(char const (&a)[size_], text<iterator_> const& b) {
 	return text_from(a, size_ - 1) == b;
 	}
-template<typename iterator_, size_t size_> bool
- operator!=(text<iterator_> const& a, char const (&b)[size_]) {
+
+template<typename iterator_, size_t size_> bool operator!=(text<iterator_> const& a, char const (&b)[size_]) {
 	return a != text_from(b, size_ - 1);
 	}
-template<typename iterator_, size_t size_> bool
- operator!=(char const (&a)[size_], text<iterator_> const& b) {
+
+template<typename iterator_, size_t size_> bool operator!=(char const (&a)[size_], text<iterator_> const& b) {
 	return text_from(a, size_ - 1) != b;
 	}
+
+template<typename char_> struct
+ memory_node {
+	using char_type = typename types::if_not_void<types::to_unsigned<char_>, char_>::result; // must have unsigned char
+	memory_node
+		*previous,
+		*next,
+		*in,
+		*nodes,
+		*attributes;
+	char_type
+		*name_begin,
+		*name_end,
+		*name_end_memory, // name_begin to name_end_memory can be used, name_begin to name_end is used now
+		*value_begin,
+		*value_end,
+		*value_end_memory;
+	};
 
 }}
 #endif

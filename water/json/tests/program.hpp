@@ -106,10 +106,10 @@ inline int main(int argc, char const*const* argv) {
 			auto file = string_from(static_cast<char*>(buffer), buffer_size);
 			if(!quiet) {
 				out << "indented:\n";
-				json::indent([&out](char a) { out << a; }, file.begin(), file.end());
+				json::indent_to(out)(file.begin(), file.end());
 				out << "\n\n";
 				out << "minified:\n";
-				json::indent([&out](char a) { out << a; }, file.begin(), file.end(), 0);
+				json::indent_to(out)(file.begin(), file.end(), 0);
 				out << "\n\n" << str::flush;
 				}
 			auto read = read_to_memory(memory);

@@ -4,35 +4,22 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_XML_NODE_HPP
 #define WATER_XML_NODE_HPP
-#include <water/xml/things/decode.hpp>
+#include <water/xml/decode.hpp>
 namespace water { namespace xml {
-namespace _ {
-	
-	template<typename a_> struct
-	 node_no_const {
-		using result = a_;
-		};
-	template<typename a_> struct
-	 node_no_const<a_ const> {
-		using result = a_;
-		};
-	
-	template<typename a_, typename mutable_, typename const_> struct
-	 node_mutable_const {
-		using result = mutable_;
-		};
-	template<typename a_, typename mutable_, typename const_> struct
-	 node_mutable_const<a_ const, mutable_, const_> {
-		using result = const_;
-		};
-	
-};
+
+template<typename memory_, typename other_> struct node_if_no_memory {};
+template<typename other_>                   struct node_if_no_memory<void, other_> { struct result{}; };
+template<>                                  struct node_if_no_memory<void, void> {};
 
 //
 // DOM tree node
 //
-// This is just a pointer into an underlying structure owned by xml::document. It is very small and cheap
-// to copy. All nodes are owned by an xml::document and freed when that document is destroyed.
+// This is just a pointer into an underlying structure owned by xml::memory. It is very small and cheap
+// to copy. All nodes are owned by an xml::memory and freed when that memory is destroyed or clear()-ed.
+//
+// template
+// - char_ is the caracter type
+// - memory_ is the xml::memory type or void. If its void, this is a constant node that cannot be modified
 //
 // This is a doubly linked list, and the next() previous() last() first() functions are used to move around.
 //
@@ -45,51 +32,50 @@ namespace _ {
 // value() is the text content or attribute-value, tags have no value
 // first_value() is the first text content found in nodes(), short way to read content from the tag
 //
-// Use create() or the xml::document node() function to create new empty nodes.
+// Use create() or the xml::memory create() function to create new empty nodes.
 //
 // All functions return something that converts to true or false. And all functions are safe to call even
 // if this does not point to a node. This makes it possible to chain many function calls that reutrn node
 // without checking the return value of each one
 //
-//   auto node = document.nodes().find("root").nodes("hello").attributes("world");
-//
-// It is also possible to create a DOM tree without much error checking and then use
-// xml::document allocate_has_failed() to see if it worked.
+//   auto node = document_node.nodes().find("root").nodes("hello").attributes("world");
 //
 // If any function call in a chain fails, this will return something that converts to false. And when a
 // a function fails no other function in that chain will have any effect.
 //
-// nodes_or_add(name) and attributes_or_add(name) can be useful to add or overwrite something
+// This makes it possible to create a DOM tree with a non-throwing allocator without much error checking,
+// just use xml::memory allocate_has_failed() after to see if it failed at any time before.
 //
-template<typename document_> class
+// nodes_or_add(name) and attributes_or_add(name) can be useful to add or overwrite something. It will add
+// if it does not exists, otherwise return the first existing with that name.
+//
+template<typename char_ = char, typename memory_ = void> class
  node {
 	struct node_is_const;
+	friend class node<char_>;
+	using memory_node = xml::memory_node<char_>;
 	public:
-		using document_type = typename _::node_no_const<document_>::result;
-		using char_type = typename document_type::char_type;
+		using char_type = char_;
+		using memory_type = memory_;
 		using text_type = text<char_type const*>;
-		using node_if_mutable = typename _::node_mutable_const<document_, node<document_>, node_is_const>::result;
-		using mutable_node = node<document_type>;
+		using node_if_mutable = typename types::ifel_type<types::if_not_void<memory_>, node<char_, memory_>, node_is_const>::result;
 	private:
-		friend typename _::node_mutable_const<document_, node<document_type const>, node<document_type> >::result;
-		using node_ = things::node<typename things::utf<char_type>::char_type>;
-		node_ *my {}; // this must never ever be documents root node, if my->in is 0 this is removed
-		document_ *myd {};
+		memory_type *mym = 0; // can never be 0 if memory_ != void and my != 0
+		memory_node *my = 0;
+	private:
+		node(memory_type *m, memory_node *n) :
+			mym{m},
+			my{n}
+			{}
 	public:
-		node() = default;
-		node(document_ *d, node_ *n) :
-			my{n},
-			myd{d}
+		constexpr node() = default;
+		node(typename types::if_not_void<memory_type, node_is_const>::result& m, memory_node *n) :
+			mym{&m},
+			my{n}
 			{}
-		node(mutable_node const& a) :
-			my{a.my},
-			myd{a.myd}
+		template<typename other_> node(node<char_, other_> a, typename node_if_no_memory<memory_, other_>::result = {}) :
+			my{a.my}
 			{}
-		node& operator=(mutable_node const& a) {
-			my = a.my;
-			myd = a.myd;
-			return *this;
-			}
 		bool operator==(node const& a) const {
 			return my == a.my;
 			}
@@ -99,26 +85,26 @@ template<typename document_> class
 		explicit operator bool() const {
 			return my != 0;
 			}
-		document_type* document() const {
-			return myd;
+		memory_type* memory_pointer() const {
+			return mym;
 			}
 		node first() const {
-			return { myd, my ? first(my) : 0 };
+			return { mym, my ? first(my) : 0 };
 			}
 		node last() const {
-			return { myd, my ? last(my) : 0 };
+			return { mym, my ? last(my) : 0 };
 			}
 		node next() const {
-			return { myd, my ? my->next : 0 };
+			return { mym, my ? my->next : 0 };
 			}
 		node previous() const {
-			return { myd, my ? my->previous : 0 };
+			return { mym, my ? my->previous : 0 };
 			}
 		node in() const {
-			return { myd, my && (!myd->nodes().my || my->in != myd->nodes().my->in) ? my->in : 0 }; // do not go into documents root node
+			return { mym, my ? my->in : 0 };
 			}
 		node attributes() const {
-			return { myd, my ? my->attributes : 0 };
+			return { mym, my ? my->attributes : 0 };
 			}
 		template<typename iterator_>
 		 node attributes(iterator_ begin, iterator_ end) const {
@@ -128,12 +114,12 @@ template<typename document_> class
 		 node attributes(iterator_ begin, size_t size) const {
 			return attributes().find(begin, size);
 			}
-		template<typename char_>
-		 node attributes(char_ const *const& cstring) const {
+		template<typename char2_>
+		 node attributes(char2_ const *const& cstring) const {
 			return attributes().find(cstring);
 			}
-		template<typename char_, size_t size_>
-		 node attributes(char_ const (&cstring)[size_]) const {
+		template<typename char2_, size_t size_>
+		 node attributes(char2_ const (&cstring)[size_]) const {
 			return attributes().find(cstring);
 			}
 		template<typename range_>
@@ -141,7 +127,7 @@ template<typename document_> class
 			return attributes().find(range.begin(), range_size(range));
 			}
 		node nodes() const {
-			return { myd, my ? my->nodes : 0 };
+			return { mym, my ? my->nodes : 0 };
 			}
 		template<typename iterator_>
 		 node nodes(iterator_ begin, iterator_ end) const {
@@ -151,12 +137,12 @@ template<typename document_> class
 		 node nodes(iterator_ begin, size_t size) const {
 			return nodes().find(begin, size);
 			}
-		template<typename char_>
-		 node nodes(char_ const *const& cstring) const {
+		template<typename char2_>
+		 node nodes(char2_ const *const& cstring) const {
 			return nodes().find(cstring);
 			}
-		template<typename char_, size_t size_>
-		 node nodes(char_ const (&cstring)[size_]) const {
+		template<typename char2_, size_t size_>
+		 node nodes(char2_ const (&cstring)[size_]) const {
 			return nodes().find(cstring);
 			}
 		template<typename range_>
@@ -179,9 +165,9 @@ template<typename document_> class
 					*b = my->value_end,
 					*e = my->value_begin;
 				if(my->in && my->in->attributes && my->in->attributes == first(my))
-					e = things::decode_attribute(b, e);
+					e = decode_attribute(b, e);
 				else
-					e = things::decode(b, e);
+					e = decode(b, e);
 				my->value_begin = b;
 				my->value_end = e;
 				}
@@ -193,10 +179,10 @@ template<typename document_> class
 		text_type first_value() const {
 			// value of first content node in nodes()
 			if(my)
-				if(node_ *n = my->nodes)
+				if(memory_node *n = my->nodes)
 					do {
 						if(n->name_begin == n->name_end)
-							return node{ myd, n }.value();
+							return node{ mym, n }.value();
 						}	while(n = n->next);
 			return {};
 			}
@@ -206,21 +192,21 @@ template<typename document_> class
 			// use the next() to find the next not including this one
 			if(!size)
 				return {};
-			node_ *n = my;
+			memory_node *n = my;
 			while(n && !name_equal(n, begin, size))
 				n = n->next;
-			return { myd, n };
+			return { mym, n };
 			}
 		template<typename iterator_>
 		 node find(iterator_ begin, iterator_ end) const {
 			return find(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node find(char_ const *const& cstring) const {
+		template<typename char2_>
+		 node find(char2_ const *const& cstring) const {
 			return find(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node find(char_ const (&cstring)[size_]) const {
+		template<typename char2_, size_t size_>
+		 node find(char2_ const (&cstring)[size_]) const {
 			return find(cstring, size_ - 1);
 			}
 		template<typename range_>
@@ -235,12 +221,12 @@ template<typename document_> class
 		 node next(iterator_ begin, size_t size) const {
 			return next().find(begin, size);
 			}
-		template<typename char_>
-		 node next(char_ const *const& cstring) const {
+		template<typename char2_>
+		 node next(char2_ const *const& cstring) const {
 			return next().find(cstring);
 			}
-		template<typename char_, size_t size_>
-		 node next(char_ const (&cstring)[size_]) const {
+		template<typename char2_, size_t size_>
+		 node next(char2_ const (&cstring)[size_]) const {
 			return next().find(cstring);
 			}
 		template<typename range_>
@@ -252,20 +238,20 @@ template<typename document_> class
 			// find the closest previous node with name == begin,size
 			if(!size)
 				return {};
-			node_ *n = my;
+			memory_node *n = my;
 			if(n) while((n = n->previous) && !name_equal(n, begin, size));
-			return { myd, n };
+			return { mym, n };
 			}
 		template<typename iterator_>
 		 node previous(iterator_ begin, iterator_ end) const {
 			return previous(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node previous(char_ const *const& cstring) const {
+		template<typename char2_>
+		 node previous(char2_ const *const& cstring) const {
 			return previous(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node previous(char_ const (&cstring)[size_]) const {
+		template<typename char2_, size_t size_>
+		 node previous(char2_ const (&cstring)[size_]) const {
 			return previous(cstring, size_ - 1);;
 			}
 		template<typename range_>
@@ -274,43 +260,43 @@ template<typename document_> class
 			}
 	public:
 		node_if_mutable create() {
-			if(!myd)
+			if(!mym)
 				return {};
-			return myd->node();
+			return mym->template create<char_type>();
 			}
 		node_if_mutable remove_all_nodes() {
 			if(!my)
 				return {};
-			node_ *n = my->nodes;
+			memory_node *n = my->nodes;
 			while(n) {
 				n->in = 0;
 				n = n->next;
 				}
 			n = my->nodes;
 			my->nodes = 0;
-			return { myd, n };
+			return { mym, n };
 			}
 		node_if_mutable remove_all_attributes() {
 			if(!my)
 				return {};
-			node_ *n = my->attributes;
+			memory_node *n = my->attributes;
 			while(n) {
 				n->in = 0;
 				n = n->next;
 				}
 			n = my->attributes;
 			my->attributes = 0;
-			return { myd, n };
+			return { mym, n };
 			}
 		node_if_mutable nodes(node_if_mutable a) {
 			// insert the node-list a at the end of nodes()
 			if(!my || !a.my)
 				return {};
-			node_ *n = first(a.my);
+			memory_node *n = first(a.my);
 			if(!my->nodes)
 				my->nodes = n;
 			else {
-				node_ *l = last(my->nodes);
+				memory_node *l = last(my->nodes);
 				(l->next = n)->previous = l;
 				}
 			while(n) {
@@ -336,12 +322,12 @@ template<typename document_> class
 		 node_if_mutable nodes_or_add(iterator_ begin, iterator_ end) {
 			return nodes_or_add(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node_if_mutable nodes_or_add(char_ const *const& cstring) {
+		template<typename char2_>
+		 node_if_mutable nodes_or_add(char2_ const *const& cstring) {
 			return nodes_or_add(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node_if_mutable nodes_or_add(char_ const (&cstring)[size_]) {
+		template<typename char2_, size_t size_>
+		 node_if_mutable nodes_or_add(char2_ const (&cstring)[size_]) {
 			return nodes_or_add(cstring, size_ - 1);
 			}
 		template<typename range_>
@@ -352,11 +338,11 @@ template<typename document_> class
 			// insert the node-list a at the end of attributes()
 			if(!my || !a.my)
 				return {};
-			node_ *n = first(a.my);
+			memory_node *n = first(a.my);
 			if(!my->attributes)
 				my->attributes = n;
 			else {
-				node_ *l = last(my->attributes);
+				memory_node *l = last(my->attributes);
 				(l->next = n)->previous = l;
 				}
 			while(n) {
@@ -382,17 +368,50 @@ template<typename document_> class
 		 node_if_mutable attributes_or_add(iterator_ begin, iterator_ end) {
 			return attributes_or_add(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node_if_mutable attributes_or_add(char_ const *const& cstring) {
+		template<typename char2_>
+		 node_if_mutable attributes_or_add(char2_ const *const& cstring) {
 			return attributes_or_add(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node_if_mutable attributes_or_add(char_ const (&cstring)[size_]) {
+		template<typename char2_, size_t size_>
+		 node_if_mutable attributes_or_add(char2_ const (&cstring)[size_]) {
 			return attributes_or_add(cstring, size_ - 1);
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result attributes_or_add(range_ const& range) {
 			return attributes_or_add(range.begin(), range_size(range));
+			}
+		node_if_mutable push_back(node a) {
+			// insert a at the back of this->nodes()
+			// return a
+			if(!my || !a.my)
+				return {mym, 0};
+			a.remove();
+			if(!my->nodes)
+				my->nodes = a.my;
+			else {
+				memory_node *l = last(my->nodes);
+				(l->next = a.my)->previous = l;
+				}
+			a.my->in = my;
+			return a;
+			}
+		node_if_mutable push_back() {
+			return push_back(create());
+			}
+		node_if_mutable push_front(node a) {
+			// insert a at the front of this->nodes()
+			// return a
+			if(!my || !a.my)
+				return {mym, 0};
+			a.remove();
+			if(my->nodes)
+				(my->nodes->previous = a.my)->next = my->nodes;
+			my->nodes = a.my;
+			a.my->in = my;
+			return a;
+			}
+		node_if_mutable push_front() {
+			return push_front(create());
 			}
 		node_if_mutable& remove() {
 			// remove this, return this
@@ -400,7 +419,7 @@ template<typename document_> class
 				if(my->previous)
 					my->previous->next = my->next;
 				else if(my->in) {
-					if(my->in->nodes = my)
+					if(my->in->nodes == my)
 						my->in->nodes = my->next;
 					else
 						my->in->attributes = my->next;
@@ -445,7 +464,7 @@ template<typename document_> class
 		 node_if_mutable name(iterator_ begin, size_t size) {
 			if(!my)
 				return *this;
-			using char_ = typename things::utf<char_type>::char_type;
+			using uchar_ = typename memory_node::char_type;
 			size_t s = static_cast<size_t>(my->name_end_memory - my->name_begin);
 			if(s < size) {
 				// if this has name and value, maybe it will fit after the value?
@@ -478,7 +497,7 @@ template<typename document_> class
 					}
 				if(s < size)  {
 					// allocate :(
-					char_ *a = static_cast<char_*>(myd->allocate(size * sizeof(char_), alignof(char_)));
+					uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
 					if(!a)
 						return {};
 					// see if value can get memory. it can if it has no memory or if it has the memory before this (never move value)
@@ -496,10 +515,10 @@ template<typename document_> class
 					}
 				}
 			// copy
-			char_ *b = my->name_begin;
+			uchar_ *b = my->name_begin;
 			my->name_end = b;
 			while(size) {
-				*b++ = static_cast<char_>(*begin);
+				*b++ = static_cast<uchar_>(*begin);
 				++begin;
 				--size;
 				}
@@ -510,12 +529,12 @@ template<typename document_> class
 		 node_if_mutable name(iterator_ begin, iterator_ end) {
 			return name(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node_if_mutable name(char_ const *const& cstring) {
+		template<typename char2_>
+		 node_if_mutable name(char2_ const *const& cstring) {
 			return name(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node_if_mutable name(char_ const (&cstring)[size_]) {
+		template<typename char2_, size_t size_>
+		 node_if_mutable name(char2_ const (&cstring)[size_]) {
 			return name(cstring, size_ - 1);
 			}
 		template<typename range_>
@@ -526,7 +545,7 @@ template<typename document_> class
 		 node_if_mutable value(iterator_ begin, size_t size) {
 			if(!my)
 				return *this;
-			using char_ = typename things::utf<char_type>::char_type;
+			using uchar_ = typename memory_node::char_type;
 			auto *b = my->value_begin < my->value_end ? my->value_begin : my->value_end;
 			size_t s = static_cast<size_t>(my->value_end_memory - b);
 			if(s < size) {
@@ -546,7 +565,7 @@ template<typename document_> class
 					}
 				if(s < size)  {
 					// allocate :(
-					char_ *a = static_cast<char_*>(myd->allocate(size * sizeof(char_), alignof(char_)));
+					uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
 					if(!a)
 						return {};
 					// see if name can get memory. it can if it has no memory or if it has the memory before this (never move name)
@@ -566,7 +585,7 @@ template<typename document_> class
 			my->value_begin = b; // because maybe value_end < value_begin
 			my->value_end = b;
 			while(size) {
-				*b++ = static_cast<char_>(*begin);
+				*b++ = static_cast<uchar_>(*begin);
 				++begin;
 				--size;
 				}
@@ -577,12 +596,12 @@ template<typename document_> class
 		 node_if_mutable value(iterator_ begin, iterator_ end) {
 			return value(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node_if_mutable value(char_ const *const& cstring) {
+		template<typename char2_>
+		 node_if_mutable value(char2_ const *const& cstring) {
 			return value(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node_if_mutable value(char_ const (&cstring)[size_]) {
+		template<typename char2_, size_t size_>
+		 node_if_mutable value(char2_ const (&cstring)[size_]) {
 			return value(cstring, size_ - 1);
 			}
 		template<typename range_>
@@ -594,18 +613,18 @@ template<typename document_> class
 			// set the value of the first content node in nodes(), or create a node if there is none and size != 0. the created node will be first in nodes()
 			if(!my)
 				return *this;
-			node_ *n = my->nodes;
+			memory_node *n = my->nodes;
 			while(n && n->name_begin != n->name_end)
 				n = n->next;
 			if(!n) {
 				if(!size)
 					return *this; // all is good
-				auto a = myd->node(); // leak this if set value fails
+				auto a = mym->template create<char_type>(); // leak this if set value fails
 				if(!a)
 					return {};
 				n = a.my;
 				}
-			if(!node{myd, n}.value(begin, size))
+			if(!node{mym, n}.value(begin, size))
 				return {};
 			if(!n->in) {
 				n->in = my;
@@ -619,12 +638,12 @@ template<typename document_> class
 		 node_if_mutable first_value(iterator_ begin, iterator_ end) {
 			return first_value(begin, size(begin, end));
 			}
-		template<typename char_>
-		 node_if_mutable first_value(char_ const *const& cstring) {
+		template<typename char2_>
+		 node_if_mutable first_value(char2_ const *const& cstring) {
 			return first_value(cstring, cend(cstring));
 			}
-		template<typename char_, size_t size_>
-		 node_if_mutable first_value(char_ const (&cstring)[size_]) {
+		template<typename char2_, size_t size_>
+		 node_if_mutable first_value(char2_ const (&cstring)[size_]) {
 			return first_value(cstring, size_ - 1);
 			}
 		template<typename range_>
@@ -633,7 +652,7 @@ template<typename document_> class
 			}
 	private:
 		template<typename iterator_>
-		 static bool name_equal(node_ *n, iterator_ begin, size_t size) {
+		 static bool name_equal(memory_node *n, iterator_ begin, size_t size) {
 			if(static_cast<size_t>(n->name_end - n->name_begin) == size) {
 				auto ni = n->name_begin;
 				iterator_ i = begin;
@@ -643,16 +662,16 @@ template<typename document_> class
 				}
 			return false;
 			}
-		template<typename char_>
-		 static char_ const* cend(char_ const *a) {
+		template<typename char2_>
+		 static char2_ const* cend(char2_ const *a) {
 			if(a) while(*a) ++a;
 			return a;
 			}
-		static node_* first(node_ *a) {
+		static memory_node* first(memory_node *a) {
 			while(a->previous) a = a->previous;
 			return a;
 			}
-		static node_* last(node_ *a) {
+		static memory_node* last(memory_node *a) {
 			while(a->next) a = a->next;
 			return a;
 			}

@@ -60,6 +60,7 @@ template<typename memory_> class
 			return *this;
 			}
 		read& parse_in_place(void *pointer, size_t bytes) {
+			// This expects each byte to contain 8 bits
 			reset();
 			if(pointer && bytes) {
 				auto e = encoding(pointer, bytes);
@@ -157,7 +158,7 @@ template<typename memory_> class
 			myimprecise = myoverflow = myerror_memory = false;
 			myclip_string = myclip_name = false;
 			}
-		memory_node* new_node() {
+		memory_node* create() {
 			myerror_memory = true;
 			auto r = static_cast<memory_node*>(mymemory->allocate_with_undo(sizeof(memory_node))); // throws??
 			myerror_memory = r == 0;
@@ -239,7 +240,7 @@ template<typename memory_> class
 					bool empty = current.type == type::array ? *myat == ']' : *myat == '}';
 					if(!empty) {
 						// go deeper
-						memory_node *n = new_node();
+						memory_node *n = create();
 						if(!n)
 							return 0;
 						*n = current;
@@ -277,7 +278,7 @@ template<typename memory_> class
  				else if(!is("null")) // current is already null
 					return r;
 				
-				memory_node *n = new_node();
+				memory_node *n = create();
 				if(!n)
 					return 0;
 				*n = current;

@@ -11,6 +11,11 @@ namespace water { namespace unicode {
 
 Verify that input is valid utf, and returns the length of the input in all utf encodings.
 
+The optional verify argument to the constructors can be used to verify each char32_t codepoint more.
+For example this checks that its not 0:
+
+utf_lenght<8> length{begin, end, [](char32_t a) { return a != 0; }};
+
 */
 
 template<unsigned utf_> class
@@ -29,11 +34,19 @@ template<unsigned utf_> class
 	public:
 		template<typename forward_iterator_>
 		 utf_length(forward_iterator_ begin, size_t size) {
-			length(static_cast<select_*>(0), begin, size);
+			length(static_cast<select_*>(0), begin, size, no_verify{});
 			}
 		template<typename forward_iterator_>
 		 utf_length(forward_iterator_ begin, forward_iterator_ end) {
-			length(static_cast<select_*>(0), begin, end);
+			length(static_cast<select_*>(0), begin, end, no_verify{});
+			}
+		template<typename forward_iterator_, typename verify_>
+		 utf_length(forward_iterator_ begin, size_t size, verify_&& verify) {
+			length(static_cast<select_*>(0), begin, size, verify);
+			}
+		template<typename forward_iterator_, typename verify_>
+		 utf_length(forward_iterator_ begin, forward_iterator_ end, verify_&& verify) {
+			length(static_cast<select_*>(0), begin, end, verify);
 			}
 		explicit operator bool() const {
 			return myok;
@@ -57,12 +70,15 @@ template<unsigned utf_> class
 			return my32;
 			}
 	private:
-		template<typename iterator_> void
-		 length(char8_t*, iterator_ b, size_t s) {
+		struct no_verify {
+			bool operator()(char32_t) { return true; }
+			};
+		template<typename iterator_, typename verify_> void
+		 length(char8_t*, iterator_ b, size_t s, verify_&& verify) {
 			while(s) {
 				char32_t c;
 				unsigned n = utf8_decode_verify_and_move(c, b, s);
-				if(!n) {
+				if(!n || !verify(c)) {
 					myok = false;
 					return;
 					}
@@ -71,12 +87,12 @@ template<unsigned utf_> class
 				++my32;
 				}
 			}
-		template<typename iterator_> void
-		 length(char8_t*, iterator_ b, iterator_ e) {
+		template<typename iterator_, typename verify_> void
+		 length(char8_t*, iterator_ b, iterator_ e, verify_&& verify) {
 			while(b != e) {
 				char32_t c;
 				unsigned n = utf8_decode_verify_and_move(c, b, e);
-				if(!n) {
+				if(!n || !verify(c)) {
 					myok = false;
 					return;
 					}
@@ -85,12 +101,12 @@ template<unsigned utf_> class
 				++my32;
 				}
 			}
-		template<typename iterator_> void
-		 length(char16_t*, iterator_ b, size_t s) {
+		template<typename iterator_, typename verify_> void
+		 length(char16_t*, iterator_ b, size_t s, verify_&& verify) {
 			while(s) {
 				char32_t c;
 				unsigned n = utf16_decode_verify_and_move(c, b, s);
-				if(!n) {
+				if(!n || !verify(c)) {
 					myok = false;
 					return;
 					}
@@ -99,12 +115,12 @@ template<unsigned utf_> class
 				++my32;
 				}
 			}
-		template<typename iterator_> void
-		 length(char16_t*, iterator_ b, iterator_ e) {
+		template<typename iterator_, typename verify_> void
+		 length(char16_t*, iterator_ b, iterator_ e, verify_&& verify) {
 			while(b != e) {
 				char32_t c;
 				unsigned n = utf16_decode_verify_and_move(c, b, e);
-				if(!n) {
+				if(!n || !verify(c)) {
 					myok = false;
 					return;
 					}
@@ -113,21 +129,21 @@ template<unsigned utf_> class
 				++my32;
 				}
 			}
-		template<typename iterator_> void
-		 length(char32_t*, iterator_ b, size_t s) {
-			while(s && lenght32(*b)) {
+		template<typename iterator_, typename verify_> void
+		 length(char32_t*, iterator_ b, size_t s, verify_&& verify) {
+			while(s && lenght32(*b, verify)) {
 				++b;
 				--s;
 				}
 			}
-		template<typename iterator_> void
-		 length(char32_t*, iterator_ b, iterator_ e) {
-			while(b != e && lenght32(*b))
+		template<typename iterator_, typename verify_> void
+		 length(char32_t*, iterator_ b, iterator_ e, verify_&& verify) {
+			while(b != e && lenght32(*b, verify))
 				++b;
 			}
-		template<typename char_> bool
-		 lenght32(char_ c) {
-			if(!utf32_verify(c))
+		template<typename char_, typename verify_> bool
+		 lenght32(char_ c, verify_& verify) {
+			if(!utf32_verify(c) || !verify(static_cast<char32_t>(c)))
 				return myok = false;
 			if(c > 0xffff) {
 				my8 += 4;

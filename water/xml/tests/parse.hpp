@@ -77,8 +77,8 @@ template<typename char_> class
 			long file_size;
 			if(file.file && !fseek(file.file, 0, SEEK_END) && (file_size = ftell(file.file)) > 0 && !fseek(file.file, 0, SEEK_SET)) {
 				size_t bytes = static_cast<size_t>(file_size);
-				xml::document<char_, water::allocator_nothrow> document;
-				void *memory = document.allocate(bytes);
+				xml::memory<water::allocator_nothrow> xml_memory;
+				void *memory = xml_memory.allocate(bytes);
 				if(!memory)
 					o << "allocation of " << bytes << " bytes failed!\n";
 				else if(fread(memory, 1, bytes, file.file) != bytes)
@@ -104,16 +104,17 @@ template<typename char_> class
 					if(e.litte_endian()) o << "litte_endian ";
 					if(e.byte_order_mark()) o << "byte_order_mark=" << e.byte_order_mark();
 					o << str::el;
-					if(document.parse_in_place(memory, bytes, parse_callback<str::out<o_> >{ tags ? &o : 0 })) {
+					auto xml_read = read_to_memory<char_>(xml_memory);
+					if(xml_read.parse_in_place(memory, bytes, parse_callback<str::out<o_> >{ tags ? &o : 0 })) {
 						++success;
 						o << "parse success! "
-							<< write_indented_length(document) << " characters, "
-							<< document.memory_allocations() << " allocations, " << document.memory_use() << " bytes allocated, " << (document.memory_use() - document.memory_unused()) << " bytes used. "
-							<< "bytes used / file size: " << (static_cast<double>(document.memory_use() - document.memory_unused()) / bytes)
+							<< write_size(xml_read.nodes()) << " characters, "
+							<< xml_memory.blocks() << " allocations, " << xml_memory.total_size() << " bytes allocated, " << xml_memory.allocated_now() << " bytes used. "
+							<< "bytes used / file size: " << (static_cast<double>(xml_memory.allocated_now()) / bytes)
 							<< str::el;
 						if(!quiet) {
-							write_indented(write_to_str(o), document);
-							o	<< str::el;
+							write_unbuffered(o, xml_read.nodes());
+							o << str::el;
 							}
 						}
 					else if(e.utf8() || e.utf16()) {
@@ -158,12 +159,23 @@ inline int parse_main(int c, char **v) {
 	else {
 		o << '\n';
 		bool
-			utf16 = cequal(v[1], "-utf16") || c > 2 && cequal(v[2], "-utf16") || c > 3 && cequal(v[3], "-utf16"),
-			quiet = cequal(v[1], "-quiet") || c > 2 && cequal(v[2], "-quiet") || c > 3 && cequal(v[3], "-quiet"),
-			tags = cequal(v[1], "-tags") || c > 2 && cequal(v[2], "-tags") || c > 3 && cequal(v[3], "-tags");
-		int i = 1 + utf16 + quiet + tags;
+			utf16 = cequal(v[1], "-utf16") || (c > 2 && cequal(v[2], "-utf16")) || (c > 3 && cequal(v[3], "-utf16")),
+			utf32 = cequal(v[1], "-utf32") || (c > 2 && cequal(v[2], "-utf32")) || (c > 3 && cequal(v[3], "-utf32")),
+			quiet = cequal(v[1], "-quiet") || (c > 2 && cequal(v[2], "-quiet")) || (c > 3 && cequal(v[3], "-quiet")),
+			tags = cequal(v[1], "-tags") || (c > 2 && cequal(v[2], "-tags")) || (c > 3 && cequal(v[3], "-tags"));
+		if(utf16 && utf32) {
+			o << "Cannot use utf16 and utf32\n";
+			return 0;
+			}
+		int i = 1 + utf16 + utf32 + quiet + tags;
 		if(utf16) {
 			parse<char16_t> p;
+			while(i < c)
+				p.file(o, v[i++], quiet, tags);
+			p.summary(o);
+			}
+		else if(utf32) {
+			parse<char32_t> p;
 			while(i < c)
 				p.file(o, v[i++], quiet, tags);
 			p.summary(o);

@@ -270,7 +270,7 @@ template<typename memory_ = void> class
 			return a;
 			}
 		node_if_mutable push_back() {
-			return my ? push_back(mym->node()) : node{mym, 0};
+			return my ? push_back(mym->create()) : node{mym, 0};
 			}
 		node_if_mutable pop_back() {
 			node r {mym, 0};
@@ -315,7 +315,7 @@ template<typename memory_ = void> class
 			return a;
 			}
 		node_if_mutable insert(size_t at) {
-			return my ? insert(at, mym->node()) : node{mym, 0};
+			return my ? insert(at, mym->create()) : node{mym, 0};
 			}
 		node_if_mutable remove(size_t at) {
 			if(!my || !my->me.capacity || at > my->size)

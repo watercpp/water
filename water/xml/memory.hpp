@@ -2,12 +2,14 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_JSON_MEMORY_HPP
-#define WATER_JSON_MEMORY_HPP
-#include <water/json/node.hpp>
-#include <water/json/memory_block.hpp>
+#ifndef WATER_XML_MEMORY_HPP
+#define WATER_XML_MEMORY_HPP
+#include <water/xml/node.hpp>
+#include <water/xml/memory_block.hpp>
 #include <water/allocator.hpp>
-namespace water { namespace json {
+namespace water { namespace xml {
+
+// this is copy paste from water::json
 
 size_t constexpr
 	memory_block_size_default = 4096,
@@ -23,7 +25,6 @@ template<typename allocator_ = water::allocator> class
  memory {
 	public:
 		using allocator_type = allocator_;
-		using node_type = json::node<memory<allocator_>>;
 	private:
 		allocator_type myallocator {};
 		size_t myblocksize = memory_block_size_default;
@@ -67,7 +68,7 @@ template<typename allocator_ = water::allocator> class
 			return myblocksize;
 			}
 		void block_size(size_t a) {
-			myblocksize = a - (a % alignof(memory_node));
+			myblocksize = a - (a % alignof(memory_node<char>));
 			if(!myblocksize)
 				myblocksize = memory_block_size_default;
 			}
@@ -138,10 +139,14 @@ template<typename allocator_ = water::allocator> class
 				}
 			return r;
 			}
-		node_type create() {
-			auto n = static_cast<memory_node*>(allocate(sizeof(memory_node), alignof(memory_node)));
-			if(n) *n = {};
-			return {*this, n};
+		template<typename char_>
+		 xml::node<char_, memory<allocator_>> create() {
+			auto r = static_cast<memory_node<char_>*>(allocate(sizeof(memory_node<char_>), alignof(memory_node<char_>)));
+			if(r) *r = {};
+			return {*this, r};
+			}
+		xml::node<char, memory<allocator_>> create() {
+			return this->template create<char>();
 			}
 	private:
 		void* allocate_do(size_t bytes, size_t align, bool undo) {
@@ -191,8 +196,12 @@ template<typename allocator_> void swap(memory<allocator_>& a, memory<allocator_
 	a.swap(b);
 	}
 
-template<typename allocator_> node<memory<allocator_>> create(memory<allocator_>& a) { // water::xml has this
-	return a.create();
+template<typename char_, typename allocator_> node<char_, memory<allocator_>> create(memory<allocator_>& a) {
+	return a.template create<char_>();
+	}
+
+template<typename allocator_> node<char, memory<allocator_>> create(memory<allocator_>& a) {
+	return a.template create<char>();
 	}
 
 }}
