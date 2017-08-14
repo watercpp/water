@@ -99,7 +99,7 @@ template<typename allocator_ = water::allocator> class
 			// free all allocations made with allocate_with_undo
 			auto b = my;
 			while(b) {
-				b->undo();
+				b->undo_now();
 				b = b->list;
 				}
 			}
