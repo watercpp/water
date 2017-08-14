@@ -17,6 +17,7 @@ leading_zeros makes this return that many 0 before the number
 
 template<typename int_> class
  int_iterator {
+	using select_ = typename types::ifel<numeric_limits<int_>::is_signed, signed, unsigned>::result; // avoid warning compare -1 with unsigned, intel c++
 	public:
 		using iterator_category = forward_iterator_tag;
 		using value_type = unsigned;
@@ -41,7 +42,7 @@ template<typename int_> class
 			my0(leading_zeros)
 			{
 			___water_assert(divide && 2 <= base && base <= 16 && (divide > 0 || my < 1));
-			if(!my0) digit();
+			if(!my0) digit(select_{});
 			}
 		explicit int_iterator(unsigned at) : // use this to make end
 			myat(at)
@@ -56,7 +57,7 @@ template<typename int_> class
 			mydigit = 0;
 			++myat; // dont care if wrap around?
 			if(my0 <= myat)
-				digit();
+				digit(select_{});
 			return *this;
 			}
 		int_iterator operator++(int) {
@@ -71,12 +72,18 @@ template<typename int_> class
 			return myat != a.myat;
 			}
 	private:
-		void digit() {
+		void digit(signed) {
 			if(mydivide) {
 				if(mydivide == -1)
 					mydigit = static_cast<unsigned>((my % mybase) * static_cast<int_>(-1)); // cannot divide 2s complement min with -1
 				else
 					mydigit = static_cast<unsigned>((my / mydivide) % mybase);
+				mydivide /= mybase;
+				}
+			}
+		void digit(unsigned) {
+			if(mydivide) {
+				mydigit = static_cast<unsigned>((my / mydivide) % mybase);
 				mydivide /= mybase;
 				}
 			}
