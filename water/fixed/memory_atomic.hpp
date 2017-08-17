@@ -185,6 +185,8 @@ template<typename allocator_ = void, bool statistics_ = false> class
  					if(!block)
  						break;
  					}
+				else
+					list = block = now;
  				}
  			statistics_allocate_failed(mystatistics, lock_free);
  			return 0;
