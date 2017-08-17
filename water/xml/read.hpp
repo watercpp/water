@@ -18,7 +18,7 @@ namespace water { namespace xml {
 // - memory_ must be a xml::memory
 //
 // The callback used with parse will be called on each tag, before it's content has been parsed but
-// after the attributes. it might be useful to build an index of the document. The nodes attributes can
+// after the attributes. It might be useful to build an index of the document. The nodes attributes can
 // be modified by the callback, but do not change anything else. It should look like this:
 //
 //   struct callback { void operator()(node_type) {} };
@@ -27,6 +27,10 @@ namespace water { namespace xml {
 //
 // This will not free memory before parsing, because allocate() can be used to allocate memory. It
 // is probably a good idea to clear() before parsing if the same memory is reused.
+//
+// This will parse text content and attribute values lazily, when they are first accessed by node::value.
+// This means node::value is not really a const operation, it can modify data. To avoid this, use lazy(flalse).
+// This matters if the nodes are read by mutlple threads at the same time, in that case always use lazy(false).
 //
 // All allocations made by this use xml::memory::alloacte_with_undo, and xml::memory::no_undo only if parsing is successful.
 //
@@ -51,6 +55,7 @@ template<typename char_ = char, typename memory_ = memory<>> class
 		uchar_
 			*myi = 0, // when parse fails this is probably pointing to where it failed
 			*mye = 0;
+		bool mydecode = false;
 	public:
 		read(memory_type& a) :
 			mymemory{&a}
@@ -58,7 +63,13 @@ template<typename char_ = char, typename memory_ = memory<>> class
 		explicit operator bool() const {
 			return my != 0;
 			}
+		read& lazy(bool a) {
+			// decode all values at once.
+			mydecode = !a;
+			return *this;
+			}
 		text<char_type const*> parse_error() const {	
+			// returns the xml text remaining when parsing failed, it is probably where the error is
 			if(myi == mye)
 				return {};
 			return {static_cast<char_type const*>(static_cast<void const*>(myi)), static_cast<char_type const*>(static_cast<void const*>(mye))};
@@ -304,6 +315,8 @@ template<typename char_ = char, typename memory_ = memory<>> class
 			// <?processing instruction?>
 			// <![CDATA[ .... ]]>
 			
+			typename memory_type::undo_mode_auto undo{*mymemory}; // this means the callback wont allcoate() and overwrite something in the undo allocations
+			
 			// skip bom
 			if(utf != 8 && myi != mye && *myi == 0xfeffu)
 				++myi;
@@ -336,8 +349,14 @@ template<typename char_ = char, typename memory_ = memory<>> class
 						// add node!
 						auto *n = create();
 						if(!n) return false;
-						n->value_begin = e; // backwards, decoded later
-						n->value_end = b;
+						if(mydecode) {
+							n->value_begin = b;
+							n->value_end = decode(b, e);
+							}
+						else {
+							n->value_begin = e; // backwards, decoded later
+							n->value_end = b;
+							}
 						n->value_end_memory = e;
 						if(end_memory) *end_memory = b;
 						end_memory = &n->value_end_memory;
@@ -508,8 +527,14 @@ template<typename char_ = char, typename memory_ = memory<>> class
 						a->name_begin = ab;
 						a->name_end = ae;
 						a->name_end_memory = vb;
-						a->value_begin = ve; // backwards, decoded later
-						a->value_end = vb;
+						if(mydecode) {
+							a->value_begin = vb;
+							a->value_end = decode_attribute(vb, ve);
+							}
+						else {
+							a->value_begin = ve; // backwards, decoded later
+							a->value_end = vb;
+							}
 						a->value_end_memory = ve;
 						if(end_memory) *end_memory = ab;
 						end_memory = &a->value_end_memory;

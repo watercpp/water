@@ -31,6 +31,7 @@ template<typename allocator_ = water::allocator> class
 		memory_block *my = 0;
 		bool myerror = false;
 		bool myauto = true; // automatic block size up to memory_block_size_auto_max
+		bool myundo = false; // undo mode
 	public:
 		memory() = default;
 		memory(allocator_type const& a) :
@@ -80,7 +81,7 @@ template<typename allocator_ = water::allocator> class
 			myauto = a;
 			}
 		void* allocate(size_t bytes, size_t align = 0) {
-			return allocate_do(bytes, align, false);
+			return allocate_do(bytes, align, myundo);
 			}
 		void* allocate_with_undo(size_t bytes, size_t align = 0) {
 			// after successful allocations, call no_undo() otherwise the next allocate() or clear() will take over the allocations made with undo
@@ -89,6 +90,18 @@ template<typename allocator_ = water::allocator> class
 		bool allocate_has_failed() const {
 			return myerror;
 			}
+		void undo_mode(bool a) {
+			// true means the regular allocate() will work as allocate_with_undo().
+			myundo = a;
+			}
+		class undo_mode_auto {
+			memory *my;
+			public:
+				undo_mode_auto(memory& a) : my{&a} { my->undo_mode(true); }
+				~undo_mode_auto() { my->undo_mode(false); }
+				undo_mode_auto(undo_mode_auto const&) = delete;
+				undo_mode_auto& operator=(undo_mode_auto const&) = delete;
+			};
 		void no_undo() {
 			auto b = my;
 			while(b) {
