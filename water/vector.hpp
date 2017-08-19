@@ -333,7 +333,7 @@ template<typename value_, typename allocator_ = void, typename sizer_ = void> cl
 			// excatly like push back except it will new value_type(arguments...)
 			if(!push_back_do())
 				return 0;
-			new(here(myend)) value_type(static_cast<arguments_&&>(arguments)...);
+			new(here(myend)) value_type{static_cast<arguments_&&>(arguments)...};
 			return myend++;
 			}
 		bool empty() const noexcept {
