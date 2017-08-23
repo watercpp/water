@@ -214,7 +214,7 @@ template<typename type_> class
 			___water_assert(o != interlocked_order_release /*&& o != interlocked_order_acq_rel*/);
 			atomic_ r;
 			if(o || sizeof(type_) > sizeof(void*))
-				r = cast_to_type::do_it(interlocked_compare_exchange(const_cast<atomic_*>(&my), 0, 0, o));
+				r = interlocked_compare_exchange(const_cast<atomic_*>(&my), 0, 0, o);
 			else
 				r = static_cast<atomic_ const volatile&>(my);
 			return cast_to_type::do_it(r);
