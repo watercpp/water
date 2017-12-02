@@ -58,6 +58,7 @@ namespace _ {
 
 	template<typename a_, typename = void> struct char_type_of : types::type_plain<char> {};
 	template<typename a_> struct char_type_of<a_, types::to_void<typename a_::char_type>> : types::type_plain<typename a_::char_type> {};
+
 }
 template<typename a_> using char_type_of = typename _::char_type_of<a_>::result;
 
@@ -75,11 +76,11 @@ template<typename write_> class
 			{}
 		out(out const& a) :
 			write_{static_cast<write_ const&>(a)}, // visual c++
-			mysettings{}
+			mysettings{a.mysettings}
 			{}
 		out(out&& a):
 			write_{static_cast<write_&&>(a)}, // visual c++
-			mysettings{}
+			mysettings{static_cast<str::settings&&>(a.mysettings)}
 			{}
 		template<typename ...arguments_> out(arguments_&&... a) :
 			write_{static_cast<arguments_&&>(a)...},
@@ -207,12 +208,6 @@ class write_complete {
 //
 // out << restore_settings << base(16) << 123;
 
-class restore_settings_move;
-
-struct restore_settings_struct {
-	template<typename write_> restore_settings_move operator()(out<write_>& o) const;
-	} constexpr restore_settings {};
-
 class restore_settings_move {
 	settings
 		*mypointer = 0,
@@ -220,7 +215,7 @@ class restore_settings_move {
 	public:
 		restore_settings_move(restore_settings_move const&) = delete;
 		restore_settings_move& operator=(restore_settings_move const&) = delete;
-		restore_settings_move(restore_settings_struct)
+		restore_settings_move(restore_settings_move* (&)())
 			{}
 		explicit restore_settings_move(settings& a) :
 			mypointer{&a},
@@ -242,8 +237,12 @@ class restore_settings_move {
 			}
 	};
 
-template<typename write_> restore_settings_move restore_settings_struct::operator()(out<write_>& o) const {
+template<typename write_> restore_settings_move restore_settings(out<write_>& o) {
 	return restore_settings_move{o.settings()};
+	}
+
+inline restore_settings_move* restore_settings() {
+	return 0;
 	}
 
 template<typename write_> out<write_>& operator<<(out<write_>& o, restore_settings_move&& a) {
