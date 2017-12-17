@@ -103,6 +103,7 @@ template<typename o_> void everything(out<o_>& o) {
 	auto restore = restore_settings(o);
 	o
 		<< restore_settings
+		<< &o
 		<< settings{}
 		<< flush
 		<< el

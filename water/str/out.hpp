@@ -13,6 +13,35 @@ namespace water { namespace str {
 
 using numbers::settings;
 
+class restore_settings_move {
+	settings
+		*mypointer = 0,
+		mysettings;
+	public:
+		restore_settings_move(restore_settings_move const&) = delete;
+		restore_settings_move& operator=(restore_settings_move const&) = delete;
+		restore_settings_move(restore_settings_move* (&)())
+			{}
+		explicit restore_settings_move(settings& a) :
+			mypointer{&a},
+			mysettings{a}
+			{}
+		restore_settings_move(restore_settings_move&& a) :
+			mypointer{a.mypointer},
+			mysettings{a.mysettings}
+			{
+			a.mypointer = 0;
+			}
+		~restore_settings_move() {
+			if(mypointer) *mypointer = mysettings;
+			}
+		restore_settings_move& operator=(restore_settings_move&& a) {
+			swap_from_swap(mypointer, a.mypointer);
+			swap_from_swap(mysettings, a.mysettings);
+			return *this;
+			}
+	};
+
 namespace _ {
 
 	template<typename a_, typename = void> struct
@@ -95,6 +124,9 @@ template<typename write_> class
 			}
 		str::settings const& settings() const {
 			return mysettings;
+			}
+		friend restore_settings_move restore_settings(out<write_>& a) {
+			return restore_settings_move{a.settings()};
 			}
 		template<typename iterator_> out& operator()(iterator_ begin, iterator_ end) {
 			if(begin != end)
@@ -208,38 +240,10 @@ class write_complete {
 //
 // out << restore_settings << base(16) << 123;
 
-class restore_settings_move {
-	settings
-		*mypointer = 0,
-		mysettings;
-	public:
-		restore_settings_move(restore_settings_move const&) = delete;
-		restore_settings_move& operator=(restore_settings_move const&) = delete;
-		restore_settings_move(restore_settings_move* (&)())
-			{}
-		explicit restore_settings_move(settings& a) :
-			mypointer{&a},
-			mysettings{a}
-			{}
-		restore_settings_move(restore_settings_move&& a) :
-			mypointer{a.mypointer},
-			mysettings{a.mysettings}
-			{
-			a.mypointer = 0;
-			}
-		~restore_settings_move() {
-			if(mypointer) *mypointer = mysettings;
-			}
-		restore_settings_move& operator=(restore_settings_move&& a) {
-			swap_from_swap(mypointer, a.mypointer);
-			swap_from_swap(mysettings, a.mysettings);
-			return *this;
-			}
-	};
-
-template<typename write_> restore_settings_move restore_settings(out<write_>& o) {
-	return restore_settings_move{o.settings()};
-	}
+// this is a friend inside out because visual c++ did not like the << restore_settings operator otherwise
+// template<typename write_> restore_settings_move restore_settings(out<write_>& o) {
+//     return restore_settings_move{o.settings()};
+//     }
 
 inline restore_settings_move* restore_settings() {
 	return 0;
@@ -335,11 +339,11 @@ template<typename write_> out<write_>& operator<<(out<write_>& o, long double a)
 
 // pointer
 
-template<typename type_> struct void_const_pointer_if { using result = void_const_pointer_if; };
-template<> struct void_const_pointer_if<char> {};
-template<> struct void_const_pointer_if<char16_t> {};
-template<> struct void_const_pointer_if<char32_t> {};
-template<> struct void_const_pointer_if<wchar_t> {};
+template<typename type_, typename = decltype(static_cast<void const*>(0) == static_cast<type_ const*>(0))> struct void_const_pointer_if { using result = void_const_pointer_if; };
+template<> struct void_const_pointer_if<char, bool> {};
+template<> struct void_const_pointer_if<char16_t, bool> {};
+template<> struct void_const_pointer_if<char32_t, bool> {};
+template<> struct void_const_pointer_if<wchar_t, bool> {};
 
 struct void_const_pointer {
 	void const *pointer;
