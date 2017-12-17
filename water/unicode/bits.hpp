@@ -33,21 +33,6 @@ template<typename iterator_, typename result_, typename category_ = typename ite
 template<typename iterator_, typename result_> struct
  if_not_random_access<iterator_, result_, random_access_iterator_tag>
 	{};
-	
-template<typename iterator_> typename if_random_access<iterator_, size_t>::result
- size(iterator_ begin, iterator_ end) {
-	return static_cast<size_t>(end - begin);
-	}
-
-template<typename iterator_> typename if_not_random_access<iterator_, size_t>::result
- size(iterator_ begin, iterator_ end) {
-	size_t r = 0;
-	while(begin != end) {
-		++begin;
-		++r;
-		}
-	return r;
-	}
 
 template<typename iterator_> class
  begin_end {
@@ -61,22 +46,6 @@ template<typename iterator_> class
 		explicit operator bool() const { return mybegin != myend; }
 		iterator begin() const { return mybegin; }
 		iterator end() const { return myend; }
-	};
-
-template<typename iterator_> class
- begin_size {
-	public:
-		using iterator = iterator_;
-		using size_type = size_t;
-	private:
-		iterator_ mybegin;
-		size_type mysize;
-	public:
-		begin_size() : mybegin{}, mysize{} {}
-		begin_size(iterator begin, size_type size) : mybegin{begin}, mysize{size} {}
-		explicit operator bool() const { return mysize != 0; }
-		iterator begin() const { return mybegin; }
-		size_type size() const { return mysize; }
 	};
 
 template<typename char_> inline char32_t cast(char_ a) { return static_cast<char32_t>(a); }

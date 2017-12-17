@@ -146,34 +146,28 @@ constexpr char8_t utf8_first_lookup[0x100] = {
 	4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // f
 	};
 
-// do not have ifel in function returns because visual c++ does not like it
-template<typename char_> struct
- if_utf8_max_255 : types::ifel<(static_cast<char_>(-1) > 0 && static_cast<char_>(-1) <= 0xff), char8_t>
-	{};
-template<typename char_> struct
- if_utf8_max_more_than_255 : types::ifel<(static_cast<char_>(-1) > 0xff), char8_t>
-	{};
+namespace _ {
+	template<typename char_, bool = (static_cast<char_>(-1) > 0 && static_cast<char_>(-1) <= 0xff)> struct
+	 utf8_first_lookup_do {
+		static char8_t at(char_ a) { return utf8_first_lookup[a]; }
+		};
+	template<typename char_> struct
+	 utf8_first_lookup_do<char_, false> {
+		static char8_t at(char_ a) { return 0 <= a && a <= 0xff ? utf8_first_lookup[a] : 0; }
+		};
+	}
 
-template<typename char_> inline typename if_utf8_max_255<char_>::result
+template<typename char_> inline char8_t
  utf8_first_of(char_ a) {
-	return utf8_first_lookup[a];
-	}
-template<typename char_> inline typename if_utf8_max_more_than_255<char_>::result
- utf8_first_of(char_ a) {
-	return a > 0xff ? 0 : utf8_first_lookup[a];
-	}
-	
-inline char8_t
- utf8_cast(char a) {
-	return static_cast<char8_t>(a);
+	return _::utf8_first_lookup_do<char_>::at(a);
 	}
 inline char8_t
- utf8_cast(signed char a) {
-	return static_cast<char8_t>(a);
+ utf8_first_of(char a) {
+	return utf8_first_of(static_cast<char8_t>(a));
 	}
-template<typename char_> inline char_
- utf8_cast(char_ a) {
-	return a;
+inline char8_t
+ utf8_first_of(signed char a) {
+	return utf8_first_of(static_cast<char8_t>(a));
 	}
 
 template<typename char_> inline char16_t
@@ -181,7 +175,15 @@ template<typename char_> inline char16_t
 	// will always return a vaild codepoint
 	return
 		(static_cast<char16_t>(c0 & 0x1f) << 6) |
-		(utf8_cast(c1) & 0x3f);
+		(c1 & 0x3f);
+	}
+inline char16_t
+ utf8_unpack(char c0, char c1) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+	}
+inline char16_t
+ utf8_unpack(signed char c0, signed char c1) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
 	}
 
 template<typename char_> inline char16_t
@@ -191,6 +193,14 @@ template<typename char_> inline char16_t
 		(static_cast<char16_t>(c0 & 0x0f) << 12) |
 		(static_cast<char16_t>(c1 & 0x3f) << 6) |
 		(c2 & 0x3f);
+	}
+inline char16_t
+ utf8_unpack(char c0, char c1, char c2) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+	}
+inline char16_t
+ utf8_unpack(signed char c0, signed char c1, signed char c2) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
 	}
 
 template<typename char_> inline char32_t
@@ -202,12 +212,28 @@ template<typename char_> inline char32_t
 		(static_cast<char32_t>(c2 & 0x3f) << 6) |
 		(c3 & 0x3f);
 	}
+inline char32_t
+ utf8_unpack(char c0, char c1, char c2, char c3) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+	}
+inline char32_t
+ utf8_unpack(signed char c0, signed char c1, signed char c2, signed char c3) {
+	return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+	}
 
 template<typename char_> bool
  utf8_verify(char_, char_ c1) {
 	// use utf8_first_of before this or die
 	// using < and > comparations instead of masks because they work even when char-type is more than 8 bits or signed
 	return 0x80 <= c1 && c1 <= 0xbf;
+	}
+inline bool
+ utf8_verify(char c0, char c1) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+	}
+inline bool
+ utf8_verify(signed char c0, signed char c1) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
 	}
 
 template<typename char_> bool
@@ -219,6 +245,14 @@ template<typename char_> bool
 		) &&
 		0x80 <= c2 && c2 <= 0xbf;
 	}
+inline bool
+ utf8_verify(char c0, char c1, char c2) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+	}
+inline bool
+ utf8_verify(signed char c0, signed char c1, signed char c2) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+	}
 
 template<typename char_> bool
  utf8_verify(char_ c0, char_ c1, char_ c2, char_ c3) {
@@ -229,6 +263,14 @@ template<typename char_> bool
 		) &&
 		0x80 <= c2 && c2 <= 0xbf &&
 		0x80 <= c3 && c3 <= 0xbf;
+	}
+inline bool
+ utf8_verify(char c0, char c1, char c2, char c3) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+	}
+inline bool
+ utf8_verify(signed char c0, signed char c1, signed char c2, signed char c3) {
+	return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
 	}
 	
 template<typename char_> inline bool
@@ -296,27 +338,27 @@ template<typename to_, typename iterator_, typename int_> typename types::ifel_t
 	// returns 0 to 4, how many characters was read from from.
 	if(!size)
 		return 0;
-	auto f = utf8_cast(*from); // read once
+	auto f = *from; // read once
 	unsigned n = utf8_first_of(f);
 	if(n > size)
 		return static_cast<unsigned>(size = 0);
 	switch(n) {
 		case 2:
-			to = utf8_unpack(f, utf8_cast(*++from));
+			to = utf8_unpack(f, *++from);
 			break;
 		case 3: {
-			auto f1 = utf8_cast(*++from), f2 = utf8_cast(*++from);
+			auto f1 = *++from, f2 = *++from;
 			to = utf8_unpack(f, f1, f2);
 			break;
 			}
 		case 4: {
-			auto f1 = utf8_cast(*++from), f2 = utf8_cast(*++from), f3 = utf8_cast(*++from);
+			auto f1 = *++from, f2 = *++from, f3 = *++from;
 			to = utf8_unpack(f, f1, f2, f3);
 			break;
 			}
 		default:
 			n = 1;
-			to = f;
+			to = cast(f);
 		}
 	size -= n;
 	++from;
@@ -328,23 +370,23 @@ template<typename to_, typename iterator_> typename if_random_access<iterator_, 
 	// return 0 to 4, 0 if from reached end
 	if(from == end)
 		return 0;
-	auto f = utf8_cast(*from);
+	auto f = *from;
 	unsigned n = utf8_first_of(f);
 	if(static_cast<size_t>(end - from) < n)
 		return 0;
 	switch(n) {
 		case 2:
-			to = utf8_unpack(f, utf8_cast(from[1]));
+			to = utf8_unpack(f, from[1]);
 			break;
 		case 3:
-			to = utf8_unpack(f, utf8_cast(from[1]), utf8_cast(from[2]));
+			to = utf8_unpack(f, from[1], from[2]);
 			break;
 		case 4:
-			to = utf8_unpack(f, utf8_cast(from[1]), utf8_cast(from[2]), utf8_cast(from[3]));
+			to = utf8_unpack(f, from[1], from[2], from[3]);
 			break;
 		default:
 			n = 1;
-			to = f;
+			to = cast(f);
 		}
 	from += n;
 	return n;
@@ -357,29 +399,29 @@ template<typename to_, typename iterator_> typename if_not_random_access<iterato
 	// post: if return 0, from == end
 	if(from == end)
 		return 0;
-	auto f0 = utf8_cast(*from); // read once
+	auto f0 = *from; // read once
 	++from;
 	unsigned n = utf8_first_of(f0);
 	if(n < 2) {
-		to = f0;
+		to = cast(f0);
 		return 1;
 		}
 	else if(from != end) {
-		auto f1 = utf8_cast(*from);
+		auto f1 = *from;
 		++from;
 		if(n == 2) {
 			to = utf8_unpack(f0, f1);
 			return 2;
 			}
 		else if(from != end) {
-			auto f2 = utf8_cast(*from);
+			auto f2 = *from;
 			++from;
 			if(n == 3) {
 				to = utf8_unpack(f0, f1, f2);
 				return 3;
 				}
 			else if(from != end) {
-				to = utf8_unpack(f0, f1, f2, utf8_cast(*from));
+				to = utf8_unpack(f0, f1, f2, *from);
 				++from;
 				return 4;
 				}
@@ -487,7 +529,7 @@ template<typename to_, typename iterator_, typename int_> typename types::ifel_t
 	// returns 0 to 4
 	if(!size)
 		return 0;
-	auto f = utf8_cast(*from); // read once
+	auto f = *from; // read once
 	unsigned n = utf8_first_of(f);
 	if(n > size)
 		return static_cast<unsigned>(size = 0);
@@ -495,28 +537,28 @@ template<typename to_, typename iterator_, typename int_> typename types::ifel_t
 		case 0:
 			return 0;
 		case 2: {
-			auto f1 = utf8_cast(*++from);
+			auto f1 = *++from;
 			if(!utf8_verify(f, f1))
 				return 0;
 			to = utf8_unpack(f, f1);
 			break;
 			}
 		case 3: {
-			auto f1 = utf8_cast(*++from), f2 = utf8_cast(*++from);
+			auto f1 = *++from, f2 = *++from;
 			if(!utf8_verify(f, f1, f2))
 				return 0;
 			to = utf8_unpack(f, f1, f2);
 			break;
 			}
 		case 4: {
-			auto f1 = utf8_cast(*++from), f2 = utf8_cast(*++from), f3 = utf8_cast(*++from);
+			auto f1 = *++from, f2 = *++from, f3 = *++from;
 			if(!utf8_verify(f, f1, f2, f3))
 				return 0;
 			to = utf8_unpack(f, f1, f2, f3);
 			break;
 			}
 		default:
-			to = f;
+			to = cast(f);
 		}
 	size -= n;
 	++from;
@@ -528,34 +570,34 @@ template<typename to_, typename iterator_> typename if_random_access<iterator_, 
 	// return 0 to 4, 0 if from reached end
 	if(from == end)
 		return 0;
-	auto f = utf8_cast(*from);
+	auto f = *from;
 	unsigned n = utf8_first_of(f);
 	if(!n || static_cast<size_t>(end - from) < n)
 		return 0;
 	switch(n) {
 		case 2: {
-			auto f1 = utf8_cast(from[1]);
+			auto f1 = from[1];
 			if(!utf8_verify(f, f1))
 				return 0;
 			to = utf8_unpack(f, f1);
 			break;
 			}
 		case 3: {
-			auto f1 = utf8_cast(from[1]), f2 = utf8_cast(from[2]);
+			auto f1 = from[1], f2 = from[2];
 			if(!utf8_verify(f, f1, f2))
 				return 0;
 			to = utf8_unpack(f, f1, f2);
 			break;
 			}
 		case 4: {
-			auto f1 = utf8_cast(from[1]), f2 = utf8_cast(from[2]), f3 = utf8_cast(from[3]);
+			auto f1 = from[1], f2 = from[2], f3 = from[3];
 			if(!utf8_verify(f, f1, f2, f3))
 				return 0;
 			to = utf8_unpack(f, f1, f2, f3);
 			break;
 			}
 		default:
-			to = f;
+			to = cast(f);
 		}
 	from += n;
 	return n;
@@ -568,15 +610,15 @@ template<typename to_, typename iterator_> typename if_not_random_access<iterato
 	// post: if return 0, from == end
 	if(from == end)
 		return 0;
-	auto f0 = utf8_cast(*from); // read once
+	auto f0 = *from; // read once
 	++from;
 	unsigned n = utf8_first_of(f0);
 	if(n == 1) {
-		to = f0;
+		to = cast(f0);
 		return 1;
 		}
 	else if(n && from != end) {
-		auto f1 = utf8_cast(*from);
+		auto f1 = *from;
 		++from;
 		if(n == 2) {
 			if(!utf8_verify(f0, f1))
@@ -585,7 +627,7 @@ template<typename to_, typename iterator_> typename if_not_random_access<iterato
 			return 2;
 			}
 		else if(from != end) {
-			auto f2 = utf8_cast(*from);
+			auto f2 = *from;
 			++from;
 			if(n == 3) {
 				if(!utf8_verify(f0, f1, f2))
@@ -594,7 +636,7 @@ template<typename to_, typename iterator_> typename if_not_random_access<iterato
 				return 3;
 				}
 			else if(from != end) {
-				auto f3 = utf8_cast(*from);
+				auto f3 = *from;
 				++from;
 				if(!utf8_verify(f0, f1, f2, f3))
 					return 0;
@@ -1043,7 +1085,7 @@ template<typename iterator_> iterator_ utf8_adjust_end(iterator_ begin, iterator
 	while(e != begin) {	
 		--e;
 		++s;
-		if(auto n = utf8_first_of(utf8_cast(*e)))
+		if(auto n = utf8_first_of(*e))
 			return n > s ? e : end;
 		}
 	return end;
