@@ -34,7 +34,7 @@ class hexdump : public callback<hexdump> {
 			mybytes{static_cast<size_t>(static_cast<char const*>(end) - static_cast<char const*>(begin))}
 			{}
 		template<typename o_> void operator()(out<o_>& o) const {
-			auto r = restore_settings(o);
+			auto r = o.restore_settings();
 			size_t bytes = mybytes;
 			unsigned line_digits = 1;
 			while(bytes /= 10) ++line_digits;

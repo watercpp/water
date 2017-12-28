@@ -33,7 +33,7 @@ class bytes : public callback<bytes> {
 			mybytes{static_cast<size_t>(static_cast<char const*>(end) - static_cast<char const*>(begin))}
 			{}
 		template<typename o_> void operator()(out<o_>& o) {
-			auto r = restore_settings(o);
+			auto r = o.restore_settings();
 			o << settings{}.base(16).base_prefix_suffix(false).digits(numbers::max_digits<unsigned char>(16));
 			auto
 				i = static_cast<unsigned char const*>(my),

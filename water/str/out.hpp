@@ -13,6 +13,8 @@ namespace water { namespace str {
 
 using numbers::settings;
 
+struct restore_settings_type {} constexpr restore_settings;
+
 class restore_settings_move {
 	settings
 		*mypointer = 0,
@@ -20,7 +22,7 @@ class restore_settings_move {
 	public:
 		restore_settings_move(restore_settings_move const&) = delete;
 		restore_settings_move& operator=(restore_settings_move const&) = delete;
-		restore_settings_move(restore_settings_move* (&)())
+		restore_settings_move(restore_settings_type)
 			{}
 		explicit restore_settings_move(settings& a) :
 			mypointer{&a},
@@ -125,8 +127,8 @@ template<typename write_> class
 		str::settings const& settings() const {
 			return mysettings;
 			}
-		friend restore_settings_move restore_settings(out<write_>& a) {
-			return restore_settings_move{a.settings()};
+		restore_settings_move restore_settings() {
+			return restore_settings_move{mysettings};
 			}
 		template<typename iterator_> out& operator()(iterator_ begin, iterator_ end) {
 			if(begin != end)
@@ -232,7 +234,7 @@ class write_complete {
 
 // restore settings at the end of the scope:
 //
-// auto r = restore_settings(out)
+// auto r = out.restore_settings()
 // out << base(16) << 123;
 // out << base(2) << 123;
 //
@@ -244,10 +246,6 @@ class write_complete {
 // template<typename write_> restore_settings_move restore_settings(out<write_>& o) {
 //     return restore_settings_move{o.settings()};
 //     }
-
-inline restore_settings_move* restore_settings() {
-	return 0;
-	}
 
 template<typename write_> out<write_>& operator<<(out<write_>& o, restore_settings_move&& a) {
 	a = restore_settings_move{o.settings()};
@@ -339,11 +337,11 @@ template<typename write_> out<write_>& operator<<(out<write_>& o, long double a)
 
 // pointer
 
-template<typename type_, typename = decltype(static_cast<void const*>(0) == static_cast<type_ const*>(0))> struct void_const_pointer_if { using result = void_const_pointer_if; };
-template<> struct void_const_pointer_if<char, bool> {};
-template<> struct void_const_pointer_if<char16_t, bool> {};
-template<> struct void_const_pointer_if<char32_t, bool> {};
-template<> struct void_const_pointer_if<wchar_t, bool> {};
+template<typename type_> struct void_const_pointer_if : types::type_plain<decltype(static_cast<void const*>(0) == static_cast<type_*>(0))> {};
+template<> struct void_const_pointer_if<char> {};
+template<> struct void_const_pointer_if<char16_t> {};
+template<> struct void_const_pointer_if<char32_t> {};
+template<> struct void_const_pointer_if<wchar_t> {};
 
 struct void_const_pointer {
 	void const *pointer;
@@ -351,7 +349,7 @@ struct void_const_pointer {
 	};
 
 template<typename write_> out<write_>& operator<<(out<write_>& o, void_const_pointer a) {
-	auto r = restore_settings(o);
+	auto r = o.restore_settings();
 	if(!o.settings().base())
 		o.settings().base(16);
 	return o.number(reinterpret_cast<typename types::if_not_void<uint_size_at_least<sizeof(void*)>, size_t>::result>(a.pointer));
@@ -470,7 +468,7 @@ template<typename number_> class
 			mysettings{s}
 			{}
 		template<typename write_> void operator()(out<write_>& o) const {
-			auto r = restore_settings(o);
+			auto r = o.restore_settings();
 			o.settings() = mysettings;
 			o.number(my);
 			}

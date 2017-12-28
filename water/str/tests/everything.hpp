@@ -100,7 +100,7 @@ template<typename o_> void everything(out<o_>& o) {
 		<< 1.l
 		<< static_cast<void const*>(everything_char)
 		<< '\n';
-	auto restore = restore_settings(o);
+	auto restore = o.restore_settings();
 	o
 		<< restore_settings
 		<< &o
