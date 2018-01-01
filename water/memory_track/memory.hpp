@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -288,7 +288,7 @@ template<typename tag_ = void, typename callback_ = void> class
  			___water_assert(!(upointer(c) % align) && !(upointer(r) % align) && "underlying_allocator allocation not aligend to water::align_max");
  			return r;
  			}
- 		void free(void *pointer, size_t bytes, tag_type const& tag, allocator_tag tag2) noexcept {
+ 		void free(void *pointer, size_t bytes, tag_type const& tag, allocator_tag tag2, bool assert_enabled = true) noexcept {
  			// bytes = 0 is ok because delete
  			auto lock = lock_move(mylock);
  			char const* error = 0;
@@ -343,7 +343,7 @@ template<typename tag_ = void, typename callback_ = void> class
  				return;
  			lock = {}; // unlock before trace/assert, dont deadlock if they use this
  			___water_debug(trace() << "water::memory_track free error pointer=" << pointer << " bytes=" << bytes << " tag=" << tag.name() << " error=" << error;)
- 			___water_assert(!error);
+ 			___water_assert(!assert_enabled || !error);
  			}
 	};
 
