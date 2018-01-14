@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -40,34 +40,39 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 		char_type my[buffer_size];
 		unsigned mysize;
 	public:
-		buffer() : // not default beccause visual c++
+		buffer() : // constructors not default because visual c++ 2015
 			myfunction{},
 			mysize{0}
 			{}
 		buffer(buffer const& a) :
-			myfunction{a.myfunction},
-			mysize{0}
+			myfunction{a.myfunction}
 			{
-			while(mysize != a.mysize) {
-				my[mysize] = a.my[mysize];
-				++mysize;
-				}
+			copy(a);
 			}
 		buffer(buffer&& a) :
-			myfunction{static_cast<function_type&&>(a.myfunction)},
-			mysize{0}
+			myfunction{static_cast<function_type&&>(a.myfunction)}
 			{
-			while(mysize != a.mysize) {
-				my[mysize] = a.my[mysize];
-				++mysize;
-				}
+			copy(a);
+			a.mysize = 0;
 			}
-		template<typename ...arguments_> buffer(arguments_&&... a) :
+		template<typename ...arguments_, typename not_copy_constructor<buffer, arguments_...>::result = 0>
+		 buffer(arguments_&&... a) :
 			myfunction{static_cast<arguments_&&>(a)...},
 			mysize{0}
 			{}
 		~buffer() {
 			flush();
+			}
+		buffer& operator=(buffer const& a) {
+			myfunction = a.myfunction;
+			copy(a);
+			return *this;
+			}
+		buffer& operator=(buffer&& a) {
+			myfunction = static_cast<function_type&&>(a.myfunction);
+			copy(a);
+			a.mysize = 0;
+			return *this;
 			}
 		function_type& function() {
 			return myfunction;
@@ -112,6 +117,14 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 					flush();
 				my[mysize++] = c;
 				++begin;
+				}
+			}
+	private:
+		void copy(buffer const& a) {
+			mysize = 0;
+			while(mysize != a.mysize) {
+				my[mysize] = a.my[mysize];
+				++mysize;
 				}
 			}
 	};

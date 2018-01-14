@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -48,7 +48,7 @@ template<typename function_, typename char_ = typename _::function_char<function
 	private:
 		function_type my;
 	public:
-		function() : // not default beccause visual c++
+		function() : // constructors not default because visual c++ 2015
 			my{}
 			{}
 		function(function const& a) :
@@ -57,9 +57,18 @@ template<typename function_, typename char_ = typename _::function_char<function
 		function(function&& a) :
 			my{static_cast<function_type&&>(a.my)}
 			{}
-		template<typename ...arguments_> function(arguments_&&... a) :
+		template<typename ...arguments_, typename not_copy_constructor<function, arguments_...>::result = 0>
+		 function(arguments_&&... a) :
 			my{static_cast<arguments_&&>(a)...}
 			{}
+		function& operator=(function const& a) {
+			my = a.my;
+			return *this;
+			}
+		function& operator=(function&& a) {
+			my = static_cast<function_type&&>(a.my);
+			return *this;
+			}
 		void swap(function& a) {
 			swap_from_swap(my, a.my);
 			}

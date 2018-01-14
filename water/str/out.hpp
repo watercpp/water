@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,7 +13,9 @@ namespace water { namespace str {
 
 using numbers::settings;
 
-struct restore_settings_type {} constexpr restore_settings;
+enum class restore_settings_type { value };
+restore_settings_type constexpr restore_settings = restore_settings_type::value;
+//struct restore_settings_type {} constexpr restore_settings; // clang 3.8 did not like this
 
 class restore_settings_move {
 	settings
@@ -43,6 +45,23 @@ class restore_settings_move {
 			return *this;
 			}
 	};
+
+template<typename class_, typename ...arguments_> struct
+ not_copy_constructor {
+	using result = int;
+	};
+template<typename class_> struct
+ not_copy_constructor<class_, class_>
+	{};
+template<typename class_> struct
+ not_copy_constructor<class_, class_ const>
+	{};
+template<typename class_> struct
+ not_copy_constructor<class_, class_&>
+	{};
+template<typename class_> struct
+ not_copy_constructor<class_, class_ const&>
+	{};
 
 namespace _ {
 
@@ -91,6 +110,7 @@ namespace _ {
 	template<typename a_> struct char_type_of<a_, types::to_void<typename a_::char_type>> : types::type_plain<typename a_::char_type> {};
 
 }
+
 template<typename a_> using char_type_of = typename _::char_type_of<a_>::result;
 
 template<typename write_> class
@@ -101,19 +121,20 @@ template<typename write_> class
 	private:
 		str::settings mysettings;
 	public:
-		out() : // not default beccause visual c++ seems to ignore it when the tempalte list constructor exists
+		out() : // constructors not default because visual c++ 2015
 			write_{}, // this is also needed
 			mysettings{_::default_settings<write_>::from(*this)} // base is constructed
 			{}
 		out(out const& a) :
-			write_{static_cast<write_ const&>(a)}, // visual c++
+			write_{static_cast<write_ const&>(a)},
 			mysettings{a.mysettings}
 			{}
 		out(out&& a):
-			write_{static_cast<write_&&>(a)}, // visual c++
+			write_{static_cast<write_&&>(a)},
 			mysettings{static_cast<str::settings&&>(a.mysettings)}
 			{}
-		template<typename ...arguments_> out(arguments_&&... a) :
+		template<typename ...arguments_, typename not_copy_constructor<out, arguments_...>::result = 0>
+		 out(arguments_&&... a) :
 			write_{static_cast<arguments_&&>(a)...},
 			mysettings{_::default_settings<write_>::from(*this)}
 			{}
@@ -121,6 +142,16 @@ template<typename write_> class
 			write_{static_cast<arguments_&&>(a)...},
 			mysettings{s}
 			{}
+		out& operator=(out const& a) {
+			static_cast<write_&>(*this) = static_cast<write_ const&>(a);
+			mysettings = a.mysettings;
+			return *this;
+			}
+		out& operator=(out&& a) {
+			static_cast<write_&>(*this) = static_cast<write_&&>(a);
+			mysettings = a.mysettings;
+			return *this;
+			}
 		str::settings& settings() {
 			return mysettings;
 			}

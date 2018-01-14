@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -51,38 +51,43 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 			mysize,
 			myline; // if not 0 my[myline - 1] is '\n'
 	public:
-		buffer_lines() : // not default beccause visual c++
+		buffer_lines() : // constructors not default because visual c++ 2015
 			myfunction{},
 			mysize{0},
 			myline{0}
 			{}
 		buffer_lines(buffer_lines const& a) :
 			myfunction{a.myfunction},
-			mysize{0},
 			myline{a.myline}
 			{
-			while(mysize != a.mysize) {
-				my[mysize] = a.my[mysize];
-				++mysize;
-				}
+			copy(a);
 			}
 		buffer_lines(buffer_lines&& a) :
 			myfunction{static_cast<function_type&&>(a.myfunction)},
-			mysize{0},
 			myline{a.myline}
 			{
-			while(mysize != a.mysize) {
-				my[mysize] = a.my[mysize];
-				++mysize;
-				}
+			copy(a);
+			a.mysize = a.myline = 0;
 			}
-		template<typename ...arguments_> buffer_lines(arguments_&&... a) :
+		template<typename ...arguments_, typename not_copy_constructor<buffer_lines, arguments_...>::result = 0>
+		 buffer_lines(arguments_&&... a) :
 			myfunction{static_cast<arguments_&&>(a)...},
 			mysize{0},
 			myline{0}
 			{}
 		~buffer_lines() {
 			flush();
+			}
+		buffer_lines& operator=(buffer_lines const& a) {
+			myfunction = a.myfunction;
+			copy(a);
+			return *this;
+			}
+		buffer_lines& operator=(buffer_lines&& a) {
+			myfunction = static_cast<function_type&&>(a.myfunction);
+			copy(a);
+			a.mysize = a.myline = 0;
+			return *this;
 			}
 		function_type& function() {
 			return myfunction;
@@ -131,6 +136,14 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 				my[mysize++] = c;
 				if(c == static_cast<char_type>(u'\n'))
 					myline = mysize;
+				}
+			}
+	private:
+		void copy(buffer_lines const& a) {
+			mysize = 0;
+			while(mysize != a.mysize) {
+				my[mysize] = a.my[mysize];
+				++mysize;
 				}
 			}
 	};

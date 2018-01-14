@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,19 +13,39 @@ test that all operations compile and run.
 
 does not care if they produce the correct output
 
-*/
+everything_container + everything_function + everything_function_type have constructors because
+of a super-strange error on icc 17. without it this generated a "too many initializer values" error
+for the str base classes:
 
-template<typename char_> class
- everything_container {
+class base {
+	everything_container my;
 	public:
-		using value_type = char_;
-		everything_container* end() { return this; }
-		template<typename iterator_> void insert(everything_container*, iterator_ b, iterator_ e) {}
+		base(base const& b) :
+			my{b.my} // too many initializer values
+			{}
 	};
 
-class everything_function {
-	public:
-		template<typename iterator_> void operator()(iterator_ b, iterator_ e) {}
+*/
+
+template<typename char_> struct
+ everything_container {
+	everything_container() {};
+	everything_container(everything_container const&) {};
+	using value_type = char_;
+	everything_container* end() { return this; }
+	template<typename iterator_> void insert(everything_container*, iterator_ b, iterator_ e) {}
+	};
+
+struct everything_function {
+	everything_function() {};
+	everything_function(everything_function const&) {};
+	template<typename iterator_> void operator()(iterator_ b, iterator_ e) {}
+	};
+
+template<typename char_> struct everything_function_type {
+	everything_function_type() {};
+	everything_function_type(everything_function_type const&) {};
+	void operator()(char_ const* b, char_ const* e) {}
 	};
 
 template<typename char_> class 
@@ -59,7 +79,7 @@ template<typename o_> out<o_>& operator<<(out<o_>& o, specific<everything_thing>
 	return o;
 	}
 
-template<typename o_> void everything(out<o_>& o) {
+template<typename o_> void everything_except_copy(out<o_>& o) {
 	unsigned array[1] = { out<o_>::utf };
 	typename out<o_>::char_type c[2] = {0x20, 0};
 	o(c[0]);
@@ -138,16 +158,39 @@ template<typename o_> void everything(out<o_>& o) {
 		<< hexdump(everything_char, 3);
 	}
 
+template<typename o_> void everything_except_copy(out<o_>&& o) {
+	everything_except_copy(o);
+	}
+
+template<typename o_> void everything_copy(out<o_> o) {
+	out<o_> a{static_cast<out<o_> const&>(o)};
+	a = static_cast<out<o_> const&>(o);
+	auto b = static_cast<out<o_> const&>(a);
+	out<o_> c{static_cast<out<o_>&&>(b)};
+	b = static_cast<out<o_>&&>(c);
+	auto d = static_cast<out<o_>&&>(b);
+	swap(a, b);
+	swap(c, d); // avoid unused warning
+	}
+
+template<typename o_> void everything(out<o_>& o) {
+	everything_except_copy(o);
+	everything_copy(o);
+	}
+
 template<typename o_> void everything(out<o_>&& o) {
 	everything(o);
 	}
 
 template<typename char_> void everything_type() {
-	everything(out<begin_end<everything_iterator<char_>>>{});
-	everything(out<buffer_lines<everything_function, char_, 128>>{});
-	everything(out<buffer<everything_function, char_, 128>>{});
+	settings s;
+	everything(out<begin_end<everything_iterator<char_>>>{everything_iterator<char_>{}, everything_iterator<char_>{}});
+	everything(out<buffer_lines<everything_function, char_, 128>>{s});
+	everything(out<buffer<everything_function, char_, 128>>{settings{}});
 	everything(out<container<everything_container<char_>>>{});
-	everything(out_function([](char_ const*, char_ const*){}));
+	everything(out<function<everything_function_type<char_>>>{});
+	everything(out<function<everything_function, char_>>{});
+	everything_except_copy(out_function([](char_ const*, char_ const*){}));
 	}
 
 inline void everything_all() {
