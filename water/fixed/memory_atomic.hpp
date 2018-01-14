@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -127,6 +127,20 @@ template<typename allocator_ = void, bool statistics_ = false> class
  			auto lock = lock_move(mymutex);
  			return allocate_block_locked(mylist.load(), block_size) != 0;
  			}
+ 		size_t lookup(void const* find) const {
+ 			return lookup(find, memory_order_acquire);
+ 			}
+ 		void* lookup(size_t find) const {
+ 			return lookup(find, memory_order_acquire);
+ 			}
+ 		size_t lookup_unordered(void const* find) const {
+ 			// useful if the current thread just allocated find or read find using aquire or higher order
+ 			return lookup(find, memory_order_relaxed);
+ 			}
+ 		void* lookup_unordered(size_t find) const {
+ 			// useful if the current thread read find using aquire or higher order
+ 			return lookup(find, memory_order_relaxed);
+ 			}
  		size_t memory_use() {
  			block_atomic *list = mylist.load(memory_order_acquire);
  			size_t r = 0;
@@ -209,6 +223,35 @@ template<typename allocator_ = void, bool statistics_ = false> class
  			mylist.store(b, memory_order_release);
  			return b;
  			}
+ 		size_t lookup(void const* find, memory_order order) const {
+ 			block_atomic *list = mylist.load(order);
+ 			while(list && !list->inside(find, mybytes))
+ 				list = list->list();
+ 			if(!list)
+ 				return 0;
+ 			size_t r = 1 + static_cast<size_t>(static_cast<char const*>(find) - static_cast<char const*>(list->memory())) / mybytes;
+ 			while(list = list->list())
+ 				r += list->size();
+ 			return r;
+ 			}
+ 		void* lookup(size_t find, memory_order order) const {
+ 			if(!find)
+ 				return 0;
+ 			--find;
+ 			block_atomic
+ 				*list = mylist.load(order),
+ 				*l = list;
+ 			size_t size = 0;
+ 			while(l) {
+ 				size += l->size();
+ 				l = l->list();
+ 				}
+ 			if(find >= size)
+ 				return 0;
+ 			while(find < (size -= list->size()))
+ 				list = list->list();
+ 			return static_cast<char*>(list->memory()) + (find - size) * mybytes;
+ 			}
  		static void statistics_allocate_quick(memory_atomic_statistics_if<true>& s) {
  			s.allocate_quick.fetch_add(1, memory_order_relaxed);
  			}
@@ -223,8 +266,8 @@ template<typename allocator_ = void, bool statistics_ = false> class
  			}
  		static void statistics_allocate_quick(memory_atomic_statistics_if<false> const&) {}
  		static void statistics_allocate(memory_atomic_statistics_if<false> const&, bool) {}
- 		static void statistics_allocate_failed(memory_atomic_statistics_if<false> const&) {}
- 		static void statistics_free(memory_atomic_statistics_if<false> const&, bool) {}
+ 		static void statistics_allocate_failed(memory_atomic_statistics_if<false> const&, bool) {}
+ 		static void statistics_free(memory_atomic_statistics_if<false> const&) {}
  	};
 
 template<typename allocator_, bool statistics_> allocator_throw<memory_atomic<allocator_, statistics_>>

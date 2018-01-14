@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -58,7 +58,7 @@ class block_atomic {
 				*static_cast<size_t*>(pointer) = next;
 				} while(!my.compare_exchange_weak(a, p | count));
 			}
-		bool inside(void *pointer, size_t bytes) {
+		bool inside(void const *pointer, size_t bytes) {
 			return memory() <= pointer && pointer <= static_cast<char*>(memory()) + mysize * bytes;
 			}
 		block_atomic* list() const {
@@ -67,8 +67,7 @@ class block_atomic {
 		size_t size() const {
 			return mysize;
 			}
-	private:
-		void *memory() {
+		void* memory() {
 			return this + 1;
 			}
 	};
