@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -17,6 +17,11 @@ bool constexpr test_long_double =
 	#else
 	false;
 	#endif
+
+template<typename to_, typename from_> to_ cast(from_ from) {
+	// this is to avoid overflow warnings when casting static_cast<float>(-1.23456789012345678901234567890e50l)
+	return static_cast<to_>(from);
+	}
 
 }}}
 #endif

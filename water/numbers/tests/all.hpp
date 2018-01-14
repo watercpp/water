@@ -11,7 +11,6 @@
 #include <water/numbers/tests/parse.hpp>
 #include <water/numbers/tests/write_read.hpp>
 #include <water/numbers/tests/write_read_write.hpp>
-#include <water/test.hpp>
 namespace water { namespace numbers { namespace tests {
 
 inline void all() {

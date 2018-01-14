@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -146,7 +146,7 @@ class format_float {
 				}
 			else if(isnan_strict(f)) {
 				m.nan(true);
-				f = signbit(f) ? -0 : 0;
+				f = signbit(f) ? -static_cast<float_>(0) : static_cast<float_>(0);
 				}
 			split_mantissa_exponent<float_> x(f, mybase);
 			m.base(mybase);

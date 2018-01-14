@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -89,40 +89,40 @@ template<typename float_> void write_read_write_float(settings s) {
 		-1,
 		10,
 		-10,
-		static_cast<float_>(-1.23456789012345678901234567890e-50l),
-		static_cast<float_>(+1.23456789012345678901234567890e-40l),
-		static_cast<float_>(-1.23456789012345678901234567890e-30l),
-		static_cast<float_>(+1.23456789012345678901234567890e-20l),
-		static_cast<float_>(-1.23456789012345678901234567890e-10l),
-		static_cast<float_>(+1.23456789012345678901234567890e-9l),
-		static_cast<float_>(-1.23456789012345678901234567890e-8l),
-		static_cast<float_>(+1.23456789012345678901234567890e-7l),
-		static_cast<float_>(-1.23456789012345678901234567890e-6l),
-		static_cast<float_>(+1.23456789012345678901234567890e-5l),
-		static_cast<float_>(-1.23456789012345678901234567890e-4l),
-		static_cast<float_>(+1.23456789012345678901234567890e-3l),
-		static_cast<float_>(-1.23456789012345678901234567890e-2l),
-		static_cast<float_>(+1.23456789012345678901234567890e-1l),
-		static_cast<float_>(-1.23456789012345678901234567890e0l),
-		static_cast<float_>(+1.23456789012345678901234567890e1l),
-		static_cast<float_>(-1.23456789012345678901234567890e2l),
-		static_cast<float_>(+1.23456789012345678901234567890e3l),
-		static_cast<float_>(-1.23456789012345678901234567890e4l),
-		static_cast<float_>(+1.23456789012345678901234567890e5l),
-		static_cast<float_>(-1.23456789012345678901234567890e6l),
-		static_cast<float_>(+1.23456789012345678901234567890e7l),
-		static_cast<float_>(-1.23456789012345678901234567890e8l),
-		static_cast<float_>(+1.23456789012345678901234567890e9l),
-		static_cast<float_>(-1.23456789012345678901234567890e10l), 
-		static_cast<float_>(+1.23456789012345678901234567890e20l),
-		static_cast<float_>(-1.23456789012345678901234567890e30l),
-		static_cast<float_>(+1.23456789012345678901234567890e40l),
-		static_cast<float_>(-1.23456789012345678901234567890e50l),
+		cast<float_>(-1.23456789012345678901234567890e-50l),
+		cast<float_>(+1.23456789012345678901234567890e-40l),
+		cast<float_>(-1.23456789012345678901234567890e-30l),
+		cast<float_>(+1.23456789012345678901234567890e-20l),
+		cast<float_>(-1.23456789012345678901234567890e-10l),
+		cast<float_>(+1.23456789012345678901234567890e-9l),
+		cast<float_>(-1.23456789012345678901234567890e-8l),
+		cast<float_>(+1.23456789012345678901234567890e-7l),
+		cast<float_>(-1.23456789012345678901234567890e-6l),
+		cast<float_>(+1.23456789012345678901234567890e-5l),
+		cast<float_>(-1.23456789012345678901234567890e-4l),
+		cast<float_>(+1.23456789012345678901234567890e-3l),
+		cast<float_>(-1.23456789012345678901234567890e-2l),
+		cast<float_>(+1.23456789012345678901234567890e-1l),
+		cast<float_>(-1.23456789012345678901234567890e0l),
+		cast<float_>(+1.23456789012345678901234567890e1l),
+		cast<float_>(-1.23456789012345678901234567890e2l),
+		cast<float_>(+1.23456789012345678901234567890e3l),
+		cast<float_>(-1.23456789012345678901234567890e4l),
+		cast<float_>(+1.23456789012345678901234567890e5l),
+		cast<float_>(-1.23456789012345678901234567890e6l),
+		cast<float_>(+1.23456789012345678901234567890e7l),
+		cast<float_>(-1.23456789012345678901234567890e8l),
+		cast<float_>(+1.23456789012345678901234567890e9l),
+		cast<float_>(-1.23456789012345678901234567890e10l), 
+		cast<float_>(+1.23456789012345678901234567890e20l),
+		cast<float_>(-1.23456789012345678901234567890e30l),
+		cast<float_>(+1.23456789012345678901234567890e40l),
+		cast<float_>(-1.23456789012345678901234567890e50l),
 		//static_cast<float_>(9.99995), // float become 949 with this
-		static_cast<float_>(1.2345e100), // scientific mode test
-		static_cast<float_>(-1.2345e-100), // scientific mode test
-		static_cast<float_>(1.2345e101), // scientific mode test
-		static_cast<float_>(-1.2345e-101), // scientific mode test
+		cast<float_>(1.2345e100), // scientific mode test
+		cast<float_>(-1.2345e-100), // scientific mode test
+		cast<float_>(1.2345e101), // scientific mode test
+		cast<float_>(-1.2345e-101), // scientific mode test
 		numeric_limits<float_>::min(),
 		numeric_limits<float_>::max(),
 		numeric_limits<float_>::infinity(),
