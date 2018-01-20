@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,6 +8,7 @@
 #include <water/xml/encoding.hpp>
 #include <water/unicode/utf_length.hpp>
 #include <water/unicode/byterator.hpp>
+#include <water/later.hpp>
 namespace water { namespace xml {
 
 //
@@ -315,7 +316,9 @@ template<typename char_ = char, typename memory_ = memory<>> class
 			// <?processing instruction?>
 			// <![CDATA[ .... ]]>
 			
-			typename memory_type::undo_mode_auto undo{*mymemory}; // this means the callback wont allcoate() and overwrite something in the undo allocations
+			// undo_mode means the callback wont allcoate() and overwrite something in the undo allocations
+			mymemory->undo_mode(true);
+			auto undo = later([this] { mymemory->undo_mode(false); });
 			
 			// skip bom
 			if(utf != 8 && myi != mye && *myi == 0xfeffu)

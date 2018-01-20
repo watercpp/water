@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -21,7 +21,7 @@ template<typename memory_> class
  read {
 	public:
 		using memory_type = memory_;
-		using node_type = typename memory_type::node_type;
+		using node_type = node<memory_type>;
 	private:
 		memory_type *mymemory;
 		memory_node *my = 0;

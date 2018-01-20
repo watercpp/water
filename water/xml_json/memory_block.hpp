@@ -1,13 +1,11 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_XML_MEMORY_BLOCK_HPP
 #define WATER_XML_MEMORY_BLOCK_HPP
-#include <water/xml/bits.hpp>
-namespace water { namespace xml {
-
-// this is copy paste from water::json, that was a copy paste from an earlier version of water::xml
+#include <water/align_max.hpp>
+namespace water { namespace xml_json {
 
 // block is last in memory [ .... memory ....  [block]], begin points to start, free to the first free byte. this pointer is end of allocateable memory
 // push with set_undo = true to set undo point if its not set
@@ -32,7 +30,7 @@ struct memory_block {
 		if(!set_undo)
 			undo_now();
 		if(!align)
-			align = alignof(memory_node<char>);
+			align = align_max;
 		char *free_aligned = free;
 		if(size_t a = static_cast<size_t>(free - begin) % align)
 			free_aligned += align - a;
@@ -59,15 +57,14 @@ struct memory_block {
 	};
 
 inline size_t memory_block_size_align(size_t bytes) {
-	size_t constexpr align = alignof(memory_block) > alignof(memory_node<char>) ? alignof(memory_block) : alignof(memory_node<char>);
-	size_t a = bytes % align;
-	if(a) bytes += align - a;
+	size_t a = bytes % align_max;
+	if(a) bytes += align_max - a;
 	return bytes;
 	}
 
 
 inline memory_block* memory_block_from(void *pointer, size_t bytes) {
-	___water_assert(pointer && !(bytes % alignof(memory_node<char>)) && bytes >= sizeof(memory_block));
+	___water_assert(pointer && !(bytes % align_max) && bytes >= sizeof(memory_block));
 	char *p = static_cast<char*>(pointer);
 	auto b = static_cast<memory_block*>(static_cast<void*>(p + bytes - sizeof(memory_block)));
 	b->list = 0;
@@ -75,6 +72,8 @@ inline memory_block* memory_block_from(void *pointer, size_t bytes) {
 	b->undo = 0;
 	return b;
 	}
+
+static_assert(align_max % alignof(memory_block) == 0, "");
 
 }}
 #endif
