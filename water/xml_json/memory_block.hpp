@@ -2,8 +2,8 @@
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
-#ifndef WATER_XML_MEMORY_BLOCK_HPP
-#define WATER_XML_MEMORY_BLOCK_HPP
+#ifndef WATER_XML_JSON_MEMORY_BLOCK_HPP
+#define WATER_XML_JSON_MEMORY_BLOCK_HPP
 #include <water/align_max.hpp>
 namespace water { namespace xml_json {
 
