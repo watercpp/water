@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -59,10 +59,10 @@ inline long double pow(long double a, long double b) { return ::powl(a, b); }
 
 #endif
 
-#if !defined(WATER_CMATH_NO_SLOW_MATH) && ((defined(WATER_COMPILER_GCC) && defined(__FAST_MATH__)) || defined(WATER_CMATH_SLOW_MATH)) 
+#if !defined(WATER_CMATH_NO_SLOW_MATH) && (((defined(WATER_COMPILER_GCC) || defined(WATER_COMPILER_CLANG)) && defined(__FAST_MATH__)) || defined(WATER_CMATH_SLOW_MATH)) 
 
-// On GCC with -ffast-math (enabled with -Ofast) isinf + isnan is optimized away to always return false.
-// Sometimes fpclassify seems to work, not sure if it depends on the C library or GCC version.
+// On GCC and Clang with -ffast-math (enabled with -Ofast) isinf + isnan is optimized away to always return false.
+// Sometimes fpclassify seems to work, not sure if it depends on the C library or GCC/Clang version.
 // slow_math below should detect NaN and infinity for all types as long as one of them is a IEEE 754 / IEC 60559 32 bit or 64 bit type.
 // The motivation for this is to be able to build with -ffast-math but still be able to sanitize floating point values
 

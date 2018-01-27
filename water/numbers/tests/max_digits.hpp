@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -149,7 +149,7 @@ inline void max_digits_binary() {
 				___water_test(error < 0.005);
 				}
 			} while(digits != 0xffffu);
-		} while(radix != 64);
+		} while(radix != 31);
 	}
 
 inline void max_digits_test_log2() {
