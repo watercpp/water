@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -45,8 +45,8 @@ template<typename iterator_> class
 		explicit reverse_iterator(iterator_ a) :
 			my{a}
 			{}
-		template<typename other_> reverse_iterator(reverse_iterator<other_> a, nothing<decltype(iterator_{a.get()})> = {}) :
-			my{a.get()}
+		template<typename other_> reverse_iterator(reverse_iterator<other_> a, nothing<decltype(iterator_(a.underlying()))> = {}) : // iterator_( not { because visual c++ 2015
+			my{a.underlying()}
 			{}
 		auto operator*() const -> decltype(*my) {
 			return *my;

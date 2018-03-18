@@ -65,6 +65,14 @@ template<typename class_> struct
 
 namespace _ {
 
+	// locale_do + default_settings_do are workarounds for clang 5.0.1
+
+	template<typename a_, typename return_ = decltype(types::make<a_&>().locale())> struct
+	 locale_do {
+		using to_void = void;
+		using return_type = return_;
+		};
+
 	template<typename a_, typename = void> struct
 	 locale {
 		static numbers::locale from(a_&) {
@@ -72,10 +80,16 @@ namespace _ {
 			}
 		};
 	template<typename a_> struct
-	 locale<a_, types::to_void<decltype(types::make<a_&>().locale())>> {
-		static auto from(a_& a) -> decltype(a.locale()) {
+	 locale<a_, typename locale_do<a_>::to_void> {
+		static typename locale_do<a_>::return_type from(a_& a) {
 			return a.locale();
 			}
+		};
+
+	template<typename a_, typename return_ = decltype(types::make<a_&>().default_settings())> struct
+	 default_settings_do {
+		using to_void = void;
+		using return_type = return_;
 		};
 
 	template<typename a_, typename = void> struct
@@ -91,8 +105,8 @@ namespace _ {
 		#endif
 		};
 	template<typename a_> struct
-	 default_settings<a_, types::to_void<decltype(types::make<a_&>().default_settings())>> {
-		static auto from(a_& a) -> decltype(a.default_settings()) {
+	 default_settings<a_, typename default_settings_do<a_>::to_void> {
+		static typename default_settings_do<a_>::return_type from(a_& a) {
 			return a.default_settings();
 			}
 		};

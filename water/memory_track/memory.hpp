@@ -66,7 +66,7 @@ template<typename tag_ = void, typename callback_ = void> class
 		 	auto lock = lock_move(mylock);
 		 	function(cookie_iterator{mycookies});
 		 	}
-		 cookie_type const* cookie_from_pointer(void const* pointer) const noexcept {
+		cookie_type const* cookie_from_pointer(void const* pointer) const noexcept {
 			// retrun cookie from any pointer, if it points to a location inside any allocation.
 			// returns 0 if it was not found.
 			//

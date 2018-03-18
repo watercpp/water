@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,12 +19,18 @@ namespace water {
 			types::bool_result<true>
 				{};
 
+		// visual c++ 2015 needed this extra indirection
+		template<typename a_, typename = decltype(types::make<a_&>() = types::make<a_ const&>())> struct
+		 has_copy_assign_check {
+			using result = void;
+			};
+
 		template<typename a_, typename = void> struct
 		 has_copy_assign_do :
 			types::bool_result<false>
 				{};
 		template<typename a_> struct
-		 has_copy_assign_do<a_, types::to_void<decltype(types::make<a_&>() = types::make<a_ const&>())>> :
+		 has_copy_assign_do<a_, typename has_copy_assign_check<a_>::result> :
 			types::bool_result<true>
 				{};
 		}

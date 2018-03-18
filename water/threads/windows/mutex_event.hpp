@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,7 +13,7 @@ class mutex_event {
  	public:
  		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor>;
  	private:
-		atomic_uint mylock = 0;
+		atomic_uint mylock{};
 		handle_atomic myevent{}; // created open
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
@@ -93,7 +93,7 @@ class mutex_event_named {
 	public:
 		using needs = threads::needs<need_water, need_timeout, need_constexpr_constructor, need_trivial_destructor>;
 	private:
-		atomic_uint mylock = 0;
+		atomic_uint mylock{};
 		___water_threads_statistics(threads::statistics::reference mystatistics;)
 		___water_threads_statistics(using add_ = threads::statistics::add;)
 	public:
