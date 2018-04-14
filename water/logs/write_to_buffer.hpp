@@ -1,19 +1,18 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_LOGS_WRITE_TO_BUFFER_HPP
 #define WATER_LOGS_WRITE_TO_BUFFER_HPP
 #include <water/logs/bits.hpp>
+#include <water/swap.hpp>
 namespace water { namespace logs {
-
-// ok = buffer_write(buffer, tag)(begin, end);
 
 /*
 
 write one log entry from a single thread to buffer.
 
-copying this will not copy what is written so far
+ok = write_to_buffer(buffer, tag)(begin, end);
 
 */
 
@@ -34,6 +33,8 @@ template<typename buffer_> class
  			myhalfway = false; // true if writing range failed/threw
  	public:
  		write_to_buffer() = default;
+ 		write_to_buffer(write_to_buffer const&) = delete;
+ 		write_to_buffer& operator=(write_to_buffer const&) = delete;
  		write_to_buffer(buffer_ *a, tag_type const& tag = {}) :
  			mybuffer(a),
  			mytag(tag)
@@ -45,18 +46,35 @@ template<typename buffer_> class
  		~write_to_buffer() {
  			if(mypiece) mybuffer->dont_write(mypiece);
  			}
- 		write_to_buffer(write_to_buffer const& a) :
+ 		write_to_buffer(write_to_buffer&& a) :
  			mybuffer(a.mybuffer),
- 			mytag(a.mytag)
- 			{}
-		write_to_buffer& operator=(write_to_buffer const& a) {
-			dont();
-			mybuffer = a.mybuffer;
-			mytag = a.mytag;
+ 			mytag(a.mytag),
+ 			mypiece(a.mypiece),
+ 			myat(a.myat),
+ 			myend(a.myend),
+ 			myerror(a.myerror),
+ 			myhalfway(a.myhalfway)
+ 			{
+ 			a.mybuffer = 0;
+ 			a.mypiece = 0;
+ 			a.myat = 0;
+ 			a.myend = 0;
+ 			}
+		write_to_buffer& operator=(write_to_buffer&& a) {
+			swap(a);
 			return *this;
 			}
 		explicit operator bool() const {
 			return mybuffer && !myerror && !myhalfway;
+			}
+		void swap(write_to_buffer& a) {
+			swap_from_swap(mybuffer, a.mybuffer);
+			swap_from_swap(mytag, a.mytag);
+			swap_from_swap(mypiece, a.mypiece);
+			swap_from_swap(myat, a.myat);
+			swap_from_swap(myend, a.myend);
+			swap_from_swap(myerror, a.myerror);
+			swap_from_swap(myhalfway, a.myhalfway);
 			}
 		write_to_buffer& tag(tag_type const& tag) {
 			mytag = tag;
@@ -145,6 +163,10 @@ template<typename buffer_> class
  			myerror = myhalfway = false;
  			}
  	};
+
+template<typename buffer_> void swap(write_to_buffer<buffer_>& a, write_to_buffer<buffer_>& b) {
+	a.swap(b);
+	}
 
 }}
 #endif
