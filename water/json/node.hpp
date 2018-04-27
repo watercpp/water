@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -142,11 +142,22 @@ template<typename memory_ = void> class
 		node at(size_t a) const {
 			return {mym, my && my->me.capacity > a ? my->nodes[a] : 0};
 			}
-		node operator[](size_t a) const {
-			return at(a);
-			}
 		node operator[](int a) const {
-			// this avoids ambigous node[0]
+			return at(static_cast<size_t>(a));
+			}
+		node operator[](unsigned int a) const {
+			return at(static_cast<size_t>(a));
+			}
+		node operator[](long a) const {
+			return at(static_cast<size_t>(a));
+			}
+		node operator[](unsigned long a) const {
+			return at(static_cast<size_t>(a));
+			}
+		node operator[](long long a) const {
+			return at(static_cast<size_t>(a));
+			}
+		node operator[](unsigned long long a) const {
 			return at(static_cast<size_t>(a));
 			}
 		node operator[](char const*const& cstring) const {
