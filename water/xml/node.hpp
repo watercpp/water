@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -124,7 +124,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result attributes(range_ const& range) const {
-			return attributes().find(range.begin(), range_size(range));
+			return attributes().find(range.begin(), xml::range_size(range));
 			}
 		node nodes() const {
 			return { mym, my ? my->nodes : 0 };
@@ -147,7 +147,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result nodes(range_ const& range) const {
-			return nodes().find(range.begin(), range_size(range));
+			return nodes().find(range.begin(), xml::range_size(range));
 			}
 		text_type name() const {
 			if(!my)
@@ -211,7 +211,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result find(range_ const& range) const {
-			return find(range.begin(), range_size(range));
+			return find(range.begin(), xml::range_size(range));
 			}
 		template<typename iterator_>
 		 node next(iterator_ begin, iterator_ end) const {
@@ -231,7 +231,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result next(range_ const& range) const {
-			return next().find(range.begin(), range_size(range));
+			return next().find(range.begin(), xml::range_size(range));
 			}
 		template<typename iterator_>
 		 node previous(iterator_ begin, size_t size) const {
@@ -256,7 +256,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result previous(range_ const& range) const {
-			return previous(range.begin(), range_size(range));
+			return previous(range.begin(), xml::range_size(range));
 			}
 	public:
 		node_if_mutable create() {
@@ -332,7 +332,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result nodes_or_add(range_ const& range) {
-			return nodes_or_add(range.begin(), range_size(range));
+			return nodes_or_add(range.begin(), xml::range_size(range));
 			}
 		node_if_mutable attributes(node_if_mutable a) {
 			// insert the node-list a at the end of attributes()
@@ -378,7 +378,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result attributes_or_add(range_ const& range) {
-			return attributes_or_add(range.begin(), range_size(range));
+			return attributes_or_add(range.begin(), xml::range_size(range));
 			}
 		node_if_mutable push_back(node a) {
 			// insert a at the back of this->nodes()
@@ -539,7 +539,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result name(range_ const& range) {
-			return name(range.begin(), range_size(range));
+			return name(range.begin(), xml::range_size(range));
 			}
 		template<typename iterator_>
 		 node_if_mutable value(iterator_ begin, size_t size) {
@@ -606,7 +606,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result value(range_ const& range) {
-			return value(range.begin(), range_size(range));
+			return value(range.begin(), xml::range_size(range));
 			}
 		template<typename iterator_>
 		 node_if_mutable first_value(iterator_ begin, size_t size) {
@@ -648,7 +648,7 @@ template<typename char_ = char, typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result first_value(range_ const& range) {
-			return first_value(range.begin(), range_size(range));
+			return first_value(range.begin(), xml::range_size(range));
 			}
 	private:
 		template<typename iterator_>

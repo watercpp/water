@@ -202,7 +202,7 @@ template<typename memory_ = void> class
 		template<typename range_>
 		 typename if_range<range_, node>::result find(range_ const& name) const {
 			if(!my) return *this;
-			return find(name.begin(), range_size(name));
+			return find(name.begin(), json::range_size(name));
 			}
 		node find(char const*const& cstring) const {
 			if(!my) return *this;
@@ -369,7 +369,7 @@ template<typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result name(range_ const& a) {
-			if(my) name(a.begin(), range_size(a));
+			if(my) name(a.begin(), json::range_size(a));
 			return *this;
 			}
 		node_if_mutable name(char const*const& cstring) {
@@ -413,7 +413,7 @@ template<typename memory_ = void> class
 			}
 		template<typename range_>
 		 typename if_range<range_, node_if_mutable>::result string(range_ const& a) {
-			if(my) string(a.begin(), range_size(a));
+			if(my) string(a.begin(), json::range_size(a));
 			return *this;
 			}
 		node_if_mutable string(char const*const& cstring) {

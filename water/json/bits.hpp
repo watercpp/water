@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -88,7 +88,7 @@ namespace _ {
 	template<typename range_, typename size_ = void> struct
 	 range_size_do {
 		static size_t do_it(range_ const& a) {
-			return size(a.begin(), a.end());
+			return json::size(a.begin(), a.end());
 			}
 		};
 	template<typename range_> struct
