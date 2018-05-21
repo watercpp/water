@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -127,18 +127,20 @@ template<typename input_iterator_, bool space_as_plus_ = false> class
 			}
 	private:
 		void next() {
-			if(myfrom == myend)
-				myat = 3;
-			else if(++myat > 2 || !my[myat]) {
-	 			myat = 0;
-	 			my[0] = static_cast<unsigned char>(*myfrom);
-	 			my[1] = 0;
-	 			my[2] = 0;
-				++myfrom;
-				if(space_as_plus_ && my[0] == ' ')
-					my[0] = '+';
-				else if(url_encode(my[0]))
-					url_encode(my[0], my[1], my[2], my[0]);
+			if(++myat > 2 || !my[myat]) {
+				if(myfrom == myend)
+					myat = 3;
+				else {
+					myat = 0;
+					my[0] = static_cast<unsigned char>(*myfrom);
+					my[1] = 0;
+					my[2] = 0;
+					++myfrom;
+					if(space_as_plus_ && my[0] == ' ')
+						my[0] = '+';
+					else if(url_encode(my[0]))
+						url_encode(my[0], my[1], my[2], my[0]);
+					}
 				}
 			}
 	};
