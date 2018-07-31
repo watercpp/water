@@ -291,7 +291,7 @@ template<typename forward_iterator_> class
 			return r;
 			}
 		bool operator==(url_decode_iterator const& a) const {
-			return myleft == a.myleft && !myleft || (myfrom == a.myfrom);
+			return myleft == a.myleft && (!myleft || (myfrom == a.myfrom));
 			}
 		bool operator!=(url_decode_iterator const& a) const {
 			return !this->operator==(a);

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,11 +22,12 @@ Define WATER_TEST_FAILED or ___water_test yourself if there is a better way.
 #ifdef ___water_test
 	// done
 #elif defined(WATER_COMPILER_MICROSOFT)
-	#define ___water_test(...) do { if(__VA_ARGS__) break; WATER_TEST_FAILED(__FILE__, __LINE__, __FUNCSIG__, #__VA_ARGS__); } while(0)
+	// use if((__VA_ARGS__)) with two (( because assignment within conditional expression warning 
+	#define ___water_test(...) do { if((__VA_ARGS__)) break; WATER_TEST_FAILED(__FILE__, __LINE__, __FUNCSIG__, #__VA_ARGS__); } while(0)
 #elif defined(WATER_COMPILER_CLANG) || defined(WATER_COMPILER_GCC)
-	#define ___water_test(...) do { if(__VA_ARGS__) break; WATER_TEST_FAILED(__FILE__, __LINE__, __PRETTY_FUNCTION__, #__VA_ARGS__); } while(0)
+	#define ___water_test(...) do { if((__VA_ARGS__)) break; WATER_TEST_FAILED(__FILE__, __LINE__, __PRETTY_FUNCTION__, #__VA_ARGS__); } while(0)
 #else
-	#define ___water_test(...) do { if(__VA_ARGS__) break; WATER_TEST_FAILED(__FILE__, __LINE__, __func__, #__VA_ARGS__); } while(0)
+	#define ___water_test(...) do { if((__VA_ARGS__)) break; WATER_TEST_FAILED(__FILE__, __LINE__, __func__, #__VA_ARGS__); } while(0)
 #endif
 
 #endif

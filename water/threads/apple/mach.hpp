@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -92,8 +92,7 @@ inline double mach_time_resolution() noexcept {
 				<< "water::threads::mach_time_resolution()\n"
 				<< "  numer .... " << i.numer << '\n'
 				<< "  denom .... " << i.denom << '\n'
-				<< "  resolution " << a->resolution << '\n'
-				<< "  per second " << ((i.denom * 1e9) / i.numer) << '\n';
+				<< "  per second " << static_cast<long long>(((i.denom * 1e9) / i.numer) + .5) << '\n';
 				)
 			return r;
 			}

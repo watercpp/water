@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,6 +13,7 @@ define some macros and see what happens
 	#endif
 
 // iso646
+/*
 #ifndef and
 	#define and WATER_TESTS_MESS(and)
 	#endif
@@ -46,6 +47,7 @@ define some macros and see what happens
 #ifndef xor_eq
 	#define xor_eq WATER_TESTS_MESS(xor_eq)
 	#endif
+*/
 
 // windows.h
 #ifndef max

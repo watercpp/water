@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,7 @@
 #include <water/xml/tests/bits.hpp>
 #include <water/str/str.hpp>
 #include <water/ministr/out.hpp>
+#include <water/vector.hpp>
 namespace water { namespace xml { namespace tests {
 
 /*

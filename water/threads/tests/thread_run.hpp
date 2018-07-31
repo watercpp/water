@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -113,9 +113,9 @@ class thread_run {
 			deadline d(10);
 			auto l = lock_move(mylock);
 			do {
-				mycondition.wait(mylock, d);
 				if(mycount == count)
 					break;
+				mycondition.wait(mylock, d);
 				} while(d.left());
 			___water_test(d.left());
 			}

@@ -1,10 +1,11 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_THREADS_WINDOWS_BARRIER_SEMAPHORE_HPP
 #define WATER_THREADS_WINDOWS_BARRIER_SEMAPHORE_HPP
 #include <water/threads/windows/bits.hpp>
+#include <water/threads/pause.hpp>
 namespace water { namespace threads {
 
 /*

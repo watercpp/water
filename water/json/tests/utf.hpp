@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,6 +6,12 @@
 #define WATER_JSON_TESTS_UTF_HPP
 #include <water/json/tests/bits.hpp>
 #include <water/allocator.hpp>
+#ifdef WATER_NO_CHEADERS
+	#include <string.h>
+#else
+	#include <cstring>
+	namespace water { using std::memcmp; }
+#endif
 namespace water { namespace json { namespace tests {
 
 /*

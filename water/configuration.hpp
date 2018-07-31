@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -63,7 +63,7 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 			#define WATER_NO_EXCEPTIONS
 		#endif
 		
-	#elif __GNUC__
+	#elif defined(__GNUC__)
 		#define WATER_COMPILER_GCC ((__GNUC__ * 10) + __GNUC_MINOR__) // 4.1 is 41
 		#if WATER_COMPILER_GCC >= 41 && !defined(WATER_NO_EXCEPTIONS) && !defined(__EXCEPTIONS)
 			#define WATER_NO_EXCEPTIONS
@@ -72,7 +72,7 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 			#define WATER_NO_RTTI
 		#endif
 		
-	#elif _MSC_VER
+	#elif defined(_MSC_VER)
 		#define WATER_COMPILER_MICROSOFT _MSC_VER
 		// visual c++ 2003 / 7.1 is 1310
 		// visual c++ 2005 / 8.0 is 1400
