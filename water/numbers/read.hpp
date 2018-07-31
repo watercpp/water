@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,7 +14,7 @@ namespace water { namespace numbers {
 
 /*
 
-read floatingpoing, integer or bool from text
+read floatingpoint, integer or bool from text
 
 */
 
@@ -53,9 +53,11 @@ template<typename type_> class
 			return my;
 			}
 		size_t used() const {
+			// number of characters
 			return myused;
 			}
 		bool error() const {
+			// if parsing failed. this is unrelated to inexact, overflow, infinity, nan
 			return myerror;
 			}
 		bool inexact() const {
@@ -69,6 +71,9 @@ template<typename type_> class
 			}
 		bool nan() const {
 			return mynan;
+			}
+		bool any_problem() const {
+			return myerror || myinexact || myoverflow || myinfinity || mynan;
 			}
 	private:
 		void reset() {
@@ -109,7 +114,9 @@ template<typename type_> class
 			auto copy = myparse;
 			copy.integer(false);
 			parsed<max_binary_digits<type_>() + 8> m;
-			parsed<max_binary_digits<int>() + 8> e;
+			// max_binary_digits<int>() + 8 on a separate line from parsed<> avoided an internal compiler error on visual c++ 15.7.5
+			unsigned constexpr e_digits = max_binary_digits<int>() + 8;
+			parsed<e_digits> e;
 			forward_iterator_ r = copy.mantissa_exponent(m, e, begin, end, locale, transform);
 			if(r != begin) {
 				parsed_to_float<type_> x(m, e);
