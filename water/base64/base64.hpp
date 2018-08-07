@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -62,10 +62,10 @@ template<> inline byte decode<byte>(byte a) {
 	return a >= 128 ? no : decode_table[a];
 	}
 template<> inline byte decode<char>(char a) {
-	return decode<char>(static_cast<byte>(a));
+	return decode<byte>(static_cast<byte>(a));
 	}
 template<> inline byte decode<signed char>(signed char a) {
-	return decode<signed char>(static_cast<byte>(a));
+	return decode<byte>(static_cast<byte>(a));
 	}
 
 inline constexpr size_t encode_size(size_t a) {
