@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -71,7 +71,7 @@ template<typename atomic_unsigned_> class
 		bool try_down() noexcept { 
 			bool r;
 			auto a = my->load(memory_order_relaxed);
-			while(!my->compare_exchange_weak(a, (r = (a & max) != 0) ? a - 1 : a));
+			while(!my->compare_exchange_weak(a, (r = (a & max) != 0) == true ? a - 1 : a));
 			return r;
 			}
 		unsigned up(unsigned n = 1) noexcept {

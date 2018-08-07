@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -39,7 +39,8 @@ template<typename mutex_> class
 				if(myat != myend) ++myat;
 				at = myat;
 				myat ^= x;
-				if(flip = !flip)
+				flip = !flip;
+				if(flip)
 					sleep(0.001);
 				else
 					yield();

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -25,9 +25,9 @@ inline void need_all() {
 		need_recursive,
 		need_trivial_destructor
 		>::need;
-	___water_test(all == (1 << 7) - 1);
-	___water_test(none == 0);
-	___water_test(some != 0);
+	static_assert(all == (1 << 7) - 1, "test");
+	static_assert(none == 0, "test");
+	static_assert(some != 0, "test");
 	}
 
 }}}

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -43,7 +43,7 @@ template<bool exception_ = false> struct
 		if(!r) throw_if<typename underlying_allocator_exception_select<exception_>::result>();
 		return r;
 		}
-	void free(void *pointer, size_t bytes) noexcept {
+	void free(void *pointer, size_t /*bytes*/) noexcept {
 		#ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
 		WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().free(pointer, bytes);
 		#elif defined(WATER_NO_CHEADERS)
@@ -57,7 +57,7 @@ template<bool exception_ = false> struct
 		return static_cast<type_*>(allocate(sizeof(type_) * count));
 		}
 	template<typename type_>
-	 void free(void *pointer, size_t count = 1) noexcept {
+	 void free(void *pointer, size_t /*count*/ = 1) noexcept {
 		free(pointer, 0);
 		}
 	};

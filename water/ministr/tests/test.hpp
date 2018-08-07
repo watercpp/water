@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -20,39 +20,52 @@ struct test_trace {
 		}
 	};
 
+template<typename to_, typename from_> to_ cast(from_ from) {
+	// this is to avoid overflow warnings when casting static_cast<float>(-1.23456789012345678901234567890e50l)
+	// warning C4756: overflow in constant arithmetic
+	from_ copy{};
+	auto *c = static_cast<unsigned char*>(static_cast<void*>(&copy)), *ce = c + sizeof(copy);
+	auto *f = static_cast<unsigned char const*>(static_cast<void const*>(&from));
+	do *c++ = *f++; while(c != ce);
+	return static_cast<to_>(copy);
+	}
+
 template<typename float_, int min_, int max_, typename out_> void test_exponent_min_max(out_ o, char const *type) {
-	o
-		<< "no_exponent_min_max<" << min_ << ", " << max_ << "> " << type << "\n"
-		<< no_exponent_min_max<min_, max_>
-		<< "-50 " << static_cast<float_>(-1.23456789012345678901234567890e-50) << '\n'
-		<< "-40 " << static_cast<float_>(+1.23456789012345678901234567890e-40) << '\n'
-		<< "-30 " << static_cast<float_>(-1.23456789012345678901234567890e-30) << '\n'
-		<< "-20 " << static_cast<float_>(+1.23456789012345678901234567890e-20) << '\n'
-		<< "-10 " << static_cast<float_>(-1.23456789012345678901234567890e-10) << '\n'
-		<< " -9 " << static_cast<float_>(+1.23456789012345678901234567890e-9) << '\n'
-		<< " -8 " << static_cast<float_>(-1.23456789012345678901234567890e-8) << '\n'
-		<< " -7 " << static_cast<float_>(+1.23456789012345678901234567890e-7) << '\n'
-		<< " -6 " << static_cast<float_>(-1.23456789012345678901234567890e-6) << '\n'
-		<< " -5 " << static_cast<float_>(+1.23456789012345678901234567890e-5) << '\n'
-		<< " -4 " << static_cast<float_>(-1.23456789012345678901234567890e-4) << '\n'
-		<< " -3 " << static_cast<float_>(+1.23456789012345678901234567890e-3) << '\n'
-		<< " -2 " << static_cast<float_>(-1.23456789012345678901234567890e-2) << '\n'
-		<< " -1 " << static_cast<float_>(+1.23456789012345678901234567890e-1) << '\n'
-		<< "  0 " << static_cast<float_>(-1.23456789012345678901234567890e0) << '\n'
-		<< "  1 " << static_cast<float_>(+1.23456789012345678901234567890e1) << '\n'
-		<< "  2 " << static_cast<float_>(-1.23456789012345678901234567890e2) << '\n'
-		<< "  3 " << static_cast<float_>(+1.23456789012345678901234567890e3) << '\n'
-		<< "  4 " << static_cast<float_>(-1.23456789012345678901234567890e4) << '\n'
-		<< "  5 " << static_cast<float_>(+1.23456789012345678901234567890e5) << '\n'
-		<< "  6 " << static_cast<float_>(-1.23456789012345678901234567890e6) << '\n'
-		<< "  7 " << static_cast<float_>(+1.23456789012345678901234567890e7) << '\n'
-		<< "  8 " << static_cast<float_>(-1.23456789012345678901234567890e8) << '\n'
-		<< "  9 " << static_cast<float_>(+1.23456789012345678901234567890e9) << '\n'
-		<< " 10 " << static_cast<float_>(-1.23456789012345678901234567890e10) << '\n'
-		<< " 20 " << static_cast<float_>(+1.23456789012345678901234567890e20) << '\n'
-		<< " 30 " << static_cast<float_>(-1.23456789012345678901234567890e30) << '\n'
-		<< " 40 " << static_cast<float_>(+1.23456789012345678901234567890e40) << '\n'
-		<< " 50 " << static_cast<float_>(-1.23456789012345678901234567890e50) << '\n';
+	// this used to be 1 large expression, split to avoid warning C4503 decorated name length exceeded, name was truncated
+	struct list_ { char const* name; float_ value; } list[] {	
+		{"-50 ", cast<float_>(-1.23456789012345678901234567890e-50)},
+		{"-40 ", cast<float_>(+1.23456789012345678901234567890e-40)},
+		{"-30 ", cast<float_>(-1.23456789012345678901234567890e-30)},
+		{"-20 ", cast<float_>(+1.23456789012345678901234567890e-20)},
+		{"-10 ", cast<float_>(-1.23456789012345678901234567890e-10)},
+		{" -9 ", cast<float_>(+1.23456789012345678901234567890e-9)},
+		{" -8 ", cast<float_>(-1.23456789012345678901234567890e-8)},
+		{" -7 ", cast<float_>(+1.23456789012345678901234567890e-7)},
+		{" -6 ", cast<float_>(-1.23456789012345678901234567890e-6)},
+		{" -5 ", cast<float_>(+1.23456789012345678901234567890e-5)},
+		{" -4 ", cast<float_>(-1.23456789012345678901234567890e-4)},
+		{" -3 ", cast<float_>(+1.23456789012345678901234567890e-3)},
+		{" -2 ", cast<float_>(-1.23456789012345678901234567890e-2)},
+		{" -1 ", cast<float_>(+1.23456789012345678901234567890e-1)},
+		{"  0 ", cast<float_>(-1.23456789012345678901234567890e0)},
+		{"  1 ", cast<float_>(+1.23456789012345678901234567890e1)},
+		{"  2 ", cast<float_>(-1.23456789012345678901234567890e2)},
+		{"  3 ", cast<float_>(+1.23456789012345678901234567890e3)},
+		{"  4 ", cast<float_>(-1.23456789012345678901234567890e4)},
+		{"  5 ", cast<float_>(+1.23456789012345678901234567890e5)},
+		{"  6 ", cast<float_>(-1.23456789012345678901234567890e6)},
+		{"  7 ", cast<float_>(+1.23456789012345678901234567890e7)},
+		{"  8 ", cast<float_>(-1.23456789012345678901234567890e8)},
+		{"  9 ", cast<float_>(+1.23456789012345678901234567890e9)},
+		{" 10 ", cast<float_>(-1.23456789012345678901234567890e10)},
+		{" 20 ", cast<float_>(+1.23456789012345678901234567890e20)},
+		{" 30 ", cast<float_>(-1.23456789012345678901234567890e30)},
+		{" 40 ", cast<float_>(+1.23456789012345678901234567890e40)},
+		{" 50 ", cast<float_>(-1.23456789012345678901234567890e50)}
+		};
+	o << "no_exponent_min_max<" << min_ << ", " << max_ << "> " << type << "\n";
+	for(auto l : list)
+		o << no_exponent_min_max<min_, max_> << l.name << l.value << '\n';
 	}
 
 struct range {

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -117,8 +117,10 @@ namespace _ { namespace vectools {
 		static bool do_it(value_ const *a, value_ const *ae, value_ const *b, value_ const *be) {
 			if(ae - a != be - b)
 				return false;
-			while(a != ae && *a == *b)
-				++a, ++b;
+			while(a != ae && *a == *b) {
+				++a;
+				++b;
+				}
 			return a == ae;
 			}
 		};
@@ -137,7 +139,10 @@ namespace _ { namespace vectools {
 				as = ae - a,
 				bs = be - b;
 			value_ const *e = as < bs ? ae : a + bs;
-			while(a != e && *a == *b) ++a, ++b;
+			while(a != e && *a == *b) {
+				++a;
+				++b;
+				}
 			return b != be && (a == ae || *a < *b);
 			}
 		};
@@ -425,12 +430,13 @@ template<typename value_, bool destruct_> struct
 		}
 	template<typename input_iterator_>
 	 static value_* insert_copy(value_*& ve, value_* c, value_* ci, value_ *ce, input_iterator_ f, size_t fs) {
-		size_t s;
-		if(s = static_cast<size_t>(ci - c))
+		size_t s = static_cast<size_t>(ci - c);
+		if(s)
 			memcpy(ve, c, s * sizeof(value_));
 		value_ *r = ve += s;
 		construct(ve, f, fs); // can throw
-		if(s = static_cast<size_t>(ce - ci)) {
+		s = static_cast<size_t>(ce - ci);
+		if(s) {
 			memcpy(ve, ci, s * sizeof(value_));
 			ve += s;
 			}
@@ -445,13 +451,14 @@ template<typename value_, bool destruct_> struct
 		return vi;
 		}
 	static value_* insert_value_copy(value_*& ve, value_* c, value_* ci, value_ *ce, value_ const& f, size_t fs) noexcept {
-		size_t s;
-		if(s = static_cast<size_t>(ci - c))
+		size_t s = static_cast<size_t>(ci - c);
+		if(s)
 			memcpy(ve, c, s * sizeof(value_));
 		value_ *r = ve += s;
 		_::vectools::fill<value_>::do_it(ve, f, fs);
 		ve += fs;
-		if(s = static_cast<size_t>(ce - ci)) {
+		s = static_cast<size_t>(ce - ci);
+		if(s) {
 			memcpy(ve, ci, s * sizeof(value_));
 			ve += s;
 			}

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,7 +26,7 @@ namespace _ {
 			to(static_cast<char32_t const*>(&from), 1u);
 			return 1;
 			}
-		static unsigned do_it(write_nothing& to, char32_t from) {
+		static unsigned do_it(write_nothing& /*to*/, char32_t /*from*/) {
 			return 1;
 			}
 		};
@@ -42,10 +42,10 @@ namespace _ {
 			to(static_cast<char const*>(static_cast<void const*>(c)), s);
 			return s;
 			}
-		static unsigned do_it(write_nothing& to, unsigned char from) {
+		static unsigned do_it(write_nothing& /*to*/, unsigned char /*from*/) {
 			return 1;
 			}
-		template<typename char_> static unsigned do_it(write_nothing& to, char_ from) {
+		template<typename char_> static unsigned do_it(write_nothing& /*to*/, char_ from) {
 			if(from <= 0x7f)
 				return 1;
 			if(from <= 0x7ff)
@@ -70,13 +70,13 @@ namespace _ {
 			to(static_cast<char16_t const*>(c), s);
 			return s;
 			}
-		static unsigned do_it(write_nothing& to, unsigned char from) {
+		static unsigned do_it(write_nothing& /*to*/, unsigned char /*from*/) {
 			return 1;
 			}
-		static unsigned do_it(write_nothing& to, char16_t from) {
+		static unsigned do_it(write_nothing& /*to*/, char16_t /*from*/) {
 			return 1;
 			}
-		static unsigned do_it(write_nothing& to, char32_t from) {
+		static unsigned do_it(write_nothing& /*to*/, char32_t from) {
 			return from <= 0xffff ? 1 : 2;
 			}
 		};

@@ -148,7 +148,7 @@ template<typename allocator_ = water::allocator> class
 			// allocate bytes. the memory will be freed by clear() or the destructor.
 			// if the underlying allocator fails (returns 0 or throws) allocate_has_failed() will return true
 			void *r = 0;
-			if(my && (r = my->push(bytes, align, undo)))
+			if(my && (r = my->push(bytes, align, undo)) != 0)
 				return r;
 			// maybe another block has free space
 			if(my) {
@@ -156,7 +156,8 @@ template<typename allocator_ = water::allocator> class
 					*at = my->list,
 					*next = my;
 				while(at) {
-					if(r = at->push(bytes, align, undo)) {
+					r = at->push(bytes, align, undo);
+					if(r) {
 						// make this current
 						next->list = at->list;
 						at->list = my;

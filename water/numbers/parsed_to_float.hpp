@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -30,9 +30,9 @@ template<typename float_> class
 			using limits = numeric_limits<float_>;
 			if(!mantissa.anything() || mantissa.error() || exponent.error())
 				myerror = true;
-			else if(myinfinity = mantissa.is_infinity())
+			else if((myinfinity = mantissa.is_infinity()) != false)
 				my = limits::has_infinity ? limits::infinity() : limits::max();
-			else if(mynan = mantissa.is_nan())
+			else if((mynan = mantissa.is_nan()) != false)
 				my = limits::quiet_NaN();
 			else if(mantissa.base() < 2)
 				myerror = true;

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -29,6 +29,7 @@ template<typename int_> class
 				myerror = true;
 			else {
 				int_ const base = static_cast<int_>(parsed.base());
+				bool is_signed = limits::is_signed; // not const to avoid warning C4127: conditional expression is constant :(
 				unsigned round = 0;
 				auto digits = parsed.digits();
 				if(parsed.leading_zeros() >= parsed.point_at()) { // both can be 0 for .123
@@ -39,11 +40,11 @@ template<typename int_> class
 							round = *digits.begin();
 						}
 					}
-				else if(!limits::is_signed && parsed.is_minus()) // at least 1 nonzero digit before point, and negative
+				else if(!is_signed && parsed.is_minus()) // at least 1 nonzero digit before point, and negative
 					myoverflow = true;
 				else {
 					// at least 1 nonzero digit before point
-					bool const minus = limits::is_signed && parsed.is_minus();
+					bool const minus = is_signed && parsed.is_minus();
 					auto
 						di = digits.begin(),
 						de = parsed.point_at() < parsed.digits_size() ? di + parsed.point_at() : digits.end();
@@ -80,7 +81,7 @@ template<typename int_> class
 						if(round || parsed.overflow())
 							myinexact = true;
 						else
-							while(++di != digits.end() && !(myinexact = *di != 0));
+							while(++di != digits.end() && (myinexact = *di != 0) == false);
 						}
 					}
 				if(round && round >= parsed.base() / 2 + (parsed.base() & 1)) {

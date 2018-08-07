@@ -18,7 +18,7 @@ this was broken on clang 5.0.1
 namespace default_settings_locale_flush {
 
 	struct base {
-		template<typename iterator_> void operator()(iterator_ begin, iterator_ end) {}
+		template<typename iterator_> void operator()(iterator_ /*begin*/, iterator_ /*end*/) {}
 		};
 
 	struct has_default_settings : base {	

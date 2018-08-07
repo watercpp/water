@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -89,7 +89,7 @@ class parse {
 			}
 		parse& integer(bool a) {
 			// integer mode, will not look for decimal point, infinity, nan. ignored for mantissa_exponent
-			myinteger = true;
+			myinteger = a;
 			return *this;
 			}
 		parse& base_prefix_suffix(bool a) {
@@ -332,20 +332,20 @@ class parse {
 				auto exponents = locale.exponents();
 				auto e = exponents.begin();
 				compare_and_move is;
-				while(e != exponents.end() && (e->base() != (mantissa.base() == 10 ? 10 : 2) || !is(i, end, e->prefix(), transform)))
+				while(e != exponents.end() && (e->base() != (mantissa.base() == 10 ? 10u : 2u) || !is(i, end, e->prefix(), transform)))
 					++e;
 				if(e != exponents.end()) {
 					used += is.used();
 					used += myspace ? compare_one_of_and_move{}(i, end, spaces).used() : 0;
-					auto copy = *this;
-					copy.myinteger = true;
-					copy.mybool_text = false;
-					copy.mybase = 10;
-					copy.mybase_prefix_suffix = false;
-					i = copy(exponent, i, end, locale, transform);
-					if(copy.used()) {
+					auto copy2 = *this;
+					copy2.myinteger = true;
+					copy2.mybool_text = false;
+					copy2.mybase = 10;
+					copy2.mybase_prefix_suffix = false;
+					i = copy2(exponent, i, end, locale, transform);
+					if(copy2.used()) {
 						r = i;
-						myused += used + copy.used();
+						myused += used + copy2.used();
 						}
 					}
 				}

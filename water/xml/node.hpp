@@ -183,7 +183,8 @@ template<typename char_ = char, typename memory_ = void> class
 					do {
 						if(n->name_begin == n->name_end)
 							return node{ mym, n }.value();
-						}	while(n = n->next);
+						n = n->next;
+						} while(n);
 			return {};
 			}
 		template<typename iterator_>
@@ -239,7 +240,7 @@ template<typename char_ = char, typename memory_ = void> class
 			if(!size)
 				return {};
 			memory_node *n = my;
-			if(n) while((n = n->previous) && !name_equal(n, begin, size));
+			if(n) while((n = n->previous) != 0 && !name_equal(n, begin, size));
 			return { mym, n };
 			}
 		template<typename iterator_>
@@ -628,7 +629,8 @@ template<typename char_ = char, typename memory_ = void> class
 				return {};
 			if(!n->in) {
 				n->in = my;
-				if(n->next = my->nodes)
+				n->next = my->nodes;
+				if(n->next)
 					n->next->previous = n;
 				my->nodes = n;
 				}

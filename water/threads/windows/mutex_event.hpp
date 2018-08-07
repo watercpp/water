@@ -61,7 +61,7 @@ class mutex_event {
 			do {
 				dword_t m = d.milli_left();
 				loop = m && !handle_wait(e, m);
-				} while((l = mylock.exchange(2, memory_order_acquire)) && loop);
+				} while((l = mylock.exchange(2, memory_order_acquire)) != 0 && loop);
 			___water_threads_statistics(add.timeout(l == 0));
 			return l == 0;
 			}
@@ -134,7 +134,7 @@ class mutex_event_named {
 			do {
 				dword_t m = d.milli_left();
 				loop = m && !handle_wait(e.get(), m);
-				} while((l = mylock.exchange(2, memory_order_acquire)) && loop);
+				} while((l = mylock.exchange(2, memory_order_acquire)) != 0 && loop);
 			___water_threads_statistics(add.timeout(l == 0));
 			return l == 0;
 			}

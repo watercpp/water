@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -69,8 +69,8 @@ class read_write_count {
 					___water_threads_statistics(add.wait_object_created());
 					dword_t left;
 					while(
-						!(locked = a.write_lock(false)) &&
-						(left = d.milli_left()) &&
+						(locked = a.write_lock(false)) == false &&
+						(left = d.milli_left()) != 0 &&
 						!handle_wait_any(s, e, left)
 						);
 					}
@@ -128,8 +128,8 @@ class read_write_count {
 					___water_threads_statistics(add.wait_object_created());
 					dword_t left;
 					while(
-						!(locked = a.read_lock(false)) &&
-						(left = d.milli_left()) &&
+						(locked = a.read_lock(false)) == false &&
+						(left = d.milli_left()) != 0 &&
 						!handle_wait(s, left)
 						);
 					}

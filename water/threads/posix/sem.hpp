@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -44,7 +44,7 @@ inline bool down(sem_t& a, deadline_clock<clockid::realtime> d) noexcept {
 	while(sem_timedwait(&a, &d.underlying())) {
 		int e = errno;
 		___water_assert(e == EINTR || e == ETIMEDOUT);
-		if(errno != EINTR)
+		if(e != EINTR)
 			return false;
 		}
 	return true;

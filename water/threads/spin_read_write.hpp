@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -86,13 +86,13 @@ template<bool exists_ = spin_exists> class
 		bool read_once() noexcept {
 			bool l;
 			auto a = my.load(memory_order_relaxed);
-			while(!my.compare_exchange_weak(a, (l = !(a & 1)) ? a + 4 : a));
+			while(!my.compare_exchange_weak(a, (l = !(a & 1)) == true ? a + 4 : a));
 			return l;
 			}
 		bool write_once(bool wait) noexcept {
 			bool l;
 			auto a = my.load(memory_order_relaxed);
-			while(!my.compare_exchange_weak(a, (l = a <= 1) ? a | 3 : (wait ? a | 1 : a)));
+			while(!my.compare_exchange_weak(a, (l = a <= 1) == true ? a | 3 : (wait ? a | 1 : a)));
 			return l;
 			}
 	};

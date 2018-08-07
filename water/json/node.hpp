@@ -186,7 +186,10 @@ template<typename memory_ = void> class
 					char8_t const
 						*n = (*i)->name,
 						*ne = n + size;
-					while(n != ne && *n == string_compare_cast(*b)) ++n, ++b;
+					while(n != ne && *n == string_compare_cast(*b)) {
+						++n;
+						++b;
+						}
 					if(n == ne)
 						return {mym, *i};
 					}
@@ -488,7 +491,7 @@ template<typename memory_ = void> class
 			}
 		template<typename size_, typename iterator_>
 		 bool copy(char8_t*& to, size_& to_size, iterator_ from, size_t from_size) {
-			if(to_size < from_size && !(to = static_cast<char8_t*>(mym->allocate(from_size, 1))))
+			if(to_size < from_size && (to = static_cast<char8_t*>(mym->allocate(from_size, 1))) == 0)
 				return false;
 			char8_t *t = to, *e = to + from_size;
 			while(t != e) {

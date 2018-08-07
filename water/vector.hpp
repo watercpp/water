@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -589,7 +589,8 @@ template<typename value_, typename allocator_ = void, typename sizer_ = void> cl
 			return myend;
 			}
 		bool allocate(size_type count) {
-			if(myend = mybegin = myallocator.template allocate<value_type>(count)) {
+			myend = mybegin = myallocator.template allocate<value_type>(count);
+			if(mybegin) {
 				mystop = mybegin + count;
 				return true;
 				}
@@ -604,7 +605,10 @@ template<typename value_, typename allocator_ = void, typename sizer_ = void> cl
 		 iterator assign_do(iterator_ begin, iterator_ end, forward_iterator_tag*) {
 			size_type s = 0;
 			iterator_ i(begin);
-			while(i != end) ++s, ++i;
+			while(i != end) {
+				++s;
+				++i;
+				}
 			return assign(begin, s);
 			}
 		template<typename iterator_>
@@ -620,7 +624,7 @@ template<typename value_, typename allocator_ = void, typename sizer_ = void> cl
 				myend = i;
 				}
 			else
-				while(begin != end && (i = emplace_back(*begin))) // can throw
+				while(begin != end && (i = emplace_back(*begin)) != 0) // can throw
 					++begin; // can throw?
 			return i ? mybegin : 0;
 			}
@@ -637,13 +641,16 @@ template<typename value_, typename allocator_ = void, typename sizer_ = void> cl
 		 iterator insert_do(iterator at, iterator_ begin, iterator_ end, forward_iterator_tag*) {
 			size_type s = 0;
 			iterator_ i(begin);
-			while(i != end) ++s, ++i;
+			while(i != end) {
+				++s;
+				++i;
+				}
 			return insert(at, begin, s);
 			}
 		template<typename iterator_>
 		 iterator insert_do(iterator at, iterator_ begin, iterator_ end, input_iterator_tag*) {
 			auto x = at - mybegin;
-			while(begin != end && (at = insert(at, *begin))) {
+			while(begin != end && (at = insert(at, *begin)) != 0) {
 				++at;
 				++begin;
 				}

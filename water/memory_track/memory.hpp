@@ -201,9 +201,9 @@ template<typename tag_ = void, typename callback_ = void> class
 				r.where = &c->generation;
 				r.error = "cookie generation";
 				}
-			else if(r.where = c->overrun())
+			else if((r.where = c->overrun()) != 0)
 				r.error = "overrun";
-			else if(r.where = c->underrun())
+			else if((r.where = c->underrun()) != 0)
 				r.error = "underrun";
 			else if(c->next->prev != c) {
 				r.where = &c->next;
@@ -288,7 +288,7 @@ template<typename tag_ = void, typename callback_ = void> class
  			___water_assert(!(upointer(c) % align) && !(upointer(r) % align) && "underlying_allocator allocation not aligend to water::align_max");
  			return r;
  			}
- 		void free(void *pointer, size_t bytes, tag_type const& tag, allocator_tag tag2, bool assert_enabled = true) noexcept {
+ 		void free(void *pointer, size_t bytes, tag_type const& tag, allocator_tag tag2, bool ___water_debug(assert_enabled) = true) noexcept {
  			// bytes = 0 is ok because delete
  			auto lock = lock_move(mylock);
  			char const* error = 0;

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -90,14 +90,14 @@ template<typename iterator_> bool read_number(number& to, iterator_& from, itera
 			return false;
 		}
 	// exponent
-	if(from != end && *from == 'e' || *from == 'E') {
-		bool minus = false;
-		if(++from != end && (minus = *from == '-') || *from == '+')
+	if(from != end && (*from == 'e' || *from == 'E')) {
+		bool exponent_minus = false;
+		if(++from != end && ((exponent_minus = *from == '-') != 0 || *from == '+'))
 			++from;
 		first_digit = from;
 		while(from != end && ('0' <= *from && *from <= '9')) {
 			int32_t d = static_cast<int32_t>(*from - '0');
-			if(minus) {
+			if(exponent_minus) {
 				if(exponent < (numeric_limits<int32_t>::min() + d) / 10)
 					exponent = numeric_limits<int32_t>::min();
 				else

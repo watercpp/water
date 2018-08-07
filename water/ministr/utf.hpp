@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -29,12 +29,12 @@ template<typename iterator_, typename settings_, unsigned size_, unsigned utf_> 
 			unicode::utf_iterator_with_end<8, iterator_, false, utf_> f(mybegin, myend);
 			if(!length.utf8())
 				return begin;
-			unsigned size = static_cast<unsigned>(end - begin);
-			if(size >= length.utf8())
-				size = static_cast<unsigned>(length.utf8());
+			unsigned s = static_cast<unsigned>(end - begin);
+			if(s >= length.utf8())
+				s = static_cast<unsigned>(length.utf8());
 			else
-				size = _::utf8_cut(f, size);
-			end = begin + size;
+				s = _::utf8_cut(f, s);
+			end = begin + s;
 			while(begin != end) {
 				auto c = static_cast<no_const_reference<decltype(*begin)>>(*f);
 				if(!c) break;

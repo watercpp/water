@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -61,7 +61,7 @@ class mutex_semaphore {
 			do {
 				double left = d.left();
 				e = left >= 1e-9 ? semaphore_wait(s, left) : mach_timeout;
-				} while((a = my.exchange(2, memory_order_acquire)) && (!e || e == mach_aborted));
+				} while((a = my.exchange(2, memory_order_acquire)) != 0 && (!e || e == mach_aborted));
 			___water_threads_statistics(add.timeout(a == 0));
 			return a == 0;
 			}

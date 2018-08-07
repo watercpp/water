@@ -471,14 +471,14 @@ template<typename write_, typename function_> out<write_>& operator<<(out<write_
 // callbacks
 
 struct flush_do : callback<flush_do> {
-	template<typename write_> void operator()(out<write_>& o) const { o.flush(); };
+	template<typename write_> void operator()(out<write_>& o) const { o.flush(); }
 	} constexpr flush {};
 
 struct el_do : callback<el_do> {
 	template<typename write_> void operator()(out<write_>& o) const {
 		o(static_cast<char>(u'\n'));
 		o.flush();
-		};
+		}
 	} constexpr el {};
 
 template<typename type_> class

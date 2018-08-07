@@ -112,7 +112,7 @@ template<typename function_, typename char_ = char, unsigned buffer_size_ = 0> c
 			}
 		template<typename iterator_> void operator()(iterator_ begin, iterator_ end) {
 			char_type c;
-			while(begin != end && (c = static_cast<char_type>(*begin))) {
+			while(begin != end && (c = static_cast<char_type>(*begin)) != 0) {
 				if(mysize == buffer_size - 1)
 					flush();
 				my[mysize++] = c;

@@ -42,11 +42,12 @@ struct memory_node {
 		int64_t integer;
 		bool boolean;
 		};
+	struct at_capacity { // do not declare struct inside anonymous union
+		uint32_t at; // position in in->nodes
+		uint32_t capacity; // of this->nodes, if this is not 0 the node is non-empty object/array
+		};
 	union {
-		struct {
-			uint32_t at; // position in in->nodes
-			uint32_t capacity; // of this->nodes, if this is not 0 the node is non-empty object/array
-			} me;
+		at_capacity me;
 		memory_node *previous; // used only during read before the nodes array is allocated
 		};
 	union {

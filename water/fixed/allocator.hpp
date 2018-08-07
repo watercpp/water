@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -30,7 +30,7 @@ template<typename memory_, typename exception_, bool lock_free_ = false> class
  				throw_if<exception_>();
  			return r;
  			}
- 		void free(void* pointer, size_t bytes) noexcept {
+ 		void free(void* pointer, size_t ___water_debug(bytes)) noexcept {
  			___water_assert(my && bytes <= my->bytes());
  			my->free(pointer);
  			}

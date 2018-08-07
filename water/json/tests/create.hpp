@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -58,7 +58,7 @@ inline void create() {
 	// add an array
 	auto array = root.push_back().array(20);
 	___water_test(array.capacity() == 20);
-	for(int i = 0; i != array.capacity(); ++i)
+	for(int i = 0; i != static_cast<int>(array.capacity()); ++i)
 		array.push_back().number(i - 1);
 	
 	for(auto a : array)

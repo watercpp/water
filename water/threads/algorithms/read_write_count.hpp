@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -99,7 +99,8 @@ template<typename atomic_unsigned_> class
 			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
-				if(r = (l & write) == 0) {
+				r = (l & write) == 0;
+				if(r) {
 					++l;
 					if(!first_time) l -= wait1;
 					}
@@ -120,7 +121,7 @@ template<typename atomic_unsigned_> class
 			unsigned_ l = my->load(memory_order_relaxed);
 			while(!my->compare_exchange_weak(
 				l,
-				(r = (l & write) == 0) ? l + 1 : l,
+				(r = (l & write) == 0) == true ? l + 1 : l,
 				memory_order_acquire
 				));
 			return r;
@@ -138,7 +139,8 @@ template<typename atomic_unsigned_> class
 			bool r;
 			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
-				if(r = (l0 & read) == 0) {
+				r = (l0 & read) == 0;
+				if(r) {
 					l = l0 | lock;
 					if(!first_time) l -= wait1;
 					}
@@ -164,7 +166,8 @@ template<typename atomic_unsigned_> class
 			do {
 				wake = 0;
 				l = l0 - wait1;
-				if(acquired = (l & read) == 0)
+				acquired = (l & read) == 0;
+				if(acquired)
 					l |= lock;
 				else if(
 					(l & write) && // write-bit is set and
@@ -181,7 +184,7 @@ template<typename atomic_unsigned_> class
 			unsigned_ l = my->load(memory_order_relaxed);
 			while(!my->compare_exchange_weak(
 				l,
-				(r = (l & read) == 0) ? l | lock : l,
+				(r = (l & read) == 0) == true ? l | lock : l,
 				memory_order_acquire
 				));
 			return r;

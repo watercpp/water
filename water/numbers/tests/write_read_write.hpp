@@ -16,10 +16,15 @@ compare the strings from 1 and 3
 
 */
 
-template<typename type_> inline type_ write_read_write_divide_4(type_ a) {
-	return a / 4;
+template<typename type_> inline type_ write_read_write_divide_4_maybe(type_ a) {
+	bool has_infinity = numeric_limits<type_>::has_infinity; // avoid warning C4127: conditional expression is constant
+	if(has_infinity && (a == numeric_limits<type_>::max() || a == static_cast<type_>(numeric_limits<type_>::max() * -1))) {
+		// when precision is small this causes max to be rounded up, and reading it back will be infinity
+		return a / 4;
+		}
+	return a;
 	}
-inline bool write_read_write_divide_4(bool a) {  // visual c++ warnings when bool / 4
+inline bool write_read_write_divide_4_maybe(bool a) {  // visual c++ warnings when bool / 4
 	return a;
 	}
 
@@ -33,11 +38,8 @@ class write_read_write_one {
 			char
 				a[8000] {},
 				b[8000] {};
-				
-			if(numeric_limits<type_>::has_infinity && (t == numeric_limits<type_>::max() || t == static_cast<type_>(numeric_limits<type_>::max() * -1))) {
-				// when precision is small this causes max to be rounded up, and reading it back will be infinity
-				t = write_read_write_divide_4(t);
-				}
+			
+			t = write_read_write_divide_4_maybe(t);
 	
 			write<type_> w(t, s);
 			size_t ws1 = w.template size<char>();
@@ -73,7 +75,7 @@ class write_read_write_one {
 				auto
 					ai = a,
 					bi = b;
-				while(ai != ae && (equal = (*ai == *bi))) {
+				while(ai != ae && (equal = (*ai == *bi)) == true) {
 					++ai;
 					++bi;
 					}
@@ -141,16 +143,20 @@ template<typename float_> void write_read_write_float(settings s) {
 	}
 
 template<typename int_> void write_read_write_signed(settings s) {
+	int
+		i12345 = 12345, // avoid warning "static_cast truncation of constant value" in static cast below
+		cafe = 0xcafe,
+		dead = -0xdead;
 	int_ const array[] = {
 		0,
 		1,
 		-1,
 		10,
 		-10,
-		static_cast<int_>(12345),
-		static_cast<int_>(-12345),
-		static_cast<int_>(0xcafe),
-		static_cast<int_>(-0xdead),
+		static_cast<int_>(i12345),
+		static_cast<int_>(-i12345),
+		static_cast<int_>(cafe),
+		static_cast<int_>(-dead),
 		numeric_limits<int_>::min(),
 		numeric_limits<int_>::max(),
 		static_cast<int_>(numeric_limits<int_>::min() + 1),
@@ -165,13 +171,17 @@ template<typename int_> void write_read_write_signed(settings s) {
 	}
 
 template<typename int_> void write_read_write_unsigned(settings s) {
+	unsigned
+		i12345 = 12345, // avoid warning "static_cast truncation of constant value" in static cast below
+		cafe = 0xcafe,
+		dead = 0xdead;
 	int_ const array[] = {
 		0,
 		1,
 		10,
-		static_cast<int_>(12345),
-		static_cast<int_>(0xcafe),
-		static_cast<int_>(0xdead),
+		static_cast<int_>(i12345),
+		static_cast<int_>(cafe),
+		static_cast<int_>(dead),
 		numeric_limits<int_>::min(),
 		numeric_limits<int_>::max(),
 		static_cast<int_>(numeric_limits<int_>::max() - 1),

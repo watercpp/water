@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -30,7 +30,8 @@ template<typename float_> struct
 			return;
 		if(minus)
 			f = -f;
-		if(infinity = isinf_strict(f))
+		infinity = isinf_strict(f);
+		if(infinity)
 			f = numeric_limits<float_>::max();
 		if(base == 10) {
 			int p = exponent = static_cast<int>(log10(f));

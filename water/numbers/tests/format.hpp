@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -21,7 +21,10 @@ struct format_one {
 		char const
 			*xi = x,
 			*ci = c;
-		while(*xi && *ci && *xi == *ci) ++xi, ++ci;
+		while(*xi && *ci && *xi == *ci) {
+			++xi;
+			++ci;
+			}
 		___water_test(!*xi && !*ci);
 		}
 	};

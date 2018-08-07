@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -68,7 +68,10 @@ inline bool operator==(name const& a, name const& b) noexcept {
 		ai = a.begin(),
 		ae = a.end(),
 		bi = b.begin();
-	while(ai != ae && *ai == *bi) ++ai, ++bi;
+	while(ai != ae && *ai == *bi) {
+		++ai;
+		++bi;
+		}
 	return ai == ae;
 	}
 

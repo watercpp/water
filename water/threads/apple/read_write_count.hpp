@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -57,7 +57,7 @@ class read_write_count {
 						locked = false;
 						semaphore_wait_signal(mywait, l);
 						}
-					else if(!(locked = semaphore_lock(l)))
+					else if((locked = semaphore_lock(l)) == false)
 						p();
 					}
 				else 
@@ -83,7 +83,7 @@ class read_write_count {
 				if(l) {
 					int e = 0;
 					bool locked = false;
-					while(!(r = a.write_lock(false)) && (!e || e == mach_aborted)) {
+					while((r = a.write_lock(false)) == false && (!e || e == mach_aborted)) {
 						if(!locked) {
 							e = semaphore_wait(l, d.left());
 							locked = e == 0;
@@ -148,7 +148,7 @@ class read_write_count {
 						locked = false;
 						semaphore_wait_signal(mywait, l);
 						}
-					else if(!(locked = semaphore_lock(l)))
+					else if((locked = semaphore_lock(l)) == false)
 						p();
 					}
 				else 
@@ -173,7 +173,7 @@ class read_write_count {
 				if(l) {
 					int e = 0;
 					bool locked = false;
-					while(!(r = a.read_lock(false)) && (!e || e == mach_aborted)) {
+					while((r = a.read_lock(false)) == false && (!e || e == mach_aborted)) {
 						if(!locked) {
 							e = semaphore_wait(l, d.left());
 							locked = e == 0;

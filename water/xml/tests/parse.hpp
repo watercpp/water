@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -47,7 +47,7 @@ template<typename out_> struct
 		if(my) {
 			unsigned indent = 0;
 			node_ i = n;
-			while(i = i.in()) ++indent;
+			while(static_cast<bool>(i = i.in())) ++indent;
 			*my << str::repeat(' ', indent * 2) << '<' << n.name();
 			i = n.attributes();
 			while(i) {
@@ -147,8 +147,10 @@ inline bool cequal(char const *a, char const *b) {
 		return true;
 	if(!a || !b)
 		return false;
-	while(*a && *b && *a == *b)
-		++a, ++b;
+	while(*a && *b && *a == *b) {
+		++a;
+		++b;
+		}
 	return !*a && !*b;
 	}
 

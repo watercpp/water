@@ -156,20 +156,21 @@ template<bool statistics_> void memory_functions_statistics(size_t bytes) {
 		if(!(rounds & 1))
 			fill /= 2;
 		while(fill--) {
-			void *a = memory.allocate_lock_free();
-			___water_test(a);
-			size_t l = memory.lookup(a);
-			void *b = memory.lookup(l);
+			void *b = memory.allocate_lock_free();
+			___water_test(b);
+			size_t l = memory.lookup(b);
+			void *c = memory.lookup(l);
 			___water_test(l);
-			___water_test(a == b);
-			allocations.push_back(a);
+			___water_test(b == c);
+			allocations.push_back(b);
 			}
 		}
 	
 	memory_use = memory.memory_use();
 	auto statistics = memory.statistics();
 	___water_test(memory_use == statistics.memory_use);
-	___water_test(!statistics_ || statistics.allocations_now == allocations.size());
+	bool statistics_enabled = statistics_; // avoid warning C4127: conditional expression is constant
+	___water_test(!statistics_enabled || statistics.allocations_now == allocations.size());
 	}
 
 inline void memory_functions() {

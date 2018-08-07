@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,7 +22,10 @@ inline char32_t equal_decode(char32_t a) {
 template<typename iterator1_, typename iterator2_> bool equal_ranges(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterator2_ e2) {
 	auto i1 = unicode::utf_iterator_from<32>(b1, e1);
 	auto i2 = unicode::utf_iterator_from<32>(b2, e2);
-	while(i1 && i2 && equal_decode(*i1) == equal_decode(*i2)) ++i1, ++i2;
+	while(i1 && i2 && equal_decode(*i1) == equal_decode(*i2)) {
+		++i1;
+		++i2;
+		}
 	return !i1 && !i2;
 	}
 

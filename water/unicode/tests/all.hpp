@@ -234,40 +234,40 @@ struct all {
 				{
 				char8_t original8[0x400];
 				memcpy(original8, a8, sizeof(original8));
-				auto a8e = utf_from_utf_verify<8, 8, true>(forward(a8), forward(original8), length.utf8());
-				auto b8e = utf_from_utf_verify<8, 8, false>(forward(b8), forward(original8), length.utf8());
-				___water_test(a8e.size() == length.utf8());
-				___water_test(b8e.size() == length.utf8());
-				___water_test(equal(forward(a8), a8e.end(), forward(b8), b8e.end()));
-				l8 = utf_length<8>(forward(a8), a8e.size());
+				auto ae = utf_from_utf_verify<8, 8, true>(forward(a8), forward(original8), length.utf8());
+				auto be = utf_from_utf_verify<8, 8, false>(forward(b8), forward(original8), length.utf8());
+				___water_test(ae.size() == length.utf8());
+				___water_test(be.size() == length.utf8());
+				___water_test(equal(forward(a8), ae.end(), forward(b8), be.end()));
+				l8 = utf_length<8>(forward(a8), ae.size());
 				___water_test(length_test(length, l8, original[0]));
-				l8 = utf_length<8>(forward(b8), b8e.end());
+				l8 = utf_length<8>(forward(b8), be.end());
 				___water_test(length_test(length, l8, original[0]));
 					{
 					auto i = utf_iterator_with_end<8, decltype(forward(original8)), true>(forward(original8), forward(original8 + length.utf8()));
-					___water_test(equal(forward(a8), a8e.end(), i, end(i)));
+					___water_test(equal(forward(a8), ae.end(), i, end(i)));
 					auto l = utf_length<8>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_end<8, decltype(forward(original8)), false>(forward(original8), forward(original8 + length.utf8()));
-					___water_test(equal(forward(a8), a8e.end(), i, end(i)));
+					___water_test(equal(forward(a8), ae.end(), i, end(i)));
 					auto l = utf_length<8>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<8, decltype(forward(original8)), true>(forward(original8), length.utf8());
-					___water_test(equal(forward(a8), a8e.end(), i, end(i)));
+					___water_test(equal(forward(a8), ae.end(), i, end(i)));
 					auto l = utf_length<8>(i, length.utf8());
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<8, decltype(forward(original8)), false>(forward(original8), length.utf8());
-					___water_test(equal(forward(a8), a8e.end(), i, end(i)));
+					___water_test(equal(forward(a8), ae.end(), i, end(i)));
 					auto l = utf_length<8>(i, length.utf8());
 					___water_test(length_test(length, l, original[0]));
 					}
-				a8e = b8e;
+				ae = be;
 				conversions += 12;
 				}
 		
@@ -275,79 +275,79 @@ struct all {
 				{
 				char16_t original16[0x200];
 				memcpy(original16, a16, sizeof(original16));
-				auto a16e = utf_from_utf_verify<16, 16, true>(forward(a16), forward(original16), length.utf16());
-				auto b16e = utf_from_utf_verify<16, 16, false>(forward(b16), forward(original16), length.utf16());
-				___water_test(a16e.size() == length.utf16());
-				___water_test(b16e.size() == length.utf16());
-				___water_test(equal(forward(a16), a16e.end(), forward(b16), b16e.end()));
-				l16 = utf_length<16>(forward(a16), a16e.size());
+				auto ae = utf_from_utf_verify<16, 16, true>(forward(a16), forward(original16), length.utf16());
+				auto be = utf_from_utf_verify<16, 16, false>(forward(b16), forward(original16), length.utf16());
+				___water_test(ae.size() == length.utf16());
+				___water_test(be.size() == length.utf16());
+				___water_test(equal(forward(a16), ae.end(), forward(b16), be.end()));
+				l16 = utf_length<16>(forward(a16), ae.size());
 				___water_test(length_test(length, l16, original[0]));
-				l16 = utf_length<16>(forward(b16), b16e.end());
+				l16 = utf_length<16>(forward(b16), be.end());
 				___water_test(length_test(length, l16, original[0]));
 					{
 					auto i = utf_iterator_with_end<16, decltype(forward(original16)), true>(forward(original16), forward(original16 + length.utf16()));
-					___water_test(equal(forward(a16), a16e.end(), i, end(i)));
+					___water_test(equal(forward(a16), ae.end(), i, end(i)));
 					auto l = utf_length<16>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_end<16, decltype(forward(original16)), false>(forward(original16), forward(original16 + length.utf16()));
-					___water_test(equal(forward(a16), a16e.end(), i, end(i)));
+					___water_test(equal(forward(a16), ae.end(), i, end(i)));
 					auto l = utf_length<16>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<16, decltype(forward(original16)), true>(forward(original16), length.utf16());
-					___water_test(equal(forward(a16), a16e.end(), i, end(i)));
+					___water_test(equal(forward(a16), ae.end(), i, end(i)));
 					auto l = utf_length<16>(i, length.utf16());
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<16, decltype(forward(original16)), false>(forward(original16), length.utf16());
-					___water_test(equal(forward(a16), a16e.end(), i, end(i)));
+					___water_test(equal(forward(a16), ae.end(), i, end(i)));
 					auto l = utf_length<16>(i, length.utf16());
 					___water_test(length_test(length, l, original[0]));
 					}
-				a16e = b16e;
+				ae = be;
 				conversions += 12;
 				}
 		
 			// 32 from 32
 				{
-				auto a32e = utf_from_utf_verify<32, 32, true>(forward(a32), forward(original), length.utf32());
-				auto b32e = utf_from_utf_verify<32, 32, false>(forward(b32), forward(original), length.utf32());
-				___water_test(a32e.size() == length.utf32());
-				___water_test(b32e.size() == length.utf32());
-				___water_test(equal(forward(a32), a32e.end(), forward(b32), b32e.end()));
-				l32 = utf_length<32>(forward(a32), a32e.size());
+				auto ae = utf_from_utf_verify<32, 32, true>(forward(a32), forward(original), length.utf32());
+				auto be = utf_from_utf_verify<32, 32, false>(forward(b32), forward(original), length.utf32());
+				___water_test(ae.size() == length.utf32());
+				___water_test(be.size() == length.utf32());
+				___water_test(equal(forward(a32), ae.end(), forward(b32), be.end()));
+				l32 = utf_length<32>(forward(a32), ae.size());
 				___water_test(length_test(length, l32, original[0]));
-				l32 = utf_length<32>(forward(b32), b32e.end());
+				l32 = utf_length<32>(forward(b32), be.end());
 				___water_test(length_test(length, l32, original[0]));
 					{
 					auto i = utf_iterator_with_end<32, decltype(forward(original)), true>(forward(original), forward(original + length.utf32()));
-					___water_test(equal(forward(a32), a32e.end(), i, end(i)));
+					___water_test(equal(forward(a32), ae.end(), i, end(i)));
 					auto l = utf_length<32>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_end<32, decltype(forward(original)), false>(forward(original), forward(original + length.utf32()));
-					___water_test(equal(forward(a32), a32e.end(), i, end(i)));
+					___water_test(equal(forward(a32), ae.end(), i, end(i)));
 					auto l = utf_length<32>(i, end(i));
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<32, decltype(forward(original)), true>(forward(original), length.utf32());
-					___water_test(equal(forward(a32), a32e.end(), i, end(i)));
+					___water_test(equal(forward(a32), ae.end(), i, end(i)));
 					auto l = utf_length<32>(i, length.utf32());
 					___water_test(length_test(length, l, original[0]));
 					}
 					{
 					auto i = utf_iterator_with_size<32, decltype(forward(original)), false>(forward(original), length.utf32());
-					___water_test(equal(forward(a32), a32e.end(), i, end(i)));
+					___water_test(equal(forward(a32), ae.end(), i, end(i)));
 					auto l = utf_length<32>(i, length.utf32());
 					___water_test(length_test(length, l, original[0]));
 					}
-				a32e = b32e;
+				ae = be;
 				conversions += 12;
 				}
 
@@ -361,7 +361,10 @@ struct all {
 		}
 	
 	template<typename iterator1_, typename iterator2_> bool equal(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterator2_ e2) {
-		while(b1 != e1 && b2 != e2 && *b1 == *b2) ++b1, ++b2;
+		while(b1 != e1 && b2 != e2 && *b1 == *b2) {
+			++b1;
+			++b2;
+			}
 		return b1 == e1 && b2 == e2;
 		}
 	

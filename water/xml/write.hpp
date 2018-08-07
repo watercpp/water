@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,6 +27,25 @@ namespace _ {
 	template<typename char_, size_t size_> write_array<char_, size_ - 1> write_cstring(char const (&a)[size_]) {
 		return {a};
 		}
+
+	template<typename char_, unsigned utf_> struct
+	 write_xml_declaration {
+		template<typename to_> static void to(to_& to) {
+			to(static_cast<char_>(0xfeffu));
+			auto c = utf_ == 16 ?
+				_::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-16\"?>") :
+				_::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-32\"?>");
+			to(c.begin(), c.end());
+			}
+		};
+	template<typename char_> struct
+	 write_xml_declaration<char_, 8> {
+		template<typename to_> static void to(to_& to) {
+			auto c = _::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			to(c.begin(), c.end());
+			}
+		};
+
 }
 
 template<typename to_, typename char_>
@@ -47,17 +66,7 @@ template<typename to_, typename char_>
 	// this cannot fail if to() cannot fail
 	//
 	if(xml_declaration) {
-		if(unicode::utf_from_char<char_>::result == 8) {
-			auto c = _::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			to(c.begin(), c.end());
-			}
-		else {
-			to(static_cast<char_>(0xfeffu));
-			auto c = unicode::utf_from_char<char_>::result == 16 ?
-				_::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-16\"?>") :
-				_::write_cstring<char_>("<?xml version=\"1.0\" encoding=\"UTF-32\"?>");
-			to(c.begin(), c.end());
-			}
+		_::write_xml_declaration<char_, unicode::utf_from_char<char_>::result>::to(to);
 		if(indent_spaces_or_tab)
 			to(static_cast<char_>('\n'));
 		}

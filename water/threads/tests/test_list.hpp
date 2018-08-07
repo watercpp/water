@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,7 +14,7 @@ template<template<typename> class test_, typename type_, unsigned need_ = type_:
  	 	test_<type_> t(a...); // gcc will test_<type_> t({}); when arguments is empty
  	 	}
  	void operator()() {
- 	 	test_<type_> t;
+ 	 	test_<type_>{};
  	 	}
  	};
 template<template<typename> class test_, typename type_> struct

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -50,10 +50,10 @@ template<typename value_> class
 			return myend;
 			}
 		size_t capacity() const noexcept {
-			return mycapacity - mybegin;
+			return static_cast<size_t>(mycapacity - mybegin);
 			}
 		size_t size() const noexcept {
-			return myend - mybegin;
+			return static_cast<size_t>(myend - mybegin);
 			}
 		bool empty() const noexcept {
 			return mybegin == myend;

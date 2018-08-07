@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -157,7 +157,7 @@ namespace _ {
 	// ...caused comile times on clang to explode.
 	 
 	template<typename configuration_>
-	 void function(out<void, configuration_> const&, char const *begin, char const *end) {
+	 void function(out<void, configuration_> const&, char const* /*begin*/, char const* /*end*/) {
 		}
 	
 	template<typename function_, typename configuration_>
@@ -171,7 +171,7 @@ namespace _ {
 		}
 
 	template<typename function_, typename configuration_>
-	 char* write(out<function_, configuration_> const& o, char *begin, char *at) {
+	 char* write(out<function_, configuration_> const& /*o*/, char* /*begin*/, char *at) {
 		return at;
 		}
 	
@@ -181,20 +181,34 @@ namespace _ {
 		char *end = begin + out<out<previous1_, previous2_>, write_>::size + out<out<previous1_, previous2_>, write_>::settings::extra_size;
 		return o.write(at, end);
 		}
-	
-	template<typename previous_, typename write_>
-	 void write(out<previous_, write_> const& o) {
-		if(out<previous_, write_>::size) {
+
+	template<bool> struct
+	 write_if {
+		template<typename previous_, typename write_>
+		 static void do_it(out<previous_, write_> const& o) {
 			char array[out<previous_, write_>::size + out<previous_, write_>::settings::extra_size + (out<previous_, write_>::settings::end ? 1 : 0) + 1];
 			char *end = write(o, array, array);
 			if(end != array) {
-				if(out<previous_, write_>::settings::end && end[-1] != out<previous_, write_>::settings::end)
-					*end++ = out<previous_, write_>::settings::end;
+				char end_with = out<previous_, write_>::settings::end; // avoid "warning C4127: conditional expression is constant"
+				if(end_with && end[-1] != end_with)
+					*end++ = end_with;
 				*end = 0;
 				function(o, array, end);
 				}
 			}
+		};
+	template<> struct
+	 write_if<false> {
+		template<typename previous_, typename write_>
+		 static void do_it(out<previous_, write_> const&) {}
+		};
+	
+	template<typename previous_, typename write_>
+	 void write(out<previous_, write_> const& o) {
+		// avoid "warning C4127: conditional expression is constant" on if(out<previous_, write_>::size)
+		write_if<out<previous_, write_>::size != 0>::do_it(o);
 		}
+
 
 }
 
@@ -366,7 +380,7 @@ template<typename previous1_, typename previous2_, typename number_format_> clas
 		out<previous1_, previous2_> const& previous() const {
 			return *myprevious;
 			}
-		char* write(char* begin, char* end) const {
+		char* write(char* begin, char* /*end*/) const {
 			return begin;
 			}
 		char_array cstring() const {
@@ -573,7 +587,7 @@ template<bool utf8_, typename char_> unsigned
 template<unsigned size_ = 0> struct
  write_size {
 	static constexpr unsigned size = size_;
-	template<typename iterator_> iterator_ operator()(iterator_ begin, iterator_ end) const { return begin; }
+	template<typename iterator_> iterator_ operator()(iterator_ begin, iterator_ /*end*/) const { return begin; }
 	};
 
 class write_char : public write_size<1> {
@@ -604,12 +618,12 @@ template<typename iterator_, typename settings_, unsigned size_ = 0> class
 			{}
 		template<typename iterator2_>
 		 iterator2_ operator()(iterator2_ begin, iterator2_ end) const {
-			unsigned size = static_cast<unsigned>(end - begin);
-			if(size >= mylength)
-				size = mylength;
+			unsigned s = static_cast<unsigned>(end - begin);
+			if(s >= mylength)
+				s = mylength;
 			else if(settings_::utf8)
-				size = _::utf8_cut(mybegin, size);
-			end = begin + size;
+				s = _::utf8_cut(mybegin, s);
+			end = begin + s;
 			iterator_ f = mybegin;
 			while(begin != end) {
 				*begin++ = static_cast<no_const_reference<decltype(*begin)>>(*f);
@@ -728,8 +742,8 @@ template<typename type_, typename number_format_ = number_format<>> class
 			type_ i0 = static_cast<type_>(i - (i / b) * b);
 			i /= b;
 			if(minus) {
-				i0 *= is_unsigned ? 1 : -1; // avoid warnings for -unsigned
-				i *= is_unsigned ? 1 : -1;
+				i0 *= static_cast<type_>(-1); // avoid warnings for -unsigned
+				i *= static_cast<type_>(-1);
 				}
 			*--to = _::digits[!number_format_::lowercase][i0];
 			while(--digits) {

@@ -20,7 +20,7 @@ struct memory_block {
 		return static_cast<size_t>(static_cast<char const*>(static_cast<void const*>(this + 1)) - begin);
 		}
 	size_t unused() const {
-		return static_cast<char const*>(static_cast<void const*>(this)) - (undo ? undo : free);
+		return static_cast<size_t>(static_cast<char const*>(static_cast<void const*>(this)) - (undo ? undo : free));
 		}
 	size_t used() const {
 		return static_cast<size_t>((undo ? undo : free) - begin);

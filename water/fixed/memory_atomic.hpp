@@ -230,7 +230,7 @@ template<typename allocator_ = void, bool statistics_ = false> class
  			if(!list)
  				return 0;
  			size_t r = 1 + static_cast<size_t>(static_cast<char const*>(find) - static_cast<char const*>(list->memory())) / mybytes;
- 			while(list = list->list())
+ 			while((list = list->list()) != 0)
  				r += list->size();
  			return r;
  			}

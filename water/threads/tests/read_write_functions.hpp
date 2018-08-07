@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -36,9 +36,7 @@ template<typename read_write_> class
 			if(locked)
 				my.unlock();
 			
-				{
-				auto l = read_lock_move(my);
-				}
+            { auto l = read_lock_move(my); }
 			my.read_lock();
 			my.read_unlock();
 			read_lock(my);
@@ -54,31 +52,31 @@ template<typename read_write_> class
 			}
 	private:
 		template<typename m_>
-		 void timeout_if(m_& my, bool*) {
+		 void timeout_if(m_& m, bool*) {
 		 	bool locked;
-			___water_test(locked = lock(my, 0.01));
+			___water_test(locked = lock(m, 0.01));
 			if(locked)
-				unlock(my);
-			___water_test(locked = lock(my, deadline(0.01)));
+				unlock(m);
+			___water_test(locked = lock(m, deadline(0.01)));
 			if(locked)
-				my.unlock();
-			___water_test(locked = read_lock(my, 0.01));
+				m.unlock();
+			___water_test(locked = read_lock(m, 0.01));
 			if(locked)
-				read_unlock(my);
-			___water_test(locked = read_lock(my, deadline(0.01)));
+				read_unlock(m);
+			___water_test(locked = read_lock(m, deadline(0.01)));
 			if(locked)
-				my.read_unlock();
+				m.read_unlock();
 		 	}
 		template<typename m_>
 		 void timeout_if(m_&, void*) {
 		 	}
 		 	
 		template<typename m_>
-		 void spin_if(m_& my, bool*) {
-		 	my.spin_times(1000);
+		 void spin_if(m_& m, bool*) {
+		 	m.spin_times(1000);
 		 	}
 		template<typename m_>
-		 void spin_if(m_& my, void*) {
+		 void spin_if(m_&, void*) {
 		 	}
 		
 	};

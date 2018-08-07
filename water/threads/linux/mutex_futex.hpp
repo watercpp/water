@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -24,8 +24,8 @@ template<bool exists_ = futex_exists> class
 		mutex_futex& operator=(mutex_futex const&) = delete;
 		void lock() noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_futex"); add.wait(true);)
-			decltype(my.load()) x;
-			if(my.compare_exchange_strong(x = 0, 1, memory_order_acquire))
+			decltype(my.load()) x = 0;
+			if(my.compare_exchange_strong(x, 1, memory_order_acquire))
 				return;
 			___water_threads_statistics(add.wait(false));
 			pause p = pause_wait();
@@ -36,8 +36,8 @@ template<bool exists_ = futex_exists> class
 			}
 		bool lock(deadline_clock<clockid::monotonic_maybe> d) noexcept {
 			___water_threads_statistics(add_ add(mystatistics, this, "mutex_futex"); add.wait(true).timeout(true);)
-			decltype(my.load()) x;
-			if(my.compare_exchange_strong(x = 0, 1, memory_order_acquire))
+			decltype(my.load()) x = 0;
+			if(my.compare_exchange_strong(x, 1, memory_order_acquire))
 				return true;
 			___water_threads_statistics(add.wait(false));
 			double left;

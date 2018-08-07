@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -78,7 +78,8 @@ template<typename atomic_unsigned_> class
 			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
-				if(r = l < lock)
+				r = l < lock;
+				if(r)
 					++l;
 				else if(set_wait)
 					l |= wait;
@@ -121,7 +122,8 @@ template<typename atomic_unsigned_> class
 			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0;
-				if(r = (l & lock) == 0)
+				r = (l & lock) == 0;
+				if(r)
 					l |= lock;
 				else if(set_wait)
 					l |= wait;
@@ -140,7 +142,8 @@ template<typename atomic_unsigned_> class
 			unsigned_ l0 = my->load(memory_order_relaxed), l;
 			do {
 				l = l0 & lock;
-				if(acquired = l == 0) // it is avalible
+				acquired = l == 0; // it is avalible
+				if(acquired)
 					l = l0 | lock;
 				else if(
 					l != lock && // no one else has write locked and

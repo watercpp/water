@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -71,7 +71,7 @@ inline void trace(char const* c) noexcept {
 	}
 
 namespace _ { namespace trace_hpp {
-	struct out { void operator()(char const* b, char const* e) const noexcept { trace(b); }};
+	struct out { void operator()(char const* b, char const* /*e*/) const noexcept { trace(b); }};
 	}}
 	
 using trace_type = ministr::out<

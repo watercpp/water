@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -41,7 +41,10 @@ using std::fread;
 
 inline bool equal_cstrings(char const* a, char const* b) {
 	if(!a || !b) return a == b;
-	while(*a && *b && *a == *b) ++a, ++b;
+	while(*a && *b && *a == *b) {
+		++a;
+		++b;
+		}
 	return *a == *b;
 	}
 

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,7 +19,7 @@ class cookie_copy_callback {
 		void allocate_will_fail(bool a) noexcept {
 			myfail = a;
 			}
-		bool allocate(cookie_type const *cookie, size_t bytes_allocated_now) noexcept {
+		bool allocate(cookie_type const *cookie, size_t /*bytes_allocated_now*/) noexcept {
 			my = *cookie;
 			my.next = my.prev = 0;
 			return !myfail; // return false to make allocation fail
@@ -35,6 +35,7 @@ class cookie_copy_callback {
 			else
 				my = {};
 			myerror = error;
+			unused(pointer, bytes, t); // avoid warnings
 			return false; // dont breakpoint
 			}
 		cookie_type const& cookie() const {
@@ -43,7 +44,8 @@ class cookie_copy_callback {
 		char const* error() const {
 			return myerror;
 			}
-		
+	private:
+		template<typename ...a_> void unused(a_ const&...) {}
 	};
 
 using test_memory = memory<void, cookie_copy_callback>;

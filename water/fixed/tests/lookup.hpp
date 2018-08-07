@@ -55,11 +55,11 @@ inline void lookup() {
 		auto at = memory.lookup(l);
 		___water_test(at == l->at);
 		auto pointer = memory.lookup(at);
-		___water_test(pointer = l);
+		___water_test(pointer == l);
 		l = l->list;
 		}
 	
-	while(l = list) {
+	while((l = list) != 0) {
 		list = l->list;
 		memory.free(l);
 		}

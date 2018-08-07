@@ -99,19 +99,15 @@ template<typename memory_> class
 		template<typename iterator_>
 		 read& operator()(iterator_ begin, iterator_ end) {
 			reset();
-			if(unicode::utf_from_iterator<iterator_>::result == 8)
-				copy_and_parse(begin, size(begin, end));
-			else
-				convert_and_parse(begin, end);
+			// avoid "conditional expression is constant" warning :(
+			copy_or_convert_and_parse(begin, end, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, char8_t, char16_t>::result{});
 			return *this;
 			}
 		template<typename iterator_>
 		 read& operator()(iterator_ begin, size_t size) {
 			reset();
-			if(unicode::utf_from_iterator<iterator_>::result == 8)
-				copy_and_parse(begin, size);
-			else
-				convert_and_parse(begin, size);
+			// avoid "conditional expression is constant" warning :(
+			copy_or_convert_and_parse(begin, size, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, char8_t, char16_t>::result{});
 			return *this;
 			}
 		node_type nodes() const {
@@ -131,8 +127,24 @@ template<typename memory_> class
 			}
 	private:
 		template<typename iterator_>
+		 void copy_or_convert_and_parse(iterator_ begin, iterator_ end, char8_t) {	
+			copy_and_parse(begin, size(begin, end));
+			}
+		template<typename iterator_>
+		 void copy_or_convert_and_parse(iterator_ begin, iterator_ end, char16_t) {	
+			convert_and_parse(begin, end);
+			}
+		template<typename iterator_>
+		 void copy_or_convert_and_parse(iterator_ begin, size_t size, char8_t) {	
+			copy_and_parse(begin, size);
+			}
+		template<typename iterator_>
+		 void copy_or_convert_and_parse(iterator_ begin, size_t size, char16_t) {	
+			convert_and_parse(begin, size);
+			}
+		template<typename iterator_>
 		 void copy_and_parse(iterator_ begin, size_t size) {
-			if(size && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(size, 1)))) {
+			if(size && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(size, 1))) != 0) {
 				myend = myat + size;
 				auto to = myat;
 				do {
@@ -145,7 +157,7 @@ template<typename memory_> class
 		template<typename iterator_, typename iterator_or_size_>
 		 void convert_and_parse(iterator_ begin, iterator_or_size_ end_or_size) {
 			auto length = unicode::utf_length_from(begin, end_or_size);
-			if(length.utf8() && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1)))) {
+			if(length.utf8() && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1))) != 0) {
 				auto convert = unicode::utf_from_utf(myat, begin, end_or_size);
 				myend = convert.end();
 				___water_assert(convert.size() == length.utf8());
@@ -245,7 +257,8 @@ template<typename memory_> class
 							return 0;
 						*n = current;
 						n->previous = previous;
-						if(n->in = in) {
+						n->in = in;
+						if(n->in) {
 							if(in->size == static_cast<uint32_t>(-1))
 								return 0;
 							++in->size;
@@ -284,7 +297,8 @@ template<typename memory_> class
 				*n = current;
 				n->previous = previous;
 				previous = n;
-				if(n->in = in) {
+				n->in = in;
+				if(n->in) {
 					if(in->size == static_cast<uint32_t>(-1))
 						return 0;
 					++in->size;
@@ -305,13 +319,13 @@ template<typename memory_> class
 								return 0;
 							auto i = in->nodes + in->size;
 							do {
-								auto n = previous;
+								auto nn = previous;
 								previous = previous->previous;
-								*--i = n;
-								n->me = {};
-								n->me.at = static_cast<uint32_t>(i - in->nodes);
-								if(n->type == type::array || n->type == type::object)
-									n->me.capacity = n->size;
+								*--i = nn;
+								nn->me = {};
+								nn->me.at = static_cast<uint32_t>(i - in->nodes);
+								if(nn->type == type::array || nn->type == type::object)
+									nn->me.capacity = nn->size;
 								} while(i != in->nodes);
 							previous = in;
 							in = in->in;

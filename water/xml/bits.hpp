@@ -109,7 +109,10 @@ inline unsigned char text_compare_cast(char a)          { return static_cast<uns
 template<typename iterator1_, typename iterator2_> bool equal(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterator2_ e2) {
 	if(e1 - b1 != e2 - b2)
 		return false;
-	while(b1 != e1 && text_compare_cast(*b1) == text_compare_cast(*b2)) ++b1, ++b2;
+	while(b1 != e1 && text_compare_cast(*b1) == text_compare_cast(*b2)) {
+		++b1;
+		++b2;
+		}
 	return b1 == e1;
 	}
 

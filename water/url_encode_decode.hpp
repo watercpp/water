@@ -136,12 +136,21 @@ template<typename input_iterator_, bool space_as_plus_ = false> class
 					my[1] = 0;
 					my[2] = 0;
 					++myfrom;
-					if(space_as_plus_ && my[0] == ' ')
-						my[0] = '+';
-					else if(url_encode(my[0]))
-						url_encode(my[0], my[1], my[2], my[0]);
+					// avoid warning C4127: conditional expression is constant
+					encode_maybe(encode_space_as_plus<space_as_plus_>{});
 					}
 				}
+			}
+		template<bool> struct encode_space_as_plus {};
+		void encode_maybe(encode_space_as_plus<true>) {
+			if(my[0] == ' ')
+				my[0] = '+';
+			else
+				encode_maybe(encode_space_as_plus<false>{});
+			}
+		void encode_maybe(encode_space_as_plus<false>) {
+			if(url_encode(my[0]))
+				url_encode(my[0], my[1], my[2], my[0]);
 			}
 	};
 
@@ -260,9 +269,9 @@ template<typename forward_iterator_> class
 	public:
 		url_decode_iterator() = default;
 		url_decode_iterator(forward_iterator_ begin, forward_iterator_ end) :
+			myleft{true},
 			myfrom{begin},
-			myend{end},
-			myleft{true}
+			myend{end}
 			{
 			next();
 			}

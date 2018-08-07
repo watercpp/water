@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,18 +26,18 @@ using allocator_nothrow = allocator_malloc_nothrow;
 namespace water {
 
 struct allocator_nothrow {
-	static void* allocate(size_t bytes) noexcept {
+	void* allocate(size_t bytes) noexcept {
 		return ::operator new(bytes, std::nothrow);
 		}
-	static void free(void *pointer, size_t = 0) noexcept {
+	void free(void *pointer, size_t = 0) noexcept {
 		::operator delete(pointer, std::nothrow);
 		}
-	template<typename type_> static
+	template<typename type_>
 	 type_* allocate(size_t count = 1) noexcept {
 		return static_cast<type_*>(::operator new(sizeof(type_) * count, std::nothrow));
 		}
-	template<typename type_> static
-	 void free(void *pointer, size_t count = 1) noexcept {
+	template<typename type_>
+	 void free(void *pointer, size_t /*count*/ = 1) noexcept {
 		::operator delete(pointer, std::nothrow);
 		}
 	};

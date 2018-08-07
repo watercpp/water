@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -75,7 +75,7 @@ struct transform_lowercase {
 
 // group base 10 by 3 digits, base 2 by 8 digits, others by 4 digits
 struct group {
-	bool operator()(unsigned distance_to_point, bool after_point, unsigned base) const {
+	bool operator()(unsigned distance_to_point, bool /*after_point*/, unsigned base) const {
 		// distance_to_point is never 0. the number of digits to the decimal point
 		unsigned every = base == 10 ? 3 : base == 2 ? 8 : 4;
 		return (distance_to_point % every) == 0;

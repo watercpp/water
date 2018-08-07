@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -1085,7 +1085,8 @@ template<typename iterator_> iterator_ utf8_adjust_end(iterator_ begin, iterator
 	while(e != begin) {	
 		--e;
 		++s;
-		if(auto n = utf8_first_of(*e))
+		auto n = utf8_first_of(*e);
+		if(n)
 			return n > s ? e : end;
 		}
 	return end;
@@ -1098,7 +1099,7 @@ template<typename iterator_> iterator_ utf16_adjust_end(iterator_ begin, iterato
 	return end;
 	}
 
-template<typename iterator_> iterator_ utf32_adjust_end(iterator_ begin, iterator_ end) {
+template<typename iterator_> iterator_ utf32_adjust_end(iterator_ /*begin*/, iterator_ end) {
 	return end;
 	}
 	

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -44,7 +44,10 @@ class tag {
 				return true;
 			if(!a || !b)
 				return false;
-			while(*a == *b && *a) ++a, ++b;
+			while(*a == *b && *a) {
+				++a;
+				++b;
+				}
 			return *a == *b;
 			}
 		bool operator!=(tag t) const noexcept {
@@ -72,12 +75,12 @@ class allocator_tag {
 
 
 struct no_callback {
-	template<typename cookie_> bool allocate(cookie_ const *cookie, size_t bytes_allocated_now) noexcept {
+	template<typename cookie_> bool allocate(cookie_ const* /*cookie*/, size_t /*bytes_allocated_now*/) noexcept {
 		return true; // return false to make allocation fail
 		}
-	template<typename cookie_> void free(cookie_ const *cookie) noexcept {
+	template<typename cookie_> void free(cookie_ const* /*cookie*/) noexcept {
 		}
-	template<typename cookie_, typename tag_> bool free_error(cookie_ const *cookie, void *pointer, size_t bytes, tag_ const& tag, char const* error) noexcept {
+	template<typename cookie_, typename tag_> bool free_error(cookie_ const* /*cookie*/, void* /*pointer*/, size_t /*bytes*/, tag_ const& /*tag*/, char const* /*error*/) noexcept {
 		// cookie can be 0
 		return true; // return true to breakpoint/assert, false is useful for testing
 		}

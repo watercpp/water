@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,6 +22,7 @@ template<unsigned bits_> class
 		char8_t const *my = 0;
 		char8_t myorder[4] = {0,1,2,3}; // myorder[0] is most significant byte
 		static constexpr difference_type bytes_ = static_cast<difference_type>(bits_ / 8 + (bits_ % 8 ? 1 : 0));
+		template<difference_type> struct unpack_select;
 	public:
 		byterator() = default;
 		byterator(void const* pointer, bool big_endian) :
@@ -41,10 +42,10 @@ template<unsigned bits_> class
 			// byte0 is the most significant byte, so big_endian 32-bit would have byte0 = 0, byte1 = 1, byte2 = 2, byte3 = 3
 			}
 		reference operator*() const {
-			return unpack(my);
+			return unpack(my, static_cast<unpack_select<bytes_>*>(0));
 			}
 		reference operator[](difference_type d) const {
-			return unpack(my + d / bytes_);
+			return unpack(my + d / bytes_, static_cast<unpack_select<bytes_>*>(0));
 			}
 		byterator& operator++() {
 			my += bytes_;
@@ -103,16 +104,18 @@ template<unsigned bits_> class
 			return my >= b.my;
 			}
 	private:
-		value_type unpack(char8_t const* a) const {
-			if(bytes_ == 2)
-				return
-					(static_cast<value_type>(a[myorder[0]]) << 8) |
-					a[myorder[1]];
-			if(bytes_ <= 3)
-				return
-					(static_cast<value_type>(a[myorder[0]]) << 8) |
-					(static_cast<value_type>(a[myorder[1]]) << 8) |
-					a[myorder[2]];
+		value_type unpack(char8_t const* a, unpack_select<2>*) const {
+			return
+				(static_cast<value_type>(a[myorder[0]]) << 8) |
+				a[myorder[1]];
+			}
+		value_type unpack(char8_t const* a, unpack_select<3>*) const {
+			return
+				(static_cast<value_type>(a[myorder[0]]) << 8) |
+				(static_cast<value_type>(a[myorder[1]]) << 8) |
+				a[myorder[2]];
+			}
+		value_type unpack(char8_t const* a, unpack_select<4>*) const {
 			return
 				(static_cast<value_type>(a[myorder[0]]) << 24) |
 				(static_cast<value_type>(a[myorder[1]]) << 16) |

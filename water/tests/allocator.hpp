@@ -64,6 +64,7 @@ template<typename allocator_> void allocator_test(allocator_&& allocator) {
 inline void allocator_all() {
 	allocator_test(allocator{});
 	allocator_test(allocator_malloc{});
+	allocator_test(allocator_malloc_nothrow{});
 	allocator_test(allocator_nothrow{});
 	allocator a;
 	allocator_test(allocator_pointer_from(a));

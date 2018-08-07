@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,6 +6,26 @@
 #define WATER_XML_DECODE_HPP
 #include <water/xml/bits.hpp>
 namespace water { namespace xml {
+
+namespace _ {
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ == 8, bool>::result
+	 decode_is_0x85(char_ *f, char_ *end) {	
+		return f[0] == 0xc2 && f + 1 < end && f[1] == 0x85;
+		}
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ != 8, bool>::result
+	 decode_is_0x85(char_ *f, char_ *) {	
+		return *f == 0x85;
+		}
+
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ == 8, bool>::result
+	 decode_is_0x2028(char_ *f, char_ *end) {	
+		return f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8;
+		}
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ != 8, bool>::result
+	 decode_is_0x2028(char_ *f, char_ *) {	
+		return *f == 0x2028;
+		}
+	}
 
 template<typename char_> char_* decode(char_ *begin, char_ *end) {
 	// returns new end
@@ -25,7 +45,7 @@ template<typename char_> char_* decode(char_ *begin, char_ *end) {
 		*t = f;
 	unsigned spaces = 0; // used to drop trailing spaces
 	while(f != end) {
-		if(*f == 0xd || (utf >= 16 && *f == 0x85) || (utf == 8 && f[0] == 0xc2 && f + 1 < end && f[1] == 0x85)) {
+		if(*f == 0xd || _::decode_is_0x85<utf>(f, end)) {
 			unsigned n = *f == 0xc2 ? 2 : 1;
 			if(f + n != end && f[n] == 0xa)
 				++f;
@@ -35,15 +55,8 @@ template<typename char_> char_* decode(char_ *begin, char_ *end) {
 				++spaces;
 				}
 			}
-		else if(utf >= 16 && *f == 0x2028) {
-			++f;
-			if(t != begin) {
-				*t++ = 0xa;
-				++spaces;
-				}
-			}
-		else if(utf == 8 && f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) {
-			f += 3;
+		else if(_::decode_is_0x2028<utf>(f, end)) {
+			f += utf == 8 ? 3 : 1;
 			if(t != begin) {
 				*t++ = 0xa;
 				++spaces;
@@ -139,6 +152,25 @@ template<typename char_> char_* decode(char_ *begin, char_ *end) {
 		}
 	return t - spaces;
 	}
+
+namespace _ {
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ == 8, unsigned>::result
+	 decode_attribute_is_space(char_ *f, char_ *end) {	
+		if(*f <= 0x20)
+			return 1;
+		if(f[0] == 0xc2 && f + 1 < end && f[1] == 0x85)
+			return 2;
+		if(f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8)
+			return 3;
+		return 0;
+		}
+	template<unsigned utf_, typename char_> typename types::ifel<utf_ != 8, unsigned>::result
+	 decode_attribute_is_space(char_ *f, char_ *) {	
+		if(*f <= 0x20 || *f == 0x85 || *f == 0x2028)
+			return 1;
+		return 0;
+		}
+	}
 	
 template<typename char_> char_* decode_attribute(char_ *begin, char_ *end) {
 	// decode() first, then replace all spaces with 1 space
@@ -148,13 +180,9 @@ template<typename char_> char_* decode_attribute(char_ *begin, char_ *end) {
 		*t = begin;
 	bool space = false;
 	while(f != end) {
-		if(*f <= 0x20 || (unicode::utf_from_char<char_>::result >= 16 && (*f == 0x85 || *f == 0x2028))) {
+		if(unsigned n = _::decode_attribute_is_space<unicode::utf_from_char<char_>::result>(f, end)) {
 			space = true;
-			++f;
-			}
-		else if(unicode::utf_from_char<char_>::result == 8 && ((f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8) || (f[0] == 0xc2 && f + 1 < end && f[1] == 0x85))) {
-			space = true;
-			f += f[0] == 0xe2 ? 3 : 2;
+			f += n;
 			}
 		else {
 			if(t != begin && space)

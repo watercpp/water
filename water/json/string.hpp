@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -59,7 +59,10 @@ template<typename a_, typename b_> bool
 		return false;
 	auto ai = a.begin();
 	auto bi = b.begin();
-	while(ai != a.end() && string_compare_cast(*ai) == string_compare_cast(*bi)) ++ai, ++bi;
+	while(ai != a.end() && string_compare_cast(*ai) == string_compare_cast(*bi)) {
+		++ai;
+		++bi;
+		}
 	return ai == a.end();
 	}
 

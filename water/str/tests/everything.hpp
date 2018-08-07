@@ -29,23 +29,23 @@ class base {
 
 template<typename char_> struct
  everything_container {
-	everything_container() {};
-	everything_container(everything_container const&) {};
+	everything_container() {}
+	everything_container(everything_container const&) {}
 	using value_type = char_;
 	everything_container* end() { return this; }
-	template<typename iterator_> void insert(everything_container*, iterator_ b, iterator_ e) {}
+	template<typename iterator_> void insert(everything_container*, iterator_, iterator_) {}
 	};
 
 struct everything_function {
-	everything_function() {};
-	everything_function(everything_function const&) {};
-	template<typename iterator_> void operator()(iterator_ b, iterator_ e) {}
+	everything_function() {}
+	everything_function(everything_function const&) {}
+	template<typename iterator_> void operator()(iterator_, iterator_) {}
 	};
 
 template<typename char_> struct everything_function_type {
-	everything_function_type() {};
-	everything_function_type(everything_function_type const&) {};
-	void operator()(char_ const* b, char_ const* e) {}
+	everything_function_type() {}
+	everything_function_type(everything_function_type const&) {}
+	void operator()(char_ const*, char_ const*) {}
 	};
 
 template<typename char_> class 
@@ -75,7 +75,7 @@ struct everything_thing {
 	everything_thing(char const*) {}
 	};
 
-template<typename o_> out<o_>& operator<<(out<o_>& o, specific<everything_thing> s) {
+template<typename o_> out<o_>& operator<<(out<o_>& o, specific<everything_thing>) {
 	return o;
 	}
 

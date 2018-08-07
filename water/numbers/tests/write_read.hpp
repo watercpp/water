@@ -117,14 +117,17 @@ template<typename float_> void write_read_float(settings s) {
 template<typename int_> void write_read_signed(settings s) {
 	//trace() << "\nsigned " << sizeof(int_);
 	char x[10 * 1024] = {};
+	int
+		cafe = 0xcafe, // avoid warning "static_cast truncation of constant value" in static cast below
+		dead = -0xdead;
 	int_ const ints[] = {
 		0,
 		1,
 		-1,
 		10,
 		-10,
-		static_cast<int_>(0xcafe),
-		static_cast<int_>(-0xdead),
+		static_cast<int_>(cafe),
+		static_cast<int_>(dead),
 		numeric_limits<int_>::min(),
 		numeric_limits<int_>::max(),
 		numeric_limits<int_>::min() + 1,
@@ -159,12 +162,15 @@ template<typename int_> void write_read_signed(settings s) {
 template<typename int_> void write_read_unsigned(settings s) {
 	//trace() << "\nunsigned " << sizeof(int_);
 	char x[10 * 1024] = {};
+	unsigned
+		cafe = 0xcafe, // avoid warning "static_cast truncation of constant value" in static cast below
+		dead = 0xdead;
 	int_ const ints[] = {
 		0,
 		1,
 		10,
-		static_cast<int_>(0xcafe),
-		static_cast<int_>(0xdead),
+		static_cast<int_>(cafe),
+		static_cast<int_>(dead),
 		numeric_limits<int_>::min(),
 		numeric_limits<int_>::max(),
 		static_cast<int_>(numeric_limits<int_>::max() - 1),

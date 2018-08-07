@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -33,7 +33,7 @@ template<typename type_, typename number_format_ = number_format<>> class
  write_float {
 	static_assert(numeric_limits<type_>::radix == 2 || numeric_limits<type_>::radix == 10, "");
 	using write_exponent = write_int<int, number_format_base<number_format_, 10>>;
-	static constexpr unsigned largest(unsigned a, unsigned b) { return a >= b ? a : b; };
+	static constexpr unsigned largest(unsigned a, unsigned b) { return a >= b ? a : b; }
 	static int constexpr
 		digits2 =
 			numeric_limits<type_>::radix == 2 ? numeric_limits<type_>::digits :
@@ -98,7 +98,7 @@ template<typename type_, typename number_format_ = number_format<>> class
 					digits = 1;
 					exponent = base != 10 || number_format_::no_exponent_max == 0;
 					}
-				else if(base == 10) {
+				else if(constant(base == 10)) {
 					e = static_cast<int>(log10(m));
 					int p = e;
 					if((numeric_limits<type_>::is_iec559 || numeric_limits<type_>::has_denorm > 0) && m < numeric_limits<type_>::min())
@@ -106,8 +106,8 @@ template<typename type_, typename number_format_ = number_format<>> class
 					m /= pow(static_cast<type_>(10), static_cast<type_>(p));
 					digits = round(m, e, round_last_digit);
 					if(
-						(number_format_::no_exponent_max < 0 && 0 <= e && e < mantissa_digits) ||
-						(number_format_::no_exponent_max > 0 && e >= 0 && number_format_::no_exponent_max >= e)
+						(constant(number_format_::no_exponent_max) < 0 && 0 <= e && e < mantissa_digits) ||
+						(constant(number_format_::no_exponent_max) > 0 && e >= 0 && number_format_::no_exponent_max >= e)
 						)
 						{
 						// 123000 or 123.456
@@ -116,7 +116,7 @@ template<typename type_, typename number_format_ = number_format<>> class
 							trailing_zeros = point_at - digits;
 						exponent = false;
 						}
-					else if(number_format_::no_exponent_min < 0 && e < 0 && number_format_::no_exponent_min <= e) {
+					else if(constant(number_format_::no_exponent_min < 0) && e < 0 && number_format_::no_exponent_min <= e) {
 						// 0.000123
 						point_at = -1;
 						leading_zeros = -e;
@@ -131,7 +131,7 @@ template<typename type_, typename number_format_ = number_format<>> class
 				// write mantissa
 				if(!number_format_::hide_base)
 					_::copy_base_prefix(begin, end, base, number_format_::uppercase);
-				if(base == 10 && leading_zeros) {
+				if(constant(base == 10) && leading_zeros) {
 					// 0.00123
 					copy(begin, end, _::digits[!number_format_::lowercase][0]);
 					copy(begin, end, static_cast<char>(u'.'));
@@ -164,6 +164,10 @@ template<typename type_, typename number_format_ = number_format<>> class
 			return r;
 			}
 	private:
+		template<typename a_> constexpr a_ constant(a_ a) const {
+			// used to avoid "warning C4127: conditional expression is constant" :(
+			return a;
+			}
 		static int round(type_& f, int& e, bool& round_last_digit) {
 			// things here could in theory oveflow int
 			type_ const power = base == 10 ? 10 : 2;
