@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,8 +12,6 @@ namespace water { namespace numbers {
 settings for writing and reading
 
 this class should be 8 bytes
-
-!!!!! fraction_digits(0) should work
 
 */
 
@@ -41,14 +39,16 @@ class settings {
 	uint16 mybase_bits = 0; // low 5 bits is base, 0 - 31, the others 11 are setting-bits
 	int16 my_no_exponent_min = 0;
 	int16 my_no_exponent_max = -1;
-	uint8 myprecision = 0; // signed, negative means fraction digits?
+	uint8 myprecision = 0;
 	uint8 mydigits = 0; // integer and exponent
 	public:
 		constexpr settings() = default;
 		constexpr explicit settings(unsigned base, unsigned setting_bits = 0, unsigned precision = 0, unsigned digits = 0, int no_exponent_min = 0, int no_exponent_max = -1) :
 			mybase_bits{static_cast<uint16>((2 <= base && base <= 16 ? base : 0) | (setting_bits & bits_mask))},
 			my_no_exponent_min{static_cast<int16>(no_exponent_min > 0 ? 0 : no_exponent_min < numeric_limits<int16>::min() ? numeric_limits<int16>::min() : no_exponent_min)},
-			my_no_exponent_max{static_cast<int16>(no_exponent_max < -1 ? -1 : no_exponent_max > numeric_limits<int16>::max() ? numeric_limits<int16>::max() : no_exponent_max)}
+			my_no_exponent_max{static_cast<int16>(no_exponent_max < -1 ? -1 : no_exponent_max > numeric_limits<int16>::max() ? numeric_limits<int16>::max() : no_exponent_max)},
+			myprecision{precision <= static_cast<uint8>(-1) ? static_cast<uint8>(precision) : static_cast<uint8>(-1)},
+			mydigits{digits <= static_cast<uint8>(-1) ? static_cast<uint8>(digits) : static_cast<uint8>(-1)}
 			{}
 		settings& base(unsigned a) {
 			// must be between 2 and 16, or 0.
