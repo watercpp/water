@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2018 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,17 +8,28 @@
 namespace water { namespace types {
 
 namespace _ {
+	// visual c++ 2015 building 32-bit x86, not 64-bit or 2017, needs the specializations for functions with ...
+	// probably related to error C2217: '...' requires '__cdecl'
+
 	template<typename> struct do_is_pointer_to_member : false_result {};
 	template<typename a_, typename b_> struct do_is_pointer_to_member<a_ b_::*> : true_result {};
+	//template<typename a_, typename b_, typename ...c_> struct do_is_pointer_to_member<a_ (b_::*)(c_...)> : true_result {};
+	template<typename a_, typename b_, typename ...c_> struct do_is_pointer_to_member<a_ (b_::*)(c_..., ...)> : true_result {};
 	
 	template<typename a_> struct do_no_pointer_to_member : type_plain<a_> {};
 	template<typename a_, typename b_> struct do_no_pointer_to_member<a_ b_::*> : type_plain<a_> {};
+	//template<typename a_, typename b_, typename ...c_> struct do_no_pointer_to_member<a_ (b_::*)(c_...)> : type_plain<a_(c_...)> {};
+	template<typename a_, typename b_, typename ...c_> struct do_no_pointer_to_member<a_ (b_::*)(c_..., ...)> : type_plain<a_(c_..., ...)> {};
 	
 	template<typename a_, typename b_> struct do_to_pointer_to_member : type_plain<a_ b_::*> {};
+	template<typename a_, typename b_, typename ...c_> struct do_to_pointer_to_member<a_(c_..., ...), b_> : type_plain<a_ (b_::*)(c_..., ...)> {};
 	template<typename a_, typename b_, typename c_> struct do_to_pointer_to_member<a_ b_::*, c_> : type_plain<a_ c_::*> {};
+	template<typename a_, typename b_, typename c_, typename ...d_> struct do_to_pointer_to_member<a_ (b_::*)(d_..., ...), c_> : type_plain<a_ (c_::*)(d_..., ...)> {};
 	
 	template<typename a_> struct do_pointer_to_member_of : type_plain<void> {};
 	template<typename a_, typename b_> struct do_pointer_to_member_of<a_ b_::*> : type_plain<b_> {};
+	//template<typename a_, typename b_, typename ...c_> struct do_pointer_to_member_of<a_ (b_::*)(c_...)> : type_plain<b_> {};
+	template<typename a_, typename b_, typename ...c_> struct do_pointer_to_member_of<a_ (b_::*)(c_..., ...)> : type_plain<b_> {};
 	}
 //
 // result true if type_ is a pointer to member
