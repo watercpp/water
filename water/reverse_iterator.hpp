@@ -42,6 +42,7 @@ template<typename iterator_> class
 	public:
 		reverse_iterator() = default;
 		reverse_iterator(reverse_iterator const&) = default;
+		reverse_iterator& operator=(reverse_iterator const&) = default;
 		explicit reverse_iterator(iterator_ a) :
 			my{a}
 			{}

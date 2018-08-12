@@ -31,6 +31,7 @@ template<typename char_> struct
  everything_container {
 	everything_container() {}
 	everything_container(everything_container const&) {}
+	everything_container& operator=(everything_container const&) { return *this; }
 	using value_type = char_;
 	everything_container* end() { return this; }
 	template<typename iterator_> void insert(everything_container*, iterator_, iterator_) {}
@@ -39,12 +40,14 @@ template<typename char_> struct
 struct everything_function {
 	everything_function() {}
 	everything_function(everything_function const&) {}
+	everything_function& operator=(everything_function const&) { return *this; }
 	template<typename iterator_> void operator()(iterator_, iterator_) {}
 	};
 
 template<typename char_> struct everything_function_type {
 	everything_function_type() {}
 	everything_function_type(everything_function_type const&) {}
+	everything_function_type& operator=(everything_function_type const&) { return *this; }
 	void operator()(char_ const*, char_ const*) {}
 	};
 

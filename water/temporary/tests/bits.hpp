@@ -36,6 +36,9 @@ class test_allocator {
 		while(size--) *t++ = *f++;
 		}
 	public:
+		test_allocator() = default;
+		test_allocator(test_allocator const&) = default;
+		test_allocator& operator=(test_allocator const&) = default;
 		~test_allocator() {
 			___water_test(!myallocations);
 			}
