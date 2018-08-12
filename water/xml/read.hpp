@@ -6,8 +6,7 @@
 #define WATER_XML_READ_HPP
 #include <water/xml/memory.hpp>
 #include <water/xml/encoding.hpp>
-#include <water/unicode/utf_length.hpp>
-#include <water/unicode/byterator.hpp>
+#include <water/xml/utf_convert_in_place.hpp>
 #include <water/later.hpp>
 namespace water { namespace xml {
 
@@ -104,45 +103,8 @@ template<typename char_ = char, typename memory_ = memory<>> class
 			// If it is it will verfy the UTF and then parse it in place if it can. If it cannot parse in place, it will copy.
 			// It will convert to the UTF this uses if the memory is not in the same UTF.
 			my = 0;
-			encoding e(pointer, bytes);
-			pointer = static_cast<char*>(pointer) + e.byte_order_mark();
-			bytes -= e.byte_order_mark();
-			char_type
-				*cb = 0,
-				*ce = 0;
-			// this function has been split into the parse_in_place_from_utfX functions to avoid
-			// conditional expression is constant warning
-			if(e.utf8()) {
-				unicode::utf_length<8> l{static_cast<unsigned char*>(pointer), bytes, [](char32_t a) { return a != 0; }};
-				if(l)
-					parse_in_place_from_utf8(cb, ce, pointer, bytes, l, utf_select<utf == 8 ? 8 : 0>{});
-				}
-			else if(e.utf16() && !(bytes % 2)) {
-				auto b = unicode::byterator<16>(pointer, e.big_endian());
-				unicode::utf_length<16> l{b, bytes / 2, [](char32_t a) { return a != 0; }};
-				if(l)
-					parse_in_place_from_utf16(cb, ce, e, pointer, b, l, utf_select<utf == 16 && sizeof(char_type) == 2 && static_cast<char_type>(-1) == 0xffffu ? 16 : 0>{});
-				}
-			else if(e.utf32() && !(bytes % 4)) {
-				auto b = unicode::byterator<32>(pointer, e.big_endian());
-				unicode::utf_length<32> l{b, bytes / 4, [](char32_t a) { return a != 0; }};
-				if(l)
-					parse_in_place_from_utf32(
-						cb,
-						ce,
-						e,
-						pointer,
-						b,
-						l,
-						utf_select<
-							utf == 32 && sizeof(char_type) == 4 && static_cast<char_type>(-1) == 0xfffffffful ? 1 :
-							sizeof(char_type) <= utf / 8 ? 2 : // can convert in place unless char_type is odd
-							0
-							>{}
-						);
-				}
-			if(cb)
-				parse_in_place(cb, ce, callback);
+			utf_convert_in_place<char_type, memory_type> convert(mymemory, pointer, bytes);
+			parse_in_place(convert.begin(), convert.end(), callback);
 			return *this;
 			}
 		read& parse_in_place(void *pointer, size_t bytes) {
@@ -182,53 +144,6 @@ template<typename char_ = char, typename memory_ = memory<>> class
 			return (*this)(begin, size, no_callback());
 			}
 	private:
-		void parse_in_place_from_utf8(char_type*& cb, char_type*& ce, void *pointer, size_t, unicode::utf_length<8> l, utf_select<8>) {
-			cb = static_cast<char_type*>(pointer); // char_type has size 1
-			ce = cb + l.utf8();
-			}
-		void parse_in_place_from_utf8(char_type*& cb, char_type*& ce, void *pointer, size_t bytes, unicode::utf_length<8> l, utf_select<0>) {
-			cb = static_cast<char_type*>(mymemory->allocate_with_undo((utf == 16 ? l.utf16() : l.utf32()) * sizeof(char_type), alignof(char_type)));
-			if(cb)
-				ce = unicode::utf_from_utf<utf, 8>(cb, static_cast<unsigned char*>(pointer), bytes).end();
-			}
-		void parse_in_place_from_utf16(char_type*& cb, char_type*& ce, encoding const& e, void *pointer, unicode::byterator<16> b, unicode::utf_length<16> l, utf_select<16>) {
-			cb = static_cast<char_type*>(pointer);
-			ce = cb + l.utf16();
-			endian_change_maybe(cb, ce, b, e.big_endian());
-			}
-		void parse_in_place_from_utf16(char_type*& cb, char_type*& ce, encoding const&, void*, unicode::byterator<16> b, unicode::utf_length<16> l, utf_select<0>) {
-			size_t cs = utf == 8 ? l.utf8() : utf == 16 ? l.utf16() : l.utf32();
-			cb = static_cast<char_type*>(mymemory->allocate_with_undo(cs * sizeof(char_type), alignof(char_type)));
-			if(cb)
-				ce = unicode::utf_from_utf<utf, 16>(cb, b, l.utf16()).end();
-			}
-		void parse_in_place_from_utf32(char_type*& cb, char_type*& ce, encoding const& e, void *pointer, unicode::byterator<32> b, unicode::utf_length<32> l, utf_select<1>) {
-			cb = static_cast<char_type*>(pointer);
-			ce = cb + l.utf32();
-			endian_change_maybe(cb, ce, b, e.big_endian());
-			}
-		void parse_in_place_from_utf32(char_type*& cb, char_type*& ce, encoding const&, void *pointer, unicode::byterator<32> b, unicode::utf_length<32> l, utf_select<2>) {
-			// can convert in place unless char_type is odd
-			cb = static_cast<char_type*>(pointer);
-			ce = unicode::utf_from_utf<utf, 32>(cb, b, l.utf32()).end();
-			}
-		void parse_in_place_from_utf32(char_type*& cb, char_type*& ce, encoding const&, void*, unicode::byterator<32> b, unicode::utf_length<32> l, utf_select<0>) {
-			size_t cs = utf == 8 ? l.utf8() : utf == 16 ? l.utf16() : l.utf32();
-			cb = static_cast<char_type*>(mymemory->allocate_with_undo(cs * sizeof(char_type), alignof(char_type)));
-			if(cb)
-				ce = unicode::utf_from_utf<utf, 32>(cb, b, l.utf32()).end();
-			}
-		template<typename iterator_> void endian_change_maybe(char_type *c, char_type *ce, iterator_ f, bool from_big_endian) {
-			char_type const one = 1;
-			bool big_endian = *static_cast<unsigned char const*>(static_cast<void const*>(&one)) == 0;
-			if(big_endian == from_big_endian)
-				return;
-			while(c != ce) {
-				*c = static_cast<char_type>(*f);
-				++c;
-				++f;
-				};
-			}
 		memory_node* create() {
 			memory_node *n = static_cast<memory_node*>(mymemory->allocate_with_undo(sizeof(memory_node)));
 			if(n) *n = {};
