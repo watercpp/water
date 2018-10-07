@@ -170,7 +170,7 @@ class priority {
 			if(!mypriority || !a || a > mytranslate.water_max())
 				return false;
 			int i = mytranslate.posix_from_water(a);
-			#if _POSIX_THREAD_PRIORITY_SCHEDULING > 1
+			#if _POSIX_THREAD_PRIORITY_SCHEDULING > 1 && (!defined(__ANDROID_API__) || __ANDROID_API__ >= 28)
 			if(pthread_setschedprio(my, i))
 				return false;
 			#else
@@ -318,7 +318,7 @@ class run_options {
 				sched_param p {};
 				int s;
 				if(
-					#ifdef PTHREAD_EXPLICIT_SCHED
+					#if defined(PTHREAD_EXPLICIT_SCHED) && (!defined(__ANDROID_API__) || __ANDROID_API__ >= 28)
 					!pthread_attr_setinheritsched(&a, PTHREAD_EXPLICIT_SCHED) && // not defined on android, not sure if this hurts?
 					#endif
 					!pthread_attr_getschedpolicy(&a, &s) &&
