@@ -102,6 +102,24 @@ template<typename memory_ = void> class
 		json::type type() const {
 			return my ? my->type : type_::null;
 			}
+		bool is_array() const {
+			return my && my->type == type_::array;
+			}
+		bool is_boolean() const {
+			return my && my->type == type_::boolean;
+			}
+		bool is_null() const {
+			return !my || my->type == type_::null;
+			}
+		bool is_number() const {
+			return my && my->type == type_::number;
+			}
+		bool is_object() const {
+			return my && my->type == type_::object;
+			}
+		bool is_string() const {
+			return my && my->type == type_::string;
+			}
 		node array() const {
 			return {mym, my && my->type == type_::array && my->nodes ? *my->nodes : 0};
 			}
@@ -113,19 +131,15 @@ template<typename memory_ = void> class
 			return {static_cast<char const*>(static_cast<void const*>(my->name)), my->name_size};
 			}
 		json::string<char const*> string() const {
-			if(!my || my->type != type_::string) return {};
+			if(!is_string()) return {};
 			return {static_cast<char const*>(static_cast<void const*>(my->string)), my->size};
 			}
 		json::number number() const {
-			if(!my || my->type != type_::number) return {};
+			if(!is_number()) return {};
 			return {my->integer, my->exponent, my->extra != 0};
 			}
 		bool boolean() const {
-			return my && my->type == type_::boolean && my->boolean;
-			}
-		bool null() const {
-			// returns true if it is null
-			return my && my->type == type_::null;
+			return is_boolean() && my->boolean;
 			}
 		size_t size() const {
 			// array or object size
@@ -135,7 +149,7 @@ template<typename memory_ = void> class
 			// array or object capacity, if it grows larger it must allocate more memory
 			return my ? my->me.capacity : 0;
 			}
-		size_t at() const {
+		size_t at_position() const {
 			// return position of this in in()
 			return my ? my->me.at : 0;
 			}
@@ -161,25 +175,25 @@ template<typename memory_ = void> class
 			return at(static_cast<size_t>(a));
 			}
 		node operator[](char const*const& cstring) const {
-			return find(cstring);
+			return nodes().find(cstring);
 			}
 		template<size_t size_>
 		 node operator[](char const (&cstring)[size_]) const {
-			return find(cstring);
+			return nodes().find(cstring);
 			}
 		template<typename range_>
 		 typename if_range<range_, node>::result operator[](range_ const& name) const {
-			return find(name);
+			return nodes().find(name);
 			}
 		template<typename iterator_>
 		 node find(iterator_ begin, size_t size) const {
 			// find first node with name begin,size
 			// starts looking at this
-			if(!my || my->type != type_::object || !my->size)
+			if(!my || !my->in || my->in->type != type_::object)
 				return {mym, 0};
 			auto
-				i = my->nodes,
-				e = my->nodes + my->size;
+				i = my->in->nodes + my->me.at,
+				e = my->in->nodes + my->in->size;
 			while(i != e) {
 				if((*i)->name_size == size) {
 					iterator_ b = begin;
@@ -226,7 +240,7 @@ template<typename memory_ = void> class
 				}
 			return *this;
 			}
-		node_if_mutable& null(decltype(nullptr)) {
+		node_if_mutable& null() {
 			// make this null
 			if(my) {
 				nodes_clear();
@@ -261,7 +275,7 @@ template<typename memory_ = void> class
 			return *this;
 			}
 		node_if_mutable object(size_t capacity) {
-			// like array(reserve) except this is an object after success
+			// like array(capacity) except this is an object after success
 			if(!my || !grow(capacity, true))
 				return {mym, 0};
 			my->type = type_::object;
@@ -350,7 +364,7 @@ template<typename memory_ = void> class
 			}
 		node_if_mutable remove() {
 			// remove this from in()
-			return in().remove(at());
+			return in().remove(at_position());
 			}
 		template<typename iterator_>
 		 node_if_mutable name(iterator_ begin, size_t size) {

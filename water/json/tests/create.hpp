@@ -18,7 +18,7 @@ inline void create() {
 	
 	auto root = m.create();
 	
-	root.push_front().null({});
+	root.push_front().null();
 	root.push_back().boolean(true);
 	root.push_front().boolean(false);
 	root.insert(123123).number(123);
@@ -45,11 +45,11 @@ inline void create() {
 	object.push_back().name(s, 6).object(0);
 	object.push_back().name(string<char const*>(s, 6)).array(0);
 	
-	___water_test(object.find("hello"));
-	___water_test(object.find(static_cast<char const*>("world")));
-	___water_test(object.find(s, s + 6));
-	___water_test(object.find(s, 6));
-	___water_test(object.find(string<char const*>(s, 6)));
+	___water_test(object.nodes().find("hello"));
+	___water_test(object.nodes().find(static_cast<char const*>("world")));
+	___water_test(object.nodes().find(s, s + 6));
+	___water_test(object.nodes().find(s, 6));
+	___water_test(object.nodes().find(string<char const*>(s, 6)));
 	
 	___water_test(object["hello"]);
 	___water_test(object[s]);
