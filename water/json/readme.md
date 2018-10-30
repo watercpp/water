@@ -9,6 +9,11 @@ The `node` class is the tree structure. It is a kind of linked list, where you c
 It can write only UTF-8 or ASCII format JSON, but it can read UTF-32, UTF-16 and UTF-8.
 
 
+## Example code
+
+The water/json/examples folder contains example code.
+
+
 ## json::read
 
 Use the `read` class to parse JSON text into a structure of `node` objects. All `node` objects belong to a `memory` object, that `memory` object must exist for as long as the nodes are used. The `read_to_memory` function creates a `read` object that uses a `memory` object.
@@ -111,7 +116,7 @@ The `memory` memory allocator works exactly like the `water::xml::memory` alloca
 
 Unlike pointers or iterators, they contain many functions to access, insert and modify the tree structure. Like functions to create new nodes.
 
-*Todo! Add more information here on how to use the nodes. For now, look at how `water/json/write.hpp` uses the nodes and the `water/json/tests/create.hpp`*
+Look at the example code for more details.
 
 ## json::number
 
@@ -121,7 +126,7 @@ Unlike pointers or iterators, they contain many functions to access, insert and 
 
 Since it does not use a floating point type, rounding errors with floating point math is avoided when parsing from text and writing it back to text. But if you convert between a `number` and a floating point type, it uses floating point math.
 
-The `imprecise()` and `overflow()` functions can be used to check if the number was truncated when parsed.
+The `imprecise()` and `overflow()` functions can be used to check if the number was truncated when parsed. Even if that did not happen, it might not be possible to covert to a integer or floatingpoint type without overflow/underflow. This can aslo be detected, the `to_int()` and `to_double()` functions return 0 if it happens.
 
 ## Threads
 
