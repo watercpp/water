@@ -42,11 +42,11 @@ Tools for converting between UTF-8, UTF-16 and UTF-32. The most useful are:
 			length_as_utf32 = verify.utf32();
 		}
 
-You can use the `utf_length_from` function to detect the UTF of the input text:
+You can use the `utf_length_from` function to detect the UTF of the input text from text's character type:
 
 	auto verify = water::unicode::utf_length_from(text.begin(), text.end());
 	
 ## More
 
 `water/unicode/utf.hpp` contains more low-level building blocks to convert one codepoint at a time
-or convert a range of characters when you know the output has enough space.
+or convert a range of characters when you know the destination has enough space.

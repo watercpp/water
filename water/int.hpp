@@ -12,7 +12,7 @@ namespace water {
 /*
 
 using int32_t = int_bits_at_least<32>;
-using uint32_t = int_bits_at_least<32>;
+using uint32_t = uint_bits_at_least<32>;
 
 Select integer types with at least or exactly a specific number of bits, bytes or decimal digits.
 Similar to the fixed width integer types from cstdint / stdint.h except these are templates.

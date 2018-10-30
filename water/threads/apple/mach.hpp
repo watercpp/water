@@ -56,7 +56,7 @@ namespace _ {
 	 mach_global {
 	 	static type_ global;
 	 	};
-	 	template<typename type_> type_ mach_global<type_>::global;
+	 	template<typename type_> type_ mach_global<type_>::global{};
 	
 	struct mach_time_set_resolution {
 		atomic_int set{};

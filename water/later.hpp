@@ -9,12 +9,48 @@ namespace water {
 
 /*
 
-auto a = later([](){ trace() << "later"; });
-trace() << "now";
+Run a lambda or other function object when the water::later object goes out of scope.
+Although the class is very simple, it has been really useful.
+
+example 1:
+
+	auto later = water::later([](){ trace() << "later"; });
+	trace() << "now";
 
 output:
-now
-later
+
+	now
+	later
+	
+
+example 2:
+
+	type *pointer = new type;
+	auto delete_later = water::later([pointer] { delete pointer; });
+	pointer->do_something();
+
+
+example 3:
+
+	gpu_buffer_struct buffer{};
+	if(gpu_texture_lock_texture_memory(texture, &buffer)) {
+		auto unlock_later = water::later([texture, &buffer] {
+			gpu_texture_unlock_texture_memory(texture, &buffer);
+			});
+		do_something(buffer.pointer, buffer.width, buffer.height);
+		}
+
+
+example 4:
+	
+	auto clenaup_if_something_goes_wrong = water::later([] { cleanup(); });
+	if(operaton_1() == success) {
+		do_something();
+		if(operation_2() == success) {
+			// all good, no need to cleanup
+			clenaup_if_something_goes_wrong.dont();
+			}
+		}
 
 */
 

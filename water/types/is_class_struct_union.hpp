@@ -7,8 +7,8 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename a_> static true_size is_class_struct_union_test(int a_::*);
-	template<typename a_> static false_size is_class_struct_union_test(...);
+	template<typename a_> true_size is_class_struct_union_test(int a_::*);
+	template<typename a_> false_size is_class_struct_union_test(...);
 	template<typename a_> struct
 	 do_is_class_struct_union : bool_result<
 		sizeof(_::is_class_struct_union_test<a_>(0)) == sizeof(true)
