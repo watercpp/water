@@ -56,7 +56,7 @@ char constexpr text[] = u8R"###({
 	]
 })###";
 
-class location {
+class location {
 	char myname[64];
 	size_t myname_size = 0;
 	double mylatitude = 0;

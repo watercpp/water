@@ -59,7 +59,7 @@ template<typename type_, unsigned utf_ = 0> class
 			return write_size<utf>(my, locale, mygroup);
 			}
 		size_t size() {
-			return this->template size<utf>(locale{});
+			return this->size(locale{});
 			}
 		
 		template<typename char_, typename locale_>

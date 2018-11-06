@@ -128,6 +128,12 @@ Since it does not use a floating point type, rounding errors with floating point
 
 The `imprecise()` and `overflow()` functions can be used to check if the number was truncated when parsed. Even if that did not happen, it might not be possible to covert to a integer or floatingpoint type without overflow/underflow. This can aslo be detected, the `to_int()` and `to_double()` functions return 0 if it happens.
 
+## Intended use
+
+Use `water::json` temporarily to convert JSON text to and from another data structure.
+
+If the data does not change at all, it is fine to keep and use the `json::node` structure for as long as needed in the program. But do not use it as a long lived data structure in a program for something that chages. That will waste memory.
+
 ## Threads
 
 Connected objects should be modified from a single thread at a time. You can read data from multiple threads at the same time, as long as no thread modifies any data. For example, a `node` is connected to a `memory` object.
