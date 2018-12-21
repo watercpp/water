@@ -1078,6 +1078,7 @@ template<typename to_iterator_, typename from_iterator_> utf_from_utf_return<to_
 // move the end back so it is not in the middle of a sequence
 // returns the end
 // useful when cutting strings in the middle
+// begin must point to the beginning of a sequence, and the begin,end range must be valid UTF
 
 template<typename iterator_> iterator_ utf8_adjust_end(iterator_ begin, iterator_ end) {
 	auto e = end;
@@ -1094,8 +1095,8 @@ template<typename iterator_> iterator_ utf8_adjust_end(iterator_ begin, iterator
 
 template<typename iterator_> iterator_ utf16_adjust_end(iterator_ begin, iterator_ end) {
 	auto e = end;
-	if(begin != e && utf16_is_1_of_2(*--e) && begin != e)
-		return --e;
+	if(begin != e && utf16_is_1_of_2(*--e))
+		return e;
 	return end;
 	}
 
