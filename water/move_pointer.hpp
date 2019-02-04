@@ -84,7 +84,7 @@ template<typename type_, typename allocator_> class
 			}
 		void* operator_new() {
 			destroy();
-			return my = myallocator.template free<value_type>(my);
+			return my = myallocator.template allocate<value_type>();
 			}
 		void operator_delete() {
 			myallocator.template free<value_type>(my);
