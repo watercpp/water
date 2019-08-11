@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2019 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -80,7 +80,7 @@ class priority_translate { // between posix range and water range 1 or more
 			mymin(sched_get_priority_min(sched)), // returns -1 if error
 			mymax(sched_get_priority_max(sched)) // returns -1 if error
 			{
-			___water_assert(mymin >= 0 && mymax >= mymin); // deal with this if it ever happens
+			___water_assert((mymin == -1 && mymax == -1) || (mymin >= 0 && mymax >= mymin));
 			if(mymin < 0 || mymax <= mymin)
 				mymin = mymax = 0;
 			}
