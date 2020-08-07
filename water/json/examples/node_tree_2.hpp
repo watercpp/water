@@ -54,132 +54,132 @@ another_object.name2:"value2"
 */
 
 char constexpr text[] = u8R"###({
-	"null": null,
-	"bool_false": false,
-	"bool_true": true,
-	"integer": 123,
-	"floatingpoint": -1.23e-45,
-	"string": "hello world",
-	"object": {
-		"hello": "world",
-		"world": 1,
-		"bool": true,
-		"nested_object": {
-			"field":"value",
-			"nested_nested_object": {
-				"hello": "world"
-			}
-		},
-		"nested_array": [
-			{
-				"number":1
-			},
-			{
-				"number":2
-			}
-		]
-	},
-	"array_of_integers": [
-		0,
-		1,
-		2,
-		3,
-		4,
-		5,
-		6,
-		7,
-		8
-	],
-	"array_of_arrays": [
-		"a",
-		[
-			"b",
-			[
-				"c",
-				[
-					"d",
-					[
-						"e",
-						[]
-					]
-				]
-			]
-		]
-	],
-	"another_object": {
-		"name1": "value1",
-		"name2": "value2"
-	}
+    "null": null,
+    "bool_false": false,
+    "bool_true": true,
+    "integer": 123,
+    "floatingpoint": -1.23e-45,
+    "string": "hello world",
+    "object": {
+        "hello": "world",
+        "world": 1,
+        "bool": true,
+        "nested_object": {
+            "field":"value",
+            "nested_nested_object": {
+                "hello": "world"
+            }
+        },
+        "nested_array": [
+            {
+                "number":1
+            },
+            {
+                "number":2
+            }
+        ]
+    },
+    "array_of_integers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+    ],
+    "array_of_arrays": [
+        "a",
+        [
+            "b",
+            [
+                "c",
+                [
+                    "d",
+                    [
+                        "e",
+                        []
+                    ]
+                ]
+            ]
+        ]
+    ],
+    "another_object": {
+        "name1": "value1",
+        "name2": "value2"
+    }
 })###";
 
 inline void line_from_node(vector<char>& to, node<> from);
 
 
 inline vector<char> loop() {
-	json::memory<> memory;
-	auto node = read_to_memory(memory)(text, sizeof(text) - 1).nodes();
-	
-	vector<char> result;
-	
-	while(node) {
-		// if this node contains nodes (its an array or object) go into them
-		while(node.nodes())
-			node = node.nodes();
-		
-		line_from_node(result, node);
-		
-		// if there is no node after this, go up one level to to the node that this is in
-		while(!node.next() && node.in())
-			node = node.in();
-		// go to the next node
-		node = node.next();
-		}
-	
-	return result;
-	}
+    json::memory<> memory;
+    auto node = read_to_memory(memory)(text, sizeof(text) - 1).nodes();
+    
+    vector<char> result;
+    
+    while(node) {
+        // if this node contains nodes (its an array or object) go into them
+        while(node.nodes())
+            node = node.nodes();
+        
+        line_from_node(result, node);
+        
+        // if there is no node after this, go up one level to to the node that this is in
+        while(!node.next() && node.in())
+            node = node.in();
+        // go to the next node
+        node = node.next();
+    }
+    
+    return result;
+}
 
 
 inline void line_from_node(vector<char>& to, node<> from) {
-	
-	// add the path like object.nested_object.field
-	size_t depth = 0;
-	auto path = from;
-	while(path.in()) {
-		path = path.in();
-		++depth;
-		}
-	while(depth) {
-		path = from;
-		size_t d = depth;
-		while(--d)
-			path = path.in();
-		if(path.in().type() == type::array) {
-			// its in an array, use the integer position in the array as path. ministr to convert integer to string 
-			auto at = cstring(ministr::out<>{} << path.at_position());
-			to.insert(to.end(), at.begin(), at.end());
-			}
-		else
-			to.insert(to.end(), path.name().begin(), path.name().end());
-		--depth;
-		if(depth)
-			to.push_back('.');
-		}
-	
-	// a : between the path an the value
-	if(from.in())
-		to.push_back(':');
-	
-	// add the value using json::write
-	write(
-		[&to](char const *begin, char const* end) {
-			to.insert(to.end(), begin, end);
-			},
-		from
-		);
-	
-	// finish with newline
-	to.push_back('\n');
-	}
+    
+    // add the path like object.nested_object.field
+    size_t depth = 0;
+    auto path = from;
+    while(path.in()) {
+        path = path.in();
+        ++depth;
+    }
+    while(depth) {
+        path = from;
+        size_t d = depth;
+        while(--d)
+            path = path.in();
+        if(path.in().type() == type::array) {
+            // its in an array, use the integer position in the array as path. ministr to convert integer to string
+            auto at = cstring(ministr::out<>{} << path.at_position());
+            to.insert(to.end(), at.begin(), at.end());
+        }
+        else
+            to.insert(to.end(), path.name().begin(), path.name().end());
+        --depth;
+        if(depth)
+            to.push_back('.');
+    }
+    
+    // a : between the path an the value
+    if(from.in())
+        to.push_back(':');
+    
+    // add the value using json::write
+    write(
+        [&to](char const *begin, char const* end) {
+            to.insert(to.end(), begin, end);
+        },
+        from
+    );
+    
+    // finish with newline
+    to.push_back('\n');
+}
 
 }}}}
 #endif

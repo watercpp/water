@@ -21,36 +21,37 @@ compile time test that types have constexpr constructors and/or trivial destruct
 
 */
 
-template<typename type_, bool = has_constexpr_constructor<type_>()> struct
- trivial_test_constexpr {
- 	type_ my;
- 	constexpr trivial_test_constexpr() noexcept {}
- 	constexpr trivial_test_constexpr(unsigned a) noexcept : my(a) {}
- 	};
-template<typename type_> struct
- trivial_test_constexpr<type_, false> {
- 	constexpr trivial_test_constexpr(unsigned = 0) noexcept {}
- 	};
+template<typename type_, bool = has_constexpr_constructor<type_>()>
+struct trivial_test_constexpr {
+    type_ my;
+    constexpr trivial_test_constexpr() noexcept {}
+    constexpr trivial_test_constexpr(unsigned a) noexcept : my(a) {}
+};
 
-template<typename type_> struct
- trivial_test {
- 	static_assert(water::has_trivial_destructor<type_>::result || !has_trivial_destructor<type_>(), "");
- 	trivial_test_constexpr<type_> my;
- 	constexpr trivial_test() noexcept {}
- 	constexpr trivial_test(unsigned a) noexcept : my(a) {}
- 	};
+template<typename type_>
+struct trivial_test_constexpr<type_, false> {
+    constexpr trivial_test_constexpr(unsigned = 0) noexcept {}
+};
+
+template<typename type_>
+struct trivial_test {
+    static_assert(water::has_trivial_destructor<type_>::result || !has_trivial_destructor<type_>(), "");
+    trivial_test_constexpr<type_> my;
+    constexpr trivial_test() noexcept {}
+    constexpr trivial_test(unsigned a) noexcept : my(a) {}
+};
 
 inline void trivial() {
-	trivial_test_constexpr<once, true>();
-	static_assert(water::has_trivial_destructor<once>::result, "");
-	trivial_test_constexpr<spin_once<>, true>();
-	static_assert(water::has_trivial_destructor<spin_once<>>::result, "");
-	test_list<trivial_test, barrier_list>(1);
-	test_list<trivial_test, condition_list>();
-	test_list<trivial_test, mutex_list>();
-	test_list<trivial_test, read_write_list>();
-	test_list<trivial_test, semaphore_list>(1);
-	}
+    trivial_test_constexpr<once, true>();
+    static_assert(water::has_trivial_destructor<once>::result, "");
+    trivial_test_constexpr<spin_once<>, true>();
+    static_assert(water::has_trivial_destructor<spin_once<>>::result, "");
+    test_list<trivial_test, barrier_list>(1);
+    test_list<trivial_test, condition_list>();
+    test_list<trivial_test, mutex_list>();
+    test_list<trivial_test, read_write_list>();
+    test_list<trivial_test, semaphore_list>(1);
+}
 
 }}}
 #endif

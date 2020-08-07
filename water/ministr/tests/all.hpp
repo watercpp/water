@@ -10,10 +10,10 @@
 namespace water { namespace ministr { namespace tests {
 
 inline void all() {
-	char_pointer();
-	test();
-	utf();
-	}
+    char_pointer();
+    test();
+    utf();
+}
 
 }}}
 #endif

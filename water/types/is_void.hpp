@@ -7,10 +7,10 @@
 #include <water/types/equal.hpp>
 namespace water { namespace types {
 
-template<typename type_> struct
- is_void :
-	equal_plain<typename type<type_>::result, void>
-		{};
+template<typename type_>
+struct is_void :
+    equal_plain<typename type<type_>::result, void>
+{};
 
 }}
 #endif

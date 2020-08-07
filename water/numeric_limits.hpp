@@ -8,7 +8,8 @@
 
 #include <water/no_numeric_limits.hpp>
 namespace water {
-template<typename a_> class numeric_limits : public no_numeric_limits<a_> {};
+template<typename a_>
+class numeric_limits : public no_numeric_limits<a_> {};
 using float_round_style = no_float_round_style;
 using float_denorm_style = no_float_denorm_style;
 }

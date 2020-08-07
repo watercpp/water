@@ -19,28 +19,32 @@ the collection_kind must have
 
 */
 
-template<typename c_> struct
- offset :
-	c_::collection_tag::result::template offset<c_>
-		{};
+template<typename c_>
+struct offset :
+    c_::collection_tag::result::template offset<c_>
+{};
 
 namespace _ {
-	template<typename a_, typename = void> struct
-	 do_offset_exists :
-		false_result
-			{};
-	template<typename a_> struct
-	 do_offset_exists<a_, to_void<typename a_::template offset<void> >> :
-		true_result
-			{};
-	}
+
+    template<typename a_, typename = void>
+    struct do_offset_exists :
+        false_result
+    {};
+    
+    template<typename a_>
+    struct do_offset_exists<a_, to_void<typename a_::template offset<void> >> :
+        true_result
+    {};
+    
+}
+
 // result true if
 // - c_ is a collection, and the kind has offset<c_>
 // - c_ is not a collection, and it has offset<c_>
-template<typename c_> struct
- offset_exists :
-	_::do_offset_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
-		{};
+template<typename c_>
+struct offset_exists :
+    _::do_offset_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
+{};
 
 }}
 #endif

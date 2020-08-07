@@ -16,37 +16,38 @@ using upointer_t = types::if_not_void<uint_size_at_least<sizeof(void*)>, uint_la
 
 // waste is minimum allocation size, and also maximum align. see temporary::pop
 size_t constexpr waste =
-	#ifdef WATER_TEMPORARY_WASTE
-	WATER_TEMPORARY_WASTE;
-	#else
-	align_max;
-	#endif
-	
+    #ifdef WATER_TEMPORARY_WASTE
+    WATER_TEMPORARY_WASTE;
+    #else
+    align_max;
+    #endif
+    
 struct sizer {
- 	size_t mymin; 
- 	public:
- 		constexpr explicit sizer(size_t min_size = 1024 * sizeof(void*)) noexcept :
- 			mymin{min_size}
- 			{}
-	 	size_t operator()(size_t a) const noexcept {
-	 		if(a >= (static_cast<size_t>(-1) >> 1))
-	 			return a;
-	 		size_t r = mymin;
-	 		while(r < a) r <<= 1;
-	 		return r;
- 			}
- 	};
- 	
+    size_t mymin;
+public:
+    constexpr explicit sizer(size_t min_size = 1024 * sizeof(void*)) noexcept :
+        mymin{min_size}
+    {}
+    size_t operator()(size_t a) const noexcept {
+        if(a >= (static_cast<size_t>(-1) >> 1))
+            return a;
+        size_t r = mymin;
+        while(r < a) r <<= 1;
+        return r;
+    }
+};
+
 struct exception {};
 
-template<typename allocator_> inline constexpr bool
- allocator_noexcept() {
- 	return noexcept(types::make<allocator_&>().allocate(1));
- 	}
-template<> inline constexpr bool
- allocator_noexcept<void>() {
- 	return true;
- 	}
+template<typename allocator_>
+inline constexpr bool allocator_noexcept() {
+    return noexcept(types::make<allocator_&>().allocate(1));
+}
+
+template<>
+inline constexpr bool allocator_noexcept<void>() {
+    return true;
+}
 
 }}
 #endif

@@ -9,9 +9,9 @@
 namespace water { namespace threads {
 
 using condition_list = list<
-	condition_variable,
-	condition_semaphore
-	>;
+    condition_variable,
+    condition_semaphore
+>;
 
 }}
 #endif

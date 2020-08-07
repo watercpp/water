@@ -14,13 +14,13 @@ Get the source code from github.com/watercpp/water and add it to your compilers 
 
 Test program:
 
-	#include <water/trace.hpp>
-	
-	int main(int argc, char **argv) {
-		water::trace() << "Hello world " << 1234 << '!';
-		return 0;
-		}
-	
+    #include <water/trace.hpp>
+    
+    int main(int argc, char **argv) {
+        water::trace() << "Hello world " << 1234 << '!';
+        return 0;
+    }
+
 The entire library is in the water namespace. Larger components have their own subnamespace, smaller are declared directly in the water namespace. Header files are structured like the namespaces: Everything in the water folder is in the water namespace, and subfolders correspond to subnamespaces with the same name.
 
 Documentation is sometimes in the header files themselves, sometimes in readme files next to the header files. Many components do not have documentation.

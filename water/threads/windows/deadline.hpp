@@ -7,29 +7,35 @@
 #include <water/threads/windows/bits.hpp>
 namespace water { namespace threads {
 
-class deadline {
-	ulonglong_t my = 0;
-	public:
-		//deadline() noexcept = false;
-		deadline(double seconds) noexcept {
-			if(auto m = milli_from_seconds(seconds))
-				my = GetTickCount64() + m;
-			}
-		bool passed() const noexcept {
-			return my == 0;
-			}
-		dword_t milli_left() noexcept {
-			if(my) {
-				auto a = GetTickCount64();
-				if(my > a) return static_cast<dword_t>(my - a);
-				my = 0;
-				}
-			return 0;
-			}
-		double left() noexcept {
-			return milli_left() / 1e3;
-			}
-	};
+class deadline
+{
+    ulonglong_t my = 0;
+
+public:
+    //deadline() noexcept = false;
+    
+    deadline(double seconds) noexcept {
+        if(auto m = milli_from_seconds(seconds))
+            my = GetTickCount64() + m;
+    }
+
+    bool passed() const noexcept {
+        return my == 0;
+    }
+
+    dword_t milli_left() noexcept {
+        if(my) {
+            auto a = GetTickCount64();
+            if(my > a) return static_cast<dword_t>(my - a);
+            my = 0;
+        }
+        return 0;
+    }
+
+    double left() noexcept {
+        return milli_left() / 1e3;
+    }
+};
 
 }}
 #endif

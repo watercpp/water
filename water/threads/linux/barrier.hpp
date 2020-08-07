@@ -10,10 +10,10 @@
 namespace water { namespace threads {
 
 using barrier_list = list<
-	pthread_barrier,
-	barrier_futex<>,
-	spin_barrier<>
-	>;
+    pthread_barrier,
+    barrier_futex<>,
+    spin_barrier<>
+>;
 
 }}
 #endif

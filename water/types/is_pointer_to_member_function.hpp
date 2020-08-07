@@ -7,16 +7,25 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename a_> struct do_is_pointer_to_member_function : false_result {};
-	template<typename r_, typename c_> struct do_is_pointer_to_member_function<r_ (c_::*)()> : true_result {};
-	template<typename r_, typename c_, typename ...a_> struct do_is_pointer_to_member_function<r_(c_::*)(a_...)> : true_result {};
-	template<typename r_, typename c_, typename ...a_> struct do_is_pointer_to_member_function<r_(c_::*)(a_..., ...)> : true_result {};
-	}
 
-template<typename type_> struct
- is_pointer_to_member_function :
-	_::do_is_pointer_to_member_function<typename type<type_>::result>
-		{};
+    template<typename a_>
+    struct do_is_pointer_to_member_function : false_result {};
+    
+    template<typename r_, typename c_>
+    struct do_is_pointer_to_member_function<r_ (c_::*)()> : true_result {};
+    
+    template<typename r_, typename c_, typename ...a_>
+    struct do_is_pointer_to_member_function<r_(c_::*)(a_...)> : true_result {};
+    
+    template<typename r_, typename c_, typename ...a_>
+    struct do_is_pointer_to_member_function<r_(c_::*)(a_..., ...)> : true_result {};
+    
+}
+
+template<typename type_>
+struct is_pointer_to_member_function :
+    _::do_is_pointer_to_member_function<typename type<type_>::result>
+{};
 
 }}
 #endif

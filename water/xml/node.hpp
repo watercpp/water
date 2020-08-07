@@ -7,9 +7,14 @@
 #include <water/xml/decode.hpp>
 namespace water { namespace xml {
 
-template<typename memory_, typename other_> struct node_if_no_memory {};
-template<typename other_>                   struct node_if_no_memory<void, other_> { struct result{}; };
-template<>                                  struct node_if_no_memory<void, void> {};
+template<typename memory_, typename other_>
+struct node_if_no_memory {};
+
+template<typename other_>
+struct node_if_no_memory<void, other_> { struct result{}; };
+
+template<>
+struct node_if_no_memory<void, void> {};
 
 //
 // DOM tree node
@@ -49,635 +54,724 @@ template<>                                  struct node_if_no_memory<void, void>
 // nodes_or_add(name) and attributes_or_add(name) can be useful to add or overwrite something. It will add
 // if it does not exists, otherwise return the first existing with that name.
 //
-template<typename char_ = char, typename memory_ = void> class
- node {
-	struct node_is_const;
-	friend class node<char_>;
-	using memory_node = xml::memory_node<char_>;
-	public:
-		using char_type = char_;
-		using memory_type = memory_;
-		using text_type = text<char_type const*>;
-		using node_if_mutable = typename types::ifel_type<types::if_not_void<memory_>, node<char_, memory_>, node_is_const>::result;
-	private:
-		memory_type *mym = 0; // can never be 0 if memory_ != void and my != 0
-		memory_node *my = 0;
-	private:
-		node(memory_type *m, memory_node *n) :
-			mym{m},
-			my{n}
-			{}
-	public:
-		constexpr node() = default;
-		node(typename types::if_not_void<memory_type, node_is_const>::result& m, memory_node *n) :
-			mym{&m},
-			my{n}
-			{}
-		template<typename other_> node(node<char_, other_> a, typename node_if_no_memory<memory_, other_>::result = {}) :
-			my{a.my}
-			{}
-		bool operator==(node const& a) const {
-			return my == a.my;
-			}
-		bool operator!=(node const& a) const {
-			return my != a.my;
-			}
-		explicit operator bool() const {
-			return my != 0;
-			}
-		memory_type* memory_pointer() const {
-			return mym;
-			}
-		node first() const {
-			return { mym, my ? first(my) : 0 };
-			}
-		node last() const {
-			return { mym, my ? last(my) : 0 };
-			}
-		node next() const {
-			return { mym, my ? my->next : 0 };
-			}
-		node previous() const {
-			return { mym, my ? my->previous : 0 };
-			}
-		node in() const {
-			return { mym, my ? my->in : 0 };
-			}
-		node attributes() const {
-			return { mym, my ? my->attributes : 0 };
-			}
-		template<typename iterator_>
-		 node attributes(iterator_ begin, iterator_ end) const {
-			return attributes().find(begin, end);
-			}
-		template<typename iterator_>
-		 node attributes(iterator_ begin, size_t size) const {
-			return attributes().find(begin, size);
-			}
-		template<typename char2_>
-		 node attributes(char2_ const *const& cstring) const {
-			return attributes().find(cstring);
-			}
-		template<typename char2_, size_t size_>
-		 node attributes(char2_ const (&cstring)[size_]) const {
-			return attributes().find(cstring);
-			}
-		template<typename range_>
-		 typename if_range<range_, node>::result attributes(range_ const& range) const {
-			return attributes().find(range.begin(), xml::range_size(range));
-			}
-		node nodes() const {
-			return { mym, my ? my->nodes : 0 };
-			}
-		template<typename iterator_>
-		 node nodes(iterator_ begin, iterator_ end) const {
-			return nodes().find(begin, end);
-			}
-		template<typename iterator_>
-		 node nodes(iterator_ begin, size_t size) const {
-			return nodes().find(begin, size);
-			}
-		template<typename char2_>
-		 node nodes(char2_ const *const& cstring) const {
-			return nodes().find(cstring);
-			}
-		template<typename char2_, size_t size_>
-		 node nodes(char2_ const (&cstring)[size_]) const {
-			return nodes().find(cstring);
-			}
-		template<typename range_>
-		 typename if_range<range_, node>::result nodes(range_ const& range) const {
-			return nodes().find(range.begin(), xml::range_size(range));
-			}
-		text_type name() const {
-			if(!my)
-				return {};
-			return {
-				static_cast<char_type const*>(static_cast<void const*>(my->name_begin)),
-				static_cast<char_type const*>(static_cast<void const*>(my->name_end))
-				};
-			}
-		text_type value() const {
-			if(!my)
-				return {};
-			if(my->value_begin > my->value_end) { // decode this
-				auto
-					*b = my->value_end,
-					*e = my->value_begin;
-				if(my->in && my->in->attributes && my->in->attributes == first(my))
-					e = decode_attribute(b, e);
-				else
-					e = decode(b, e);
-				my->value_begin = b;
-				my->value_end = e;
-				}
-			return {
-				static_cast<char_type const*>(static_cast<void const*>(my->value_begin)),
-				static_cast<char_type const*>(static_cast<void const*>(my->value_end))
-				};
-			}
-		text_type first_value() const {
-			// value of first content node in nodes()
-			if(my)
-				if(memory_node *n = my->nodes)
-					do {
-						if(n->name_begin == n->name_end)
-							return node{ mym, n }.value();
-						n = n->next;
-						} while(n);
-			return {};
-			}
-		template<typename iterator_>
-		 node find(iterator_ begin, size_t size) const {
-			// find the first with name == begin,size inclduing this one
-			// use the next() to find the next not including this one
-			if(!size)
-				return {};
-			memory_node *n = my;
-			while(n && !name_equal(n, begin, size))
-				n = n->next;
-			return { mym, n };
-			}
-		template<typename iterator_>
-		 node find(iterator_ begin, iterator_ end) const {
-			return find(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node find(char2_ const *const& cstring) const {
-			return find(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node find(char2_ const (&cstring)[size_]) const {
-			return find(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node>::result find(range_ const& range) const {
-			return find(range.begin(), xml::range_size(range));
-			}
-		template<typename iterator_>
-		 node next(iterator_ begin, iterator_ end) const {
-			return next().find(begin, end);
-			}
-		template<typename iterator_>
-		 node next(iterator_ begin, size_t size) const {
-			return next().find(begin, size);
-			}
-		template<typename char2_>
-		 node next(char2_ const *const& cstring) const {
-			return next().find(cstring);
-			}
-		template<typename char2_, size_t size_>
-		 node next(char2_ const (&cstring)[size_]) const {
-			return next().find(cstring);
-			}
-		template<typename range_>
-		 typename if_range<range_, node>::result next(range_ const& range) const {
-			return next().find(range.begin(), xml::range_size(range));
-			}
-		template<typename iterator_>
-		 node previous(iterator_ begin, size_t size) const {
-			// find the closest previous node with name == begin,size
-			if(!size)
-				return {};
-			memory_node *n = my;
-			if(n) while((n = n->previous) != 0 && !name_equal(n, begin, size));
-			return { mym, n };
-			}
-		template<typename iterator_>
-		 node previous(iterator_ begin, iterator_ end) const {
-			return previous(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node previous(char2_ const *const& cstring) const {
-			return previous(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node previous(char2_ const (&cstring)[size_]) const {
-			return previous(cstring, size_ - 1);;
-			}
-		template<typename range_>
-		 typename if_range<range_, node>::result previous(range_ const& range) const {
-			return previous(range.begin(), xml::range_size(range));
-			}
-	public:
-		node_if_mutable create() {
-			if(!mym)
-				return {};
-			return mym->template create<char_type>();
-			}
-		node_if_mutable remove_all_nodes() {
-			if(!my)
-				return {};
-			memory_node *n = my->nodes;
-			while(n) {
-				n->in = 0;
-				n = n->next;
-				}
-			n = my->nodes;
-			my->nodes = 0;
-			return { mym, n };
-			}
-		node_if_mutable remove_all_attributes() {
-			if(!my)
-				return {};
-			memory_node *n = my->attributes;
-			while(n) {
-				n->in = 0;
-				n = n->next;
-				}
-			n = my->attributes;
-			my->attributes = 0;
-			return { mym, n };
-			}
-		node_if_mutable nodes(node_if_mutable a) {
-			// insert the node-list a at the end of nodes()
-			if(!my || !a.my)
-				return {};
-			memory_node *n = first(a.my);
-			if(!my->nodes)
-				my->nodes = n;
-			else {
-				memory_node *l = last(my->nodes);
-				(l->next = n)->previous = l;
-				}
-			while(n) {
-				n->in = my;
-				n = n->next;
-				}
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable nodes_or_add(iterator_ begin, size_t size) {
-			// find the first with name == begin,size in nodes()
-			// if it does not exist, this->nodes(create().name(begin, size))
-			if(!size || !my)
-				return {};
-			node r = nodes(begin, size);
-			if(!r) {
-				r = create().name(begin, size);
-				nodes(r);
-				}
-			return r;
-			}
-		template<typename iterator_>
-		 node_if_mutable nodes_or_add(iterator_ begin, iterator_ end) {
-			return nodes_or_add(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node_if_mutable nodes_or_add(char2_ const *const& cstring) {
-			return nodes_or_add(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node_if_mutable nodes_or_add(char2_ const (&cstring)[size_]) {
-			return nodes_or_add(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node_if_mutable>::result nodes_or_add(range_ const& range) {
-			return nodes_or_add(range.begin(), xml::range_size(range));
-			}
-		node_if_mutable attributes(node_if_mutable a) {
-			// insert the node-list a at the end of attributes()
-			if(!my || !a.my)
-				return {};
-			memory_node *n = first(a.my);
-			if(!my->attributes)
-				my->attributes = n;
-			else {
-				memory_node *l = last(my->attributes);
-				(l->next = n)->previous = l;
-				}
-			while(n) {
-				n->in = my;
-				n = n->next;
-				}
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable attributes_or_add(iterator_ begin, size_t size) {
-			// find the first with name == begin,size in attributes()
-			// if it does not exist, this->attributes(create().name(begin, size))
-			if(!size || !my)
-				return {};
-			node r = attributes(begin, size);
-			if(!r) {
-				r = create().name(begin, size);
-				attributes(r);
-				}
-			return r;
-			}
-		template<typename iterator_>
-		 node_if_mutable attributes_or_add(iterator_ begin, iterator_ end) {
-			return attributes_or_add(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node_if_mutable attributes_or_add(char2_ const *const& cstring) {
-			return attributes_or_add(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node_if_mutable attributes_or_add(char2_ const (&cstring)[size_]) {
-			return attributes_or_add(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node_if_mutable>::result attributes_or_add(range_ const& range) {
-			return attributes_or_add(range.begin(), xml::range_size(range));
-			}
-		node_if_mutable push_back(node a) {
-			// insert a at the back of this->nodes()
-			// return a
-			if(!my || !a.my)
-				return {mym, 0};
-			a.remove();
-			if(!my->nodes)
-				my->nodes = a.my;
-			else {
-				memory_node *l = last(my->nodes);
-				(l->next = a.my)->previous = l;
-				}
-			a.my->in = my;
-			return a;
-			}
-		node_if_mutable push_back() {
-			return push_back(create());
-			}
-		node_if_mutable push_front(node a) {
-			// insert a at the front of this->nodes()
-			// return a
-			if(!my || !a.my)
-				return {mym, 0};
-			a.remove();
-			if(my->nodes)
-				(my->nodes->previous = a.my)->next = my->nodes;
-			my->nodes = a.my;
-			a.my->in = my;
-			return a;
-			}
-		node_if_mutable push_front() {
-			return push_front(create());
-			}
-		node_if_mutable& remove() {
-			// remove this, return this
-			if(my) {
-				if(my->previous)
-					my->previous->next = my->next;
-				else if(my->in) {
-					if(my->in->nodes == my)
-						my->in->nodes = my->next;
-					else
-						my->in->attributes = my->next;
-					}
-				if(my->next)
-					my->next->previous = my->previous;
-				my->next = my->previous = my->in = 0;
-				}
-			return *this;
-			}
-		node_if_mutable insert_before(node_if_mutable before) {
-			// insert this before before, return this
-			// will this->remove() first
-			if(!my || !before.my)
-				return {};
-			remove();
-			my->in = before.my->in;
-			if(before.my->previous)
-				(my->previous = before.my->previous)->next = my;
-			else if(before.my->in) {
-				if(before.my->in->nodes == before.my)
-					before.my->in->nodes = my;
-				else
-					before.my->in->attributes = my;
-				}
-			(my->next = before.my)->previous = my;
-			return *this;
-			}
-		node_if_mutable insert_after(node_if_mutable after) {
-			// insert this after after, returns this
-			// will this->reomve() first
-			if(!my || !after.my)
-				return {};
-			remove();
-			my->in = after.my->in;
-			if(after.my->next)
-				(my->next = after.my->next)->previous = my;
-			(after.my->next = my)->previous = after.my;
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable name(iterator_ begin, size_t size) {
-			if(!my)
-				return *this;
-			using uchar_ = typename memory_node::char_type;
-			size_t s = static_cast<size_t>(my->name_end_memory - my->name_begin);
-			if(s < size) {
-				// if this has name and value, maybe it will fit after the value?
-				// do not move the value if decoded because someone might have a pointer to it.
-				if(my->value_end_memory) {
-					bool decoded = my->value_begin <= my->value_end;
-					value(); // decode
-					if(!decoded && my->name_end_memory == my->value_begin && s + static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
-						// can make space by moving value if its after name, was not decoded and enough space after
-						auto
-							*f = my->value_end,
-							*t = f + size - s;
-						while(f != my->value_begin)
-							*--f = *--t;
-						my->name_end_memory = my->value_begin += size - s;
-						my->value_end += size - s;
-						s = size;
-						}
-					else if(my->value_end_memory == my->name_begin && s + static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
-						// if name after value, can make space by taking from value
-						my->name_begin = my->name_end = my->value_end_memory -= size - s;
-						s = size;
-						}
-					else if(static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
-						// else maybe it will fit after value anyway
-						my->name_end_memory = my->value_end_memory;
-						my->name_begin = my->name_end = my->value_end_memory -= size;
-						s = size;
-						}
-					}
-				if(s < size)  {
-					// allocate :(
-					uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
-					if(!a)
-						return {};
-					// see if value can get memory. it can if it has no memory or if it has the memory before this (never move value)
-					// could move value if decoded = false, maybe a good idea because this is an attribute with probably not much text?
-					if(my->name_end_memory) {
-						if(!my->value_end_memory) {
-							my->value_begin = my->value_end = my->name_begin;
-							my->value_end_memory = my->name_end_memory;
-							}
-						else if(my->value_end_memory == my->name_begin)
-							my->value_end_memory = my->name_end_memory;
-						}
-					my->name_begin = my->name_end = a;
-					my->name_end_memory = a + size;
-					}
-				}
-			// copy
-			uchar_ *b = my->name_begin;
-			my->name_end = b;
-			while(size) {
-				*b++ = static_cast<uchar_>(*begin);
-				++begin;
-				--size;
-				}
-			my->name_end = b; // set this last, if iterator_ throws this will be empty and never contain half utf-8
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable name(iterator_ begin, iterator_ end) {
-			return name(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node_if_mutable name(char2_ const *const& cstring) {
-			return name(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node_if_mutable name(char2_ const (&cstring)[size_]) {
-			return name(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node_if_mutable>::result name(range_ const& range) {
-			return name(range.begin(), xml::range_size(range));
-			}
-		template<typename iterator_>
-		 node_if_mutable value(iterator_ begin, size_t size) {
-			if(!my)
-				return *this;
-			using uchar_ = typename memory_node::char_type;
-			auto *b = my->value_begin < my->value_end ? my->value_begin : my->value_end;
-			size_t s = static_cast<size_t>(my->value_end_memory - b);
-			if(s < size) {
-				// if this has name and value, maybe it will fit if some space is stolen from the name?
-				if(my->name_end_memory) {
-					if(b == my->name_end_memory && s + static_cast<size_t>(my->name_end_memory - my->name_end) >= size) {
-						// name before value, can take from name
-						b = my->value_begin = my->value_end = my->name_end_memory -= size - s;
-						s = size;
-						}
-					else if(static_cast<size_t>(my->name_end_memory - my->name_end) >= size) {
-						// value fits in end of name
-						my->value_end_memory = my->name_end_memory;
-						b = my->value_begin = my->value_end = my->name_end_memory -= size;
-						s = size;
-						}
-					}
-				if(s < size)  {
-					// allocate :(
-					uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
-					if(!a)
-						return {};
-					// see if name can get memory. it can if it has no memory or if it has the memory before this (never move name)
-					if(my->value_end_memory) {
-						if(!my->name_end_memory) {
-							my->name_begin = my->name_end = b;
-							my->name_end_memory = my->value_end_memory;
-							}
-						else if(my->name_end_memory == b)
-							my->name_end_memory = my->value_end_memory;
-						}
-					b = my->value_begin = my->value_end = a;
-					my->value_end_memory = a + size;
-					}
-				}
-			// copy
-			my->value_begin = b; // because maybe value_end < value_begin
-			my->value_end = b;
-			while(size) {
-				*b++ = static_cast<uchar_>(*begin);
-				++begin;
-				--size;
-				}
-			my->value_end = b; // set this last, if iterator_ throws this will be empty and never contain half utf-8
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable value(iterator_ begin, iterator_ end) {
-			return value(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node_if_mutable value(char2_ const *const& cstring) {
-			return value(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node_if_mutable value(char2_ const (&cstring)[size_]) {
-			return value(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node_if_mutable>::result value(range_ const& range) {
-			return value(range.begin(), xml::range_size(range));
-			}
-		template<typename iterator_>
-		 node_if_mutable first_value(iterator_ begin, size_t size) {
-			// set the value of the first content node in nodes(), or create a node if there is none and size != 0. the created node will be first in nodes()
-			if(!my)
-				return *this;
-			memory_node *n = my->nodes;
-			while(n && n->name_begin != n->name_end)
-				n = n->next;
-			if(!n) {
-				if(!size)
-					return *this; // all is good
-				auto a = mym->template create<char_type>(); // leak this if set value fails
-				if(!a)
-					return {};
-				n = a.my;
-				}
-			if(!node{mym, n}.value(begin, size))
-				return {};
-			if(!n->in) {
-				n->in = my;
-				n->next = my->nodes;
-				if(n->next)
-					n->next->previous = n;
-				my->nodes = n;
-				}
-			return *this;
-			}
-		template<typename iterator_>
-		 node_if_mutable first_value(iterator_ begin, iterator_ end) {
-			return first_value(begin, size(begin, end));
-			}
-		template<typename char2_>
-		 node_if_mutable first_value(char2_ const *const& cstring) {
-			return first_value(cstring, cend(cstring));
-			}
-		template<typename char2_, size_t size_>
-		 node_if_mutable first_value(char2_ const (&cstring)[size_]) {
-			return first_value(cstring, size_ - 1);
-			}
-		template<typename range_>
-		 typename if_range<range_, node_if_mutable>::result first_value(range_ const& range) {
-			return first_value(range.begin(), xml::range_size(range));
-			}
-	private:
-		template<typename iterator_>
-		 static bool name_equal(memory_node *n, iterator_ begin, size_t size) {
-			if(static_cast<size_t>(n->name_end - n->name_begin) == size) {
-				auto ni = n->name_begin;
-				iterator_ i = begin;
-				while(*i == *ni && ++ni != n->name_end) ++i;
-				if(ni == n->name_end)
-					return true;
-				}
-			return false;
-			}
-		template<typename char2_>
-		 static char2_ const* cend(char2_ const *a) {
-			if(a) while(*a) ++a;
-			return a;
-			}
-		static memory_node* first(memory_node *a) {
-			while(a->previous) a = a->previous;
-			return a;
-			}
-		static memory_node* last(memory_node *a) {
-			while(a->next) a = a->next;
-			return a;
-			}
-	};
+
+template<typename char_ = char, typename memory_ = void>
+class node
+{
+    struct node_is_const;
+    friend class node<char_>;
+    using memory_node = xml::memory_node<char_>;
+
+public:
+    using char_type = char_;
+    using memory_type = memory_;
+    using text_type = text<char_type const*>;
+    using node_if_mutable = typename types::ifel_type<types::if_not_void<memory_>, node<char_, memory_>, node_is_const>::result;
+
+private:
+    memory_type *mym = 0; // can never be 0 if memory_ != void and my != 0
+    memory_node *my = 0;
+
+private:
+    node(memory_type *m, memory_node *n) :
+        mym{m},
+        my{n}
+    {}
+
+public:
+    constexpr node() = default;
+
+    node(typename types::if_not_void<memory_type, node_is_const>::result& m, memory_node *n) :
+        mym{&m},
+        my{n}
+    {}
+
+    template<typename other_>
+    node(node<char_, other_> a, typename node_if_no_memory<memory_, other_>::result = {}) :
+        my{a.my}
+    {}
+
+    bool operator==(node const& a) const {
+        return my == a.my;
+    }
+
+    bool operator!=(node const& a) const {
+        return my != a.my;
+    }
+
+    explicit operator bool() const {
+        return my != 0;
+    }
+
+    memory_type* memory_pointer() const {
+        return mym;
+    }
+
+    node first() const {
+        return { mym, my ? first(my) : 0 };
+    }
+
+    node last() const {
+        return { mym, my ? last(my) : 0 };
+    }
+
+    node next() const {
+        return { mym, my ? my->next : 0 };
+    }
+
+    node previous() const {
+        return { mym, my ? my->previous : 0 };
+    }
+
+    node in() const {
+        return { mym, my ? my->in : 0 };
+    }
+
+    node attributes() const {
+        return { mym, my ? my->attributes : 0 };
+    }
+
+    template<typename iterator_>
+    node attributes(iterator_ begin, iterator_ end) const {
+        return attributes().find(begin, end);
+    }
+
+    template<typename iterator_>
+    node attributes(iterator_ begin, size_t size) const {
+        return attributes().find(begin, size);
+    }
+
+    template<typename char2_>
+    node attributes(char2_ const *const& cstring) const {
+        return attributes().find(cstring);
+    }
+
+    template<typename char2_, size_t size_>
+    node attributes(char2_ const (&cstring)[size_]) const {
+        return attributes().find(cstring);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node>::result attributes(range_ const& range) const {
+        return attributes().find(range.begin(), xml::range_size(range));
+    }
+
+    node nodes() const {
+        return { mym, my ? my->nodes : 0 };
+    }
+
+    template<typename iterator_>
+    node nodes(iterator_ begin, iterator_ end) const {
+        return nodes().find(begin, end);
+    }
+
+    template<typename iterator_>
+    node nodes(iterator_ begin, size_t size) const {
+        return nodes().find(begin, size);
+    }
+
+    template<typename char2_>
+    node nodes(char2_ const *const& cstring) const {
+        return nodes().find(cstring);
+    }
+
+    template<typename char2_, size_t size_>
+    node nodes(char2_ const (&cstring)[size_]) const {
+        return nodes().find(cstring);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node>::result nodes(range_ const& range) const {
+        return nodes().find(range.begin(), xml::range_size(range));
+    }
+
+    text_type name() const {
+        if(!my)
+            return {};
+        return {
+            static_cast<char_type const*>(static_cast<void const*>(my->name_begin)),
+            static_cast<char_type const*>(static_cast<void const*>(my->name_end))
+        };
+    }
+
+    text_type value() const {
+        if(!my)
+            return {};
+        if(my->value_begin > my->value_end) { // decode this
+            auto
+                *b = my->value_end,
+                *e = my->value_begin;
+            if(my->in && my->in->attributes && my->in->attributes == first(my))
+                e = decode_attribute(b, e);
+            else
+                e = decode(b, e);
+            my->value_begin = b;
+            my->value_end = e;
+        }
+        return {
+            static_cast<char_type const*>(static_cast<void const*>(my->value_begin)),
+            static_cast<char_type const*>(static_cast<void const*>(my->value_end))
+        };
+    }
+
+    text_type first_value() const {
+        // value of first content node in nodes()
+        if(my)
+            if(memory_node *n = my->nodes)
+                do {
+                    if(n->name_begin == n->name_end)
+                        return node{ mym, n }.value();
+                    n = n->next;
+                } while(n);
+        return {};
+    }
+
+    template<typename iterator_>
+    node find(iterator_ begin, size_t size) const {
+        // find the first with name == begin,size inclduing this one
+        // use the next() to find the next not including this one
+        if(!size)
+            return {};
+        memory_node *n = my;
+        while(n && !name_equal(n, begin, size))
+            n = n->next;
+        return { mym, n };
+    }
+
+    template<typename iterator_>
+    node find(iterator_ begin, iterator_ end) const {
+        return find(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node find(char2_ const *const& cstring) const {
+        return find(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node find(char2_ const (&cstring)[size_]) const {
+        return find(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node>::result find(range_ const& range) const {
+        return find(range.begin(), xml::range_size(range));
+    }
+
+    template<typename iterator_>
+    node next(iterator_ begin, iterator_ end) const {
+        return next().find(begin, end);
+    }
+
+    template<typename iterator_>
+    node next(iterator_ begin, size_t size) const {
+        return next().find(begin, size);
+    }
+
+    template<typename char2_>
+    node next(char2_ const *const& cstring) const {
+        return next().find(cstring);
+    }
+
+    template<typename char2_, size_t size_>
+    node next(char2_ const (&cstring)[size_]) const {
+        return next().find(cstring);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node>::result next(range_ const& range) const {
+        return next().find(range.begin(), xml::range_size(range));
+    }
+
+    template<typename iterator_>
+    node previous(iterator_ begin, size_t size) const {
+        // find the closest previous node with name == begin,size
+        if(!size)
+            return {};
+        memory_node *n = my;
+        if(n) while((n = n->previous) != 0 && !name_equal(n, begin, size));
+        return { mym, n };
+    }
+
+    template<typename iterator_>
+    node previous(iterator_ begin, iterator_ end) const {
+        return previous(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node previous(char2_ const *const& cstring) const {
+        return previous(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node previous(char2_ const (&cstring)[size_]) const {
+        return previous(cstring, size_ - 1);;
+    }
+
+    template<typename range_>
+    typename if_range<range_, node>::result previous(range_ const& range) const {
+        return previous(range.begin(), xml::range_size(range));
+    }
+
+public:
+    node_if_mutable create() {
+        if(!mym)
+            return {};
+        return mym->template create<char_type>();
+    }
+
+    node_if_mutable remove_all_nodes() {
+        if(!my)
+            return {};
+        memory_node *n = my->nodes;
+        while(n) {
+            n->in = 0;
+            n = n->next;
+        }
+        n = my->nodes;
+        my->nodes = 0;
+        return { mym, n };
+    }
+
+    node_if_mutable remove_all_attributes() {
+        if(!my)
+            return {};
+        memory_node *n = my->attributes;
+        while(n) {
+            n->in = 0;
+            n = n->next;
+        }
+        n = my->attributes;
+        my->attributes = 0;
+        return { mym, n };
+    }
+
+    node_if_mutable nodes(node_if_mutable a) {
+        // insert the node-list a at the end of nodes()
+        if(!my || !a.my)
+            return {};
+        memory_node *n = first(a.my);
+        if(!my->nodes)
+            my->nodes = n;
+        else {
+            memory_node *l = last(my->nodes);
+            (l->next = n)->previous = l;
+        }
+        while(n) {
+            n->in = my;
+            n = n->next;
+        }
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable nodes_or_add(iterator_ begin, size_t size) {
+        // find the first with name == begin,size in nodes()
+        // if it does not exist, this->nodes(create().name(begin, size))
+        if(!size || !my)
+            return {};
+        node r = nodes(begin, size);
+        if(!r) {
+            r = create().name(begin, size);
+            nodes(r);
+        }
+        return r;
+    }
+
+    template<typename iterator_>
+    node_if_mutable nodes_or_add(iterator_ begin, iterator_ end) {
+        return nodes_or_add(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node_if_mutable nodes_or_add(char2_ const *const& cstring) {
+        return nodes_or_add(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node_if_mutable nodes_or_add(char2_ const (&cstring)[size_]) {
+        return nodes_or_add(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node_if_mutable>::result nodes_or_add(range_ const& range) {
+        return nodes_or_add(range.begin(), xml::range_size(range));
+    }
+
+    node_if_mutable attributes(node_if_mutable a) {
+        // insert the node-list a at the end of attributes()
+        if(!my || !a.my)
+            return {};
+        memory_node *n = first(a.my);
+        if(!my->attributes)
+            my->attributes = n;
+        else {
+            memory_node *l = last(my->attributes);
+            (l->next = n)->previous = l;
+        }
+        while(n) {
+            n->in = my;
+            n = n->next;
+        }
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable attributes_or_add(iterator_ begin, size_t size) {
+        // find the first with name == begin,size in attributes()
+        // if it does not exist, this->attributes(create().name(begin, size))
+        if(!size || !my)
+            return {};
+        node r = attributes(begin, size);
+        if(!r) {
+            r = create().name(begin, size);
+            attributes(r);
+        }
+        return r;
+    }
+
+    template<typename iterator_>
+    node_if_mutable attributes_or_add(iterator_ begin, iterator_ end) {
+        return attributes_or_add(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node_if_mutable attributes_or_add(char2_ const *const& cstring) {
+        return attributes_or_add(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node_if_mutable attributes_or_add(char2_ const (&cstring)[size_]) {
+        return attributes_or_add(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node_if_mutable>::result attributes_or_add(range_ const& range) {
+        return attributes_or_add(range.begin(), xml::range_size(range));
+    }
+
+    node_if_mutable push_back(node a) {
+        // insert a at the back of this->nodes()
+        // return a
+        if(!my || !a.my)
+            return {mym, 0};
+        a.remove();
+        if(!my->nodes)
+            my->nodes = a.my;
+        else {
+            memory_node *l = last(my->nodes);
+            (l->next = a.my)->previous = l;
+        }
+        a.my->in = my;
+        return a;
+    }
+
+    node_if_mutable push_back() {
+        return push_back(create());
+    }
+
+    node_if_mutable push_front(node a) {
+        // insert a at the front of this->nodes()
+        // return a
+        if(!my || !a.my)
+            return {mym, 0};
+        a.remove();
+        if(my->nodes)
+            (my->nodes->previous = a.my)->next = my->nodes;
+        my->nodes = a.my;
+        a.my->in = my;
+        return a;
+    }
+
+    node_if_mutable push_front() {
+        return push_front(create());
+    }
+
+    node_if_mutable& remove() {
+        // remove this, return this
+        if(my) {
+            if(my->previous)
+                my->previous->next = my->next;
+            else if(my->in) {
+                if(my->in->nodes == my)
+                    my->in->nodes = my->next;
+                else
+                    my->in->attributes = my->next;
+            }
+            if(my->next)
+                my->next->previous = my->previous;
+            my->next = my->previous = my->in = 0;
+        }
+        return *this;
+    }
+
+    node_if_mutable insert_before(node_if_mutable before) {
+        // insert this before before, return this
+        // will this->remove() first
+        if(!my || !before.my)
+            return {};
+        remove();
+        my->in = before.my->in;
+        if(before.my->previous)
+            (my->previous = before.my->previous)->next = my;
+        else if(before.my->in) {
+            if(before.my->in->nodes == before.my)
+                before.my->in->nodes = my;
+            else
+                before.my->in->attributes = my;
+        }
+        (my->next = before.my)->previous = my;
+        return *this;
+    }
+
+    node_if_mutable insert_after(node_if_mutable after) {
+        // insert this after after, returns this
+        // will this->reomve() first
+        if(!my || !after.my)
+            return {};
+        remove();
+        my->in = after.my->in;
+        if(after.my->next)
+            (my->next = after.my->next)->previous = my;
+        (after.my->next = my)->previous = after.my;
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable name(iterator_ begin, size_t size) {
+        if(!my)
+            return *this;
+        using uchar_ = typename memory_node::char_type;
+        size_t s = static_cast<size_t>(my->name_end_memory - my->name_begin);
+        if(s < size) {
+            // if this has name and value, maybe it will fit after the value?
+            // do not move the value if decoded because someone might have a pointer to it.
+            if(my->value_end_memory) {
+                bool decoded = my->value_begin <= my->value_end;
+                value(); // decode
+                if(!decoded && my->name_end_memory == my->value_begin && s + static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
+                    // can make space by moving value if its after name, was not decoded and enough space after
+                    auto
+                        *f = my->value_end,
+                        *t = f + size - s;
+                    while(f != my->value_begin)
+                        *--f = *--t;
+                    my->name_end_memory = my->value_begin += size - s;
+                    my->value_end += size - s;
+                    s = size;
+                }
+                else if(my->value_end_memory == my->name_begin && s + static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
+                    // if name after value, can make space by taking from value
+                    my->name_begin = my->name_end = my->value_end_memory -= size - s;
+                    s = size;
+                }
+                else if(static_cast<size_t>(my->value_end_memory - my->value_end) >= size) {
+                    // else maybe it will fit after value anyway
+                    my->name_end_memory = my->value_end_memory;
+                    my->name_begin = my->name_end = my->value_end_memory -= size;
+                    s = size;
+                }
+            }
+            if(s < size)  {
+                // allocate :(
+                uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
+                if(!a)
+                    return {};
+                // see if value can get memory. it can if it has no memory or if it has the memory before this (never move value)
+                // could move value if decoded = false, maybe a good idea because this is an attribute with probably not much text?
+                if(my->name_end_memory) {
+                    if(!my->value_end_memory) {
+                        my->value_begin = my->value_end = my->name_begin;
+                        my->value_end_memory = my->name_end_memory;
+                    }
+                    else if(my->value_end_memory == my->name_begin)
+                        my->value_end_memory = my->name_end_memory;
+                }
+                my->name_begin = my->name_end = a;
+                my->name_end_memory = a + size;
+            }
+        }
+        // copy
+        uchar_ *b = my->name_begin;
+        my->name_end = b;
+        while(size) {
+            *b++ = static_cast<uchar_>(*begin);
+            ++begin;
+            --size;
+        }
+        my->name_end = b; // set this last, if iterator_ throws this will be empty and never contain half utf-8
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable name(iterator_ begin, iterator_ end) {
+        return name(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node_if_mutable name(char2_ const *const& cstring) {
+        return name(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node_if_mutable name(char2_ const (&cstring)[size_]) {
+        return name(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node_if_mutable>::result name(range_ const& range) {
+        return name(range.begin(), xml::range_size(range));
+    }
+
+    template<typename iterator_>
+    node_if_mutable value(iterator_ begin, size_t size) {
+        if(!my)
+            return *this;
+        using uchar_ = typename memory_node::char_type;
+        auto *b = my->value_begin < my->value_end ? my->value_begin : my->value_end;
+        size_t s = static_cast<size_t>(my->value_end_memory - b);
+        if(s < size) {
+            // if this has name and value, maybe it will fit if some space is stolen from the name?
+            if(my->name_end_memory) {
+                if(b == my->name_end_memory && s + static_cast<size_t>(my->name_end_memory - my->name_end) >= size) {
+                    // name before value, can take from name
+                    b = my->value_begin = my->value_end = my->name_end_memory -= size - s;
+                    s = size;
+                }
+                else if(static_cast<size_t>(my->name_end_memory - my->name_end) >= size) {
+                    // value fits in end of name
+                    my->value_end_memory = my->name_end_memory;
+                    b = my->value_begin = my->value_end = my->name_end_memory -= size;
+                    s = size;
+                }
+            }
+            if(s < size)  {
+                // allocate :(
+                uchar_ *a = static_cast<uchar_*>(mym->allocate(size * sizeof(uchar_), alignof(uchar_)));
+                if(!a)
+                    return {};
+                // see if name can get memory. it can if it has no memory or if it has the memory before this (never move name)
+                if(my->value_end_memory) {
+                    if(!my->name_end_memory) {
+                        my->name_begin = my->name_end = b;
+                        my->name_end_memory = my->value_end_memory;
+                    }
+                    else if(my->name_end_memory == b)
+                        my->name_end_memory = my->value_end_memory;
+                }
+                b = my->value_begin = my->value_end = a;
+                my->value_end_memory = a + size;
+            }
+        }
+        // copy
+        my->value_begin = b; // because maybe value_end < value_begin
+        my->value_end = b;
+        while(size) {
+            *b++ = static_cast<uchar_>(*begin);
+            ++begin;
+            --size;
+        }
+        my->value_end = b; // set this last, if iterator_ throws this will be empty and never contain half utf-8
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable value(iterator_ begin, iterator_ end) {
+        return value(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node_if_mutable value(char2_ const *const& cstring) {
+        return value(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node_if_mutable value(char2_ const (&cstring)[size_]) {
+        return value(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node_if_mutable>::result value(range_ const& range) {
+        return value(range.begin(), xml::range_size(range));
+    }
+
+    template<typename iterator_>
+    node_if_mutable first_value(iterator_ begin, size_t size) {
+        // set the value of the first content node in nodes(), or create a node if there is none and size != 0. the created node will be first in nodes()
+        if(!my)
+            return *this;
+        memory_node *n = my->nodes;
+        while(n && n->name_begin != n->name_end)
+            n = n->next;
+        if(!n) {
+            if(!size)
+                return *this; // all is good
+            auto a = mym->template create<char_type>(); // leak this if set value fails
+            if(!a)
+                return {};
+            n = a.my;
+        }
+        if(!node{mym, n}.value(begin, size))
+            return {};
+        if(!n->in) {
+            n->in = my;
+            n->next = my->nodes;
+            if(n->next)
+                n->next->previous = n;
+            my->nodes = n;
+        }
+        return *this;
+    }
+
+    template<typename iterator_>
+    node_if_mutable first_value(iterator_ begin, iterator_ end) {
+        return first_value(begin, size(begin, end));
+    }
+
+    template<typename char2_>
+    node_if_mutable first_value(char2_ const *const& cstring) {
+        return first_value(cstring, cend(cstring));
+    }
+
+    template<typename char2_, size_t size_>
+    node_if_mutable first_value(char2_ const (&cstring)[size_]) {
+        return first_value(cstring, size_ - 1);
+    }
+
+    template<typename range_>
+    typename if_range<range_, node_if_mutable>::result first_value(range_ const& range) {
+        return first_value(range.begin(), xml::range_size(range));
+    }
+
+private:
+    template<typename iterator_>
+    static bool name_equal(memory_node *n, iterator_ begin, size_t size) {
+        if(static_cast<size_t>(n->name_end - n->name_begin) == size) {
+            auto ni = n->name_begin;
+            iterator_ i = begin;
+            while(*i == *ni && ++ni != n->name_end) ++i;
+            if(ni == n->name_end)
+                return true;
+        }
+        return false;
+    }
+
+    template<typename char2_>
+    static char2_ const* cend(char2_ const *a) {
+        if(a) while(*a) ++a;
+        return a;
+    }
+
+    static memory_node* first(memory_node *a) {
+        while(a->previous) a = a->previous;
+        return a;
+    }
+
+    static memory_node* last(memory_node *a) {
+        while(a->next) a = a->next;
+        return a;
+    }
+};
 
 }}
 #endif

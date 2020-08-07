@@ -10,10 +10,10 @@
 namespace water { namespace threads {
 
 using semaphore_list = list<
-	semaphore_semaphore,
-	semaphore_mach,
-	spin_semaphore<>
-	>;
+    semaphore_semaphore,
+    semaphore_mach,
+    spin_semaphore<>
+>;
 
 }}
 #endif

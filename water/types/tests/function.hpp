@@ -16,40 +16,42 @@ Test is_function
 
 */
 
-template<typename function_> struct
- list_from_function
- 	{};
-template<typename return_, typename ...arguments_> struct
- list_from_function<return_(arguments_...)> : list<arguments_...>
- 	{};
-template<typename function_> struct
- list_from_function<function_*> : list_from_function<function_>
- 	{};
+template<typename function_>
+struct list_from_function
+{};
+
+template<typename return_, typename ...arguments_>
+struct list_from_function<return_(arguments_...)> : list<arguments_...>
+{};
+
+template<typename function_>
+struct list_from_function<function_*> : list_from_function<function_>
+{};
 
 int constexpr assert1 =
-	type_assert<equal<
-		enum_result<3>,
-		size<list_from_function<void(int, int, int)>>
-		>>::assert +
-	type_assert<equal<
-		enum_result<0>,
-		size<list_from_function<void()>>
-		>>::assert +
-	type_assert<equal<
-		enum_result<2>,
-		size<list_from_function<int(*)(int, int)>>
-		>>::assert
-	;
+    type_assert<equal<
+        enum_result<3>,
+        size<list_from_function<void(int, int, int)>>
+    >>::assert +
+    type_assert<equal<
+        enum_result<0>,
+        size<list_from_function<void()>>
+    >>::assert +
+    type_assert<equal<
+        enum_result<2>,
+        size<list_from_function<int(*)(int, int)>>
+    >>::assert
+    ;
 
 int constexpr assert2 =
-	type_assert<nots<is_function<void>>>::assert +
-	type_assert<is_function<void()>>::assert +
-	type_assert<nots<is_function<int(*)()>>>::assert +
-	type_assert<is_function<no_pointer<int(*)(int)>>>::assert +
-	type_assert<is_function<int(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)>>::assert +
-	type_assert<is_function<int(...)>>::assert +
-	type_assert<is_function<int(int, ...)>>::assert +
-	type_assert<is_function<int(int, int, int, int, int, int, int, int, int, int, int, int, int, int, ...)>>::assert;
+    type_assert<nots<is_function<void>>>::assert +
+    type_assert<is_function<void()>>::assert +
+    type_assert<nots<is_function<int(*)()>>>::assert +
+    type_assert<is_function<no_pointer<int(*)(int)>>>::assert +
+    type_assert<is_function<int(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)>>::assert +
+    type_assert<is_function<int(...)>>::assert +
+    type_assert<is_function<int(int, ...)>>::assert +
+    type_assert<is_function<int(int, int, int, int, int, int, int, int, int, int, int, int, int, int, ...)>>::assert;
 
 }
 }}}

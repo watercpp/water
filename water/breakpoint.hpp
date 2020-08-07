@@ -14,53 +14,53 @@ If these do not work, make a function and set a breakpoint in it. Then define WA
 This tries to define WATER_BREAKPOINT to something that breaks into the debugger.
 Otherwise it will assert(0) that will probably call abort;
 
-*/ 
+*/
 
 #if \
 defined(WATER_COMPILER_MICROSOFT)
-	#define WATER_BREAKPOINT __debugbreak()
-	// vc8 has no inline asm for x86 64-bit, int3 would work on 32-bit only
+    #define WATER_BREAKPOINT __debugbreak()
+    // vc8 has no inline asm for x86 64-bit, int3 would work on 32-bit only
 
 #elif \
 defined(WATER_CPU_X86) && \
 defined(WATER_COMPILER_GCC)
-	#define WATER_BREAKPOINT asm("int3")
+    #define WATER_BREAKPOINT asm("int3")
 
 #elif \
 defined(WATER_CPU_X86) && \
 defined(WATER_COMPILER_CLANG)
-	#define WATER_BREAKPOINT __asm__("int $3")
+    #define WATER_BREAKPOINT __asm__("int $3")
 
 #elif \
 defined(WATER_SYSTEM_POSIX)
-	#include <signal.h>
-	// SIGTRAP is xopen
-	#if \
-	defined(_XOPEN_SOURCE) || \
-	defined(SIGTRAP)
-		#define WATER_BREAKPOINT ::raise(SIGTRAP)
-	#else
-		#define WATER_BREAKPOINT ::raise(SIGSTOP)
-	#endif
+    #include <signal.h>
+    // SIGTRAP is xopen
+    #if \
+    defined(_XOPEN_SOURCE) || \
+    defined(SIGTRAP)
+        #define WATER_BREAKPOINT ::raise(SIGTRAP)
+    #else
+        #define WATER_BREAKPOINT ::raise(SIGSTOP)
+    #endif
 
 #elif \
 defined(WATER_SYSTEM_WINDOWS)
-	#include <water/windows.hpp>
-	namespace water { namespace breakpoint_hpp {
-		WATER_WINDOWS_FUNCTION(void, DebugBreak, ());
-		}}
-	#define WATER_BREAKPOINT ::water::breakpoint_hpp::DebugBreak()
+    #include <water/windows.hpp>
+    namespace water { namespace breakpoint_hpp {
+        WATER_WINDOWS_FUNCTION(void, DebugBreak, ());
+    }}
+    #define WATER_BREAKPOINT ::water::breakpoint_hpp::DebugBreak()
 
 #else
-	#ifndef assert // assert.h would redefine it
-		#ifdef WATER_NO_CHEADERS
-			#include <assert.h>
-		#else
-			#include <cassert>
-		#endif
-	#endif
-	#define WATER_BREAKPOINT assert(0)
+    #ifndef assert // assert.h would redefine it
+        #ifdef WATER_NO_CHEADERS
+            #include <assert.h>
+        #else
+            #include <cassert>
+        #endif
+    #endif
+    #define WATER_BREAKPOINT assert(0)
 
 #endif
-		
+
 #endif

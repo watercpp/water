@@ -10,34 +10,34 @@
 #include <water/threads/mutex.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename mutex_> struct
- mutex_all_tests {
-  mutex_all_tests() {
- 		mutex_functions<mutex_>();
- 		mutex_count<mutex_>();
- 		}
- 	};
+template<typename mutex_>
+struct mutex_all_tests {
+    mutex_all_tests() {
+        mutex_functions<mutex_>();
+        mutex_count<mutex_>();
+    }
+};
 
 inline void mutex_all() {
-	test_list<mutex_all_tests, mutex_list>();
-	}
+    test_list<mutex_all_tests, mutex_list>();
+}
 
-//inline void mutex_all() {
-	//mutex<> m1;
-	//mutex<need_water> m2;
-	//mutex<need_system> m3;
-	//mutex<need_water, need_trivial_destructor> m4;
-	//auto l1 = lock_move(m1);
-	//auto w2 = lock(m2, 0.5);
-	//___water_test(w2);
-	//auto u2 = unlock_move(m2);
-	//auto t3 = try_lock(m3);
-	//___water_test(t3);
-	//unlock(m3);
-	//auto t4 = try_lock(m4);
-	//___water_test(t4);
-	//unlock(m4);
-//	}
+/*inline void mutex_all() {
+    mutex<> m1;
+    mutex<need_water> m2;
+    mutex<need_system> m3;
+    mutex<need_water, need_trivial_destructor> m4;
+    auto l1 = lock_move(m1);
+    auto w2 = lock(m2, 0.5);
+    ___water_test(w2);
+    auto u2 = unlock_move(m2);
+    auto t3 = try_lock(m3);
+    ___water_test(t3);
+    unlock(m3);
+    auto t4 = try_lock(m4);
+    ___water_test(t4);
+    unlock(m4);
+}*/
 
 }}}
 #endif

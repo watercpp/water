@@ -22,18 +22,18 @@ nots<>::result is true
 
 */
 
-template<typename ...list_> struct
- nots;
+template<typename ...list_>
+struct nots;
 
-template<typename at_, typename ...list_> struct
- nots<at_, list_...> :
-	ifel<to_bool<at_>::result, false_result, nots<list_...>>
-		{};
+template<typename at_, typename ...list_>
+struct nots<at_, list_...> :
+    ifel<to_bool<at_>::result, false_result, nots<list_...>>
+{};
 
-template<> struct
- nots<> :
-	true_result
-		{};
+template<>
+struct nots<> :
+    true_result
+{};
 
 }}
 #endif

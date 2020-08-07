@@ -7,16 +7,20 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename> struct do_is_float : false_result {};
-	template<> struct do_is_float<float> : true_result {};
-	template<> struct do_is_float<double> : true_result {};
-	template<> struct do_is_float<long double> : true_result {};
-	}
 
-template<typename type_> struct
- is_float :
-	_::do_is_float<typename type<type_>::result>
-		{};
+    template<typename>
+    struct do_is_float : false_result {};
+    
+    template<> struct do_is_float<float> : true_result {};
+    template<> struct do_is_float<double> : true_result {};
+    template<> struct do_is_float<long double> : true_result {};
+    
+}
+
+template<typename type_>
+struct is_float :
+    _::do_is_float<typename type<type_>::result>
+{};
 
 }}
 #endif

@@ -8,9 +8,9 @@
 namespace water { namespace threads {
 
 inline void yield() noexcept {
-	SwitchToThread(); //returns true if it did switch to another
-	//could use Sleep(0)
-	}
+    SwitchToThread(); //returns true if it did switch to another
+    //could use Sleep(0)
+}
 
 }}
 #endif

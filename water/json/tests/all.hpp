@@ -10,10 +10,10 @@
 namespace water { namespace json { namespace tests {
 
 inline void all() {
-	create();
-	number_conversion();
-	utf();
-	}
+    create();
+    number_conversion();
+    utf();
+}
 
 }}}
 #endif

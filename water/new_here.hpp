@@ -4,7 +4,6 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_NEW_HERE_HPP
 #define WATER_NEW_HERE_HPP
-namespace water {
 
 /*
 
@@ -15,18 +14,20 @@ type* t = new(water::here(buffer)) type;
 
 */
 
-struct here {
-	void* pointer;
-	explicit here(void *pointer) noexcept : pointer(pointer) {}
-	};
+namespace water {
+
+    struct here {
+        void* pointer;
+        explicit here(void *pointer) noexcept : pointer(pointer) {}
+    };
 
 }
 
 inline void* operator new(decltype(sizeof(0)), water::here const& a) noexcept {
-	return a.pointer;
-	}
+    return a.pointer;
+}
 
 inline void operator delete(void*, water::here const&) noexcept
-	{}
+{}
 
 #endif

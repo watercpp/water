@@ -8,8 +8,8 @@
 namespace water { namespace threads {
 
 using condition_list = list<
-	pthread_cond
-	>;
+    pthread_cond
+>;
 
 }}
 #endif

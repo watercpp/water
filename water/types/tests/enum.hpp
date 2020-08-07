@@ -17,18 +17,18 @@ int constexpr i = static_cast<int>(type3::value3);
 struct not_enum {};
 
 int constexpr assert1 =
-	type_assert<is_enum<type1>>::assert +
-	type_assert<is_enum<type2>>::assert +
-	type_assert<is_enum<type3>>::assert +
-	type_assert<nots<is_enum<type1&>>>::assert +
-	type_assert<nots<is_enum<type2 const>>>::assert +
-	type_assert<nots<is_enum<type3 volatile>>>::assert +
-	type_assert<nots<is_enum<type3&&>>>::assert +
-	type_assert<nots<is_enum<type1 const volatile&>>>::assert +
-	type_assert<nots<is_enum<int>>>::assert +
-	type_assert<nots<is_enum<void>>>::assert +
-	type_assert<nots<is_enum<not_enum>>>::assert +
-	type_assert<nots<is_enum<not_enum*>>>::assert;
+    type_assert<is_enum<type1>>::assert +
+    type_assert<is_enum<type2>>::assert +
+    type_assert<is_enum<type3>>::assert +
+    type_assert<nots<is_enum<type1&>>>::assert +
+    type_assert<nots<is_enum<type2 const>>>::assert +
+    type_assert<nots<is_enum<type3 volatile>>>::assert +
+    type_assert<nots<is_enum<type3&&>>>::assert +
+    type_assert<nots<is_enum<type1 const volatile&>>>::assert +
+    type_assert<nots<is_enum<int>>>::assert +
+    type_assert<nots<is_enum<void>>>::assert +
+    type_assert<nots<is_enum<not_enum>>>::assert +
+    type_assert<nots<is_enum<not_enum*>>>::assert;
 
 }
 }}}

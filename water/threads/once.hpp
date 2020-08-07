@@ -10,16 +10,15 @@ namespace water { namespace threads {
 
 #if 0
 
-class
- once {
-	public:
-		constexpr once() noexcept = default;
-		once(once const&) = delete;
-		once& operator=(once const&) = delete;
-		void operator()(void (*function)());
-			// calls function(), do not throw from it
-			// threads::panic() if it fails
-	};
+class once {
+public:
+    constexpr once() noexcept = default;
+    once(once const&) = delete;
+    once& operator=(once const&) = delete;
+    void operator()(void (*function)());
+        // calls function(), do not throw from it
+        // threads::panic() if it fails
+};
 
 #endif
 

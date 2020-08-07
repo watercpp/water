@@ -8,12 +8,12 @@
 namespace water { namespace tests { namespace vectors {
 
 class value_simple {
-	int i = 123;
-	float f = 456.789f;
-	void set(int a) {
-		f = static_cast<float>(i = a);
-		}
-	};
+    int i = 123;
+    float f = 456.789f;
+    void set(int a) {
+        f = static_cast<float>(i = a);
+    }
+};
 
 }}}
 #endif

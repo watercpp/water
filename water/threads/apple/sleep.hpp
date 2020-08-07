@@ -8,9 +8,9 @@
 namespace water { namespace threads {
 
 inline bool sleep(deadline_mach d) {
-	// if d.time() is 0 it will sleep forever
-	return d.passed() || mach_wait_until(d.time()) == 0;
-	}
+    // if d.time() is 0 it will sleep forever
+    return d.passed() || mach_wait_until(d.time()) == 0;
+}
 
 }}
 #endif

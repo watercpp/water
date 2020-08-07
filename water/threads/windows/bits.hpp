@@ -7,7 +7,7 @@
 #include <water/threads/bits.hpp>
 #include <water/windows.hpp>
 #ifdef WATER_THREADS_STATISTICS
-	#include <water/threads/statistics/statistics.hpp>
+    #include <water/threads/statistics/statistics.hpp>
 #endif
 namespace water { namespace threads {
 
@@ -24,21 +24,21 @@ using windows_size_t = ulongptr_t;
 using security_attributes_t = void*;
 
 struct synchronization_barrier_t {
-	dword_t reserved1;                        
-	dword_t reserved2;                        
-	ulongptr_t reserved3[2];                 
-	dword_t reserved4;                        
-	dword_t reserved5;  
-	};
+    dword_t reserved1;
+    dword_t reserved2;
+    ulongptr_t reserved3[2];
+    dword_t reserved4;
+    dword_t reserved5;
+};
 
 struct critical_section_t {
-	void *debug_info;
-	long_t lock_count;
-	long_t recursion_count;
-	void *owning_thread;
-	void *lock_semaphore;
-	ulongptr_t spin_count;
-	};
+    void *debug_info;
+    long_t lock_count;
+    long_t recursion_count;
+    void *owning_thread;
+    void *lock_semaphore;
+    ulongptr_t spin_count;
+};
 
 struct condition_variable_t { void* pointer; };
 struct init_once_t { void* pointer; };
@@ -66,8 +66,8 @@ using init_once_t = INIT_ONCE;
 using srwlock_t = SRWLOCK;
 
 #if WATER_WINDOWS_VERSION >= WATER_WINDOWS_8
-	// only for windows desktop apps, not store apps
-	using synchronization_barrier_t = SYNCHRONIZATION_BARRIER;
+    // only for windows desktop apps, not store apps
+    using synchronization_barrier_t = SYNCHRONIZATION_BARRIER;
 #endif
 
 #endif
@@ -128,109 +128,138 @@ WATER_WINDOWS_FUNCTION(bool_t, SleepConditionVariableSRW, (condition_variable_t*
 WATER_WINDOWS_FUNCTION(bool_t, InitOnceExecuteOnce, (init_once_t*, bool_t (WATER_WINDOWS_CALLTYPE*)(init_once_t*, void*, void**), void *pointer, void **return_));
 
 #if WATER_WINDOWS_VERSION >= WATER_WINDOWS_8
-	
-	WATER_WINDOWS_FUNCTION(bool_t, DeleteSynchronizationBarrier, (synchronization_barrier_t*));
-	WATER_WINDOWS_FUNCTION(bool_t, EnterSynchronizationBarrier, (synchronization_barrier_t*, dword_t));
-	WATER_WINDOWS_FUNCTION(bool_t, InitializeSynchronizationBarrier, (synchronization_barrier_t*, long_t count, long_t spin_count));
+    
+    WATER_WINDOWS_FUNCTION(bool_t, DeleteSynchronizationBarrier, (synchronization_barrier_t*));
+    WATER_WINDOWS_FUNCTION(bool_t, EnterSynchronizationBarrier, (synchronization_barrier_t*, dword_t));
+    WATER_WINDOWS_FUNCTION(bool_t, InitializeSynchronizationBarrier, (synchronization_barrier_t*, long_t count, long_t spin_count));
 
-	WATER_WINDOWS_FUNCTION(bool_t, WaitOnAddress, (void volatile* address, void *compare, windows_size_t size, dword_t milli));
-	WATER_WINDOWS_FUNCTION(void, WakeByAddressSingle, (void*));
-	WATER_WINDOWS_FUNCTION(void, WakeByAddressAll, (void*));
+    WATER_WINDOWS_FUNCTION(bool_t, WaitOnAddress, (void volatile* address, void *compare, windows_size_t size, dword_t milli));
+    WATER_WINDOWS_FUNCTION(void, WakeByAddressSingle, (void*));
+    WATER_WINDOWS_FUNCTION(void, WakeByAddressAll, (void*));
 
 #endif
 
 dword_t const
-	wait_forever           = WATER_WINDOWS_SELECT(INFINITE, 0xfffffffful),
-	wait_timeout           = WATER_WINDOWS_SELECT(WAIT_TIMEOUT, 0x102),
-	event_synchronize      = WATER_WINDOWS_SELECT(SYNCHRONIZE, 0x100000ul),
-	event_modify_state     = WATER_WINDOWS_SELECT(EVENT_MODIFY_STATE, 0x2),
-	event_all_access       = WATER_WINDOWS_SELECT(EVENT_ALL_ACCESS, 0x1f0003ul),
-	semaphore_synchronize  = WATER_WINDOWS_SELECT(SYNCHRONIZE, event_synchronize),
-	mutex_modify_state     = WATER_WINDOWS_SELECT(EVENT_MODIFY_STATE, 0x1),
-	semaphore_modify_state = WATER_WINDOWS_SELECT(SEMAPHORE_MODIFY_STATE, event_modify_state),
-	semaphore_all_access   = WATER_WINDOWS_SELECT(SEMAPHORE_ALL_ACCESS, event_all_access),
-	realtime_priority_class  = WATER_WINDOWS_SELECT(REALTIME_PRIORITY_CLASS, 0x100),
-	thread_create_suspended  = WATER_WINDOWS_SELECT(CREATE_SUSPENDED, 0x4),
-	thread_set_information   = WATER_WINDOWS_SELECT(THREAD_SET_INFORMATION, 0x20),
-	thread_query_information = WATER_WINDOWS_SELECT(THREAD_QUERY_INFORMATION, 0x40);
+    wait_forever           = WATER_WINDOWS_SELECT(INFINITE, 0xfffffffful),
+    wait_timeout           = WATER_WINDOWS_SELECT(WAIT_TIMEOUT, 0x102),
+    event_synchronize      = WATER_WINDOWS_SELECT(SYNCHRONIZE, 0x100000ul),
+    event_modify_state     = WATER_WINDOWS_SELECT(EVENT_MODIFY_STATE, 0x2),
+    event_all_access       = WATER_WINDOWS_SELECT(EVENT_ALL_ACCESS, 0x1f0003ul),
+    semaphore_synchronize  = WATER_WINDOWS_SELECT(SYNCHRONIZE, event_synchronize),
+    mutex_modify_state     = WATER_WINDOWS_SELECT(EVENT_MODIFY_STATE, 0x1),
+    semaphore_modify_state = WATER_WINDOWS_SELECT(SEMAPHORE_MODIFY_STATE, event_modify_state),
+    semaphore_all_access   = WATER_WINDOWS_SELECT(SEMAPHORE_ALL_ACCESS, event_all_access),
+    realtime_priority_class  = WATER_WINDOWS_SELECT(REALTIME_PRIORITY_CLASS, 0x100),
+    thread_create_suspended  = WATER_WINDOWS_SELECT(CREATE_SUSPENDED, 0x4),
+    thread_set_information   = WATER_WINDOWS_SELECT(THREAD_SET_INFORMATION, 0x20),
+    thread_query_information = WATER_WINDOWS_SELECT(THREAD_QUERY_INFORMATION, 0x40);
 
 int const
-	thread_priority_idle          = WATER_WINDOWS_SELECT(THREAD_PRIORITY_IDLE, -15),
-	thread_priority_normal        = WATER_WINDOWS_SELECT(THREAD_PRIORITY_NORMAL, 0),
-	thread_priority_time_critical = WATER_WINDOWS_SELECT(THREAD_PRIORITY_TIME_CRITICAL, 15);
-	// THREAD_PRIORITY_ERROR_RETURN is 32-bit int-max
+    thread_priority_idle          = WATER_WINDOWS_SELECT(THREAD_PRIORITY_IDLE, -15),
+    thread_priority_normal        = WATER_WINDOWS_SELECT(THREAD_PRIORITY_NORMAL, 0),
+    thread_priority_time_critical = WATER_WINDOWS_SELECT(THREAD_PRIORITY_TIME_CRITICAL, 15);
+    // THREAD_PRIORITY_ERROR_RETURN is 32-bit int-max
 
 void *const handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
 
 using handle_atomic = atomic<void*>;
 
 inline dword_t handle_wait(void *handle, dword_t milli = wait_forever) noexcept {
-	___water_assert(handle);
-	dword_t error = WaitForSingleObject(handle, milli);
-	___water_assert(!error || (milli != wait_forever && error == wait_timeout));
-	return error;
-	}
+    ___water_assert(handle);
+    dword_t error = WaitForSingleObject(handle, milli);
+    ___water_assert(!error || (milli != wait_forever && error == wait_timeout));
+    return error;
+}
 
 inline dword_t handle_wait_any(void *handle0, void *handle1, dword_t milli = wait_forever) noexcept {
-	___water_assert(handle0 && handle1);
-	void *h[2] = { handle0, handle1 };
-	dword_t error = WaitForMultipleObjects(2, h, 0, milli);
-	___water_assert(error < 2 || (milli != wait_forever && error == wait_timeout));
-	return error;
-	}
+    ___water_assert(handle0 && handle1);
+    void *h[2] = { handle0, handle1 };
+    dword_t error = WaitForMultipleObjects(2, h, 0, milli);
+    ___water_assert(error < 2 || (milli != wait_forever && error == wait_timeout));
+    return error;
+}
 
-class handle_close {
-	void *my;
-	public:
-		explicit handle_close(void *a = 0) noexcept : my(a) {}
-		~handle_close() noexcept { if(my) CloseHandle(my); }
-		handle_close(handle_close const&) = delete;
-		handle_close& operator=(handle_close const&) = delete;
-		void* get() const noexcept { return my; }
-		void set(void *a) noexcept { my = a; }
-	};
 
-class handle_hold {
-	void *my;
-	public:
-		explicit handle_hold(void *a = 0) noexcept : my(a) {}
-		void* get() const noexcept { return my; }
-		void set(void *a) noexcept { my = a; }
-	};
+class handle_close
+{
+    void *my;
+
+public:
+    explicit handle_close(void *a = 0) noexcept :
+        my(a)
+    {}
+    
+    ~handle_close() noexcept {
+        if(my)
+            CloseHandle(my);
+    }
+    
+    handle_close(handle_close const&) = delete;
+    handle_close& operator=(handle_close const&) = delete;
+    
+    void* get() const noexcept {
+        return my;
+    }
+    
+    void set(void *a) noexcept {
+        my = a;
+    }
+};
+
+
+class handle_hold
+{
+    void *my;
+
+public:
+    explicit handle_hold(void *a = 0) noexcept :
+        my(a)
+    {}
+    
+    void* get() const noexcept {
+        return my;
+    }
+    
+    void set(void *a) noexcept {
+        my = a;
+    }
+};
+
 
 inline dword_t milli_from_seconds(double a) noexcept {
-	a *= 1e3;
-	return a < 0.5 ? 0 : static_cast<dword_t>(a + 0.5);
-	}
+    a *= 1e3;
+    return a < 0.5 ? 0 : static_cast<dword_t>(a + 0.5);
+}
 
-template<typename create_> void* atomic_create(handle_atomic& handle, create_ create) noexcept {
-	// this uses
-	// - handle == 0 means not inited
-	// - handle == handle_bad (INVALID_HANDLE_VALUE) means locked, someone else is initing (yield() then retry)
-	// - anything else means it is inited
-	//
-	// because UnregisterWaitEx and DeleteTimerQueueEx, event-handles cannot be INVALID_HANDLE_VALUE, but other handles could
-	// 
-	// if create() returns INVALID_HANDLE_VALUE, that handle will leak
-	//   
-	void *h;
-	while(!handle.compare_exchange_strong(h = 0, static_cast<void*>(handle_bad), memory_order_acquire) && h == handle_bad)
-		if(!SwitchToThread())
-			Sleep(1);
-	if(!h) {
-		if((h = create()) == handle_bad) {
-			___water_assert(h != handle_bad && "create() returned INVALID_HANDLE_VALUE");
-			h = 0; // leak it
-			}
-		handle.store(h);
-		}
-	return h;
-	}
+template<typename create_>
+void* atomic_create(handle_atomic& handle, create_ create) noexcept {
+    // this uses
+    // - handle == 0 means not inited
+    // - handle == handle_bad (INVALID_HANDLE_VALUE) means locked, someone else is initing (yield() then retry)
+    // - anything else means it is inited
+    //
+    // because UnregisterWaitEx and DeleteTimerQueueEx, event-handles cannot be INVALID_HANDLE_VALUE, but other handles could
+    //
+    // if create() returns INVALID_HANDLE_VALUE, that handle will leak
+    //
+    void *h;
+    while(!handle.compare_exchange_strong(h = 0, static_cast<void*>(handle_bad), memory_order_acquire) && h == handle_bad)
+        if(!SwitchToThread())
+            Sleep(1);
+    if(!h) {
+        if((h = create()) == handle_bad) {
+            ___water_assert(h != handle_bad && "create() returned INVALID_HANDLE_VALUE");
+            h = 0; // leak it
+        }
+        handle.store(h);
+    }
+    return h;
+}
 
 inline void* semaphore_create(long_t value = 0, wchar_t const* name = 0) noexcept {
-	___water_assert(value >= 0);
-	return CreateSemaphoreW(0, value, numeric_limits<long_t>::max(), name);
-	}
+    ___water_assert(value >= 0);
+    return CreateSemaphoreW(0, value, numeric_limits<long_t>::max(), name);
+}
 
 }}
 #endif

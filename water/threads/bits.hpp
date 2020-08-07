@@ -21,55 +21,63 @@ struct need_spin                  { static unsigned constexpr need = 1 << 6; }; 
 struct need_nothing               { static unsigned constexpr need = 0; };
 
 namespace _ {
-	template<unsigned n_, typename ...b_> struct
-	 needs_do;
-	template<unsigned n_, typename a_, typename ...b_> struct
-	 needs_do<n_, a_, b_...> : needs_do<n_ | a_::need, b_...>
-		{};
-	template<unsigned n_> struct
-	 needs_do<n_> {
-		static unsigned constexpr need = n_;
-		};
+    
+    template<unsigned n_, typename ...b_>
+    struct needs_do;
+    
+    template<unsigned n_, typename a_, typename ...b_>
+    struct needs_do<n_, a_, b_...> : needs_do<n_ | a_::need, b_...>
+    {};
+    
+    template<unsigned n_>
+    struct needs_do<n_> {
+        static unsigned constexpr need = n_;
+    };
 }
 
-template<typename ...needs_> struct
- needs : _::needs_do<0, needs_...>
-	{};
+template<typename ...needs_>
+struct needs : _::needs_do<0, needs_...>
+{};
 
-template<typename ...> struct
- list
- 	{};
+template<typename ...>
+struct list
+{};
 
 namespace _ {
-	template<unsigned needs_, typename ...list_> struct
-	 need_select_do;
-	template<unsigned needs_, typename type_, typename ...list_> struct
-	 need_select_do<needs_, type_, list_...> :
-		types::ifel<
-			type_::needs::need &&
-			(needs_ & type_::needs::need) == needs_ &&
-			(needs_ & need_spin::need) == (type_::needs::need & need_spin::need), // select spin variant only if asked for
-			type_,
-			need_select_do<needs_, list_...>
-			> {};
-	template<unsigned need_> struct
-	 need_select_do<need_> :	
-		types::type<void>
-	 		{};
-	}
-template<typename needs_, typename list_> struct
- need_select;
-template<typename needs_, typename ...list_> struct
- need_select<needs_, list<list_...>> :
-	#ifndef WATER_THREADS_PREFER_WATER
-	_::need_select_do<needs_::need, list_...>
-	#else
-	types::if_not_void<
-		_::need_select_do<(needs_::need & need_system::need) ? needs_::need : (needs_::need | need_water::need), list_...>,
-		_::need_select_do<needs_::need, list_...>
-		>
-	#endif
-		{};
+    
+    template<unsigned needs_, typename ...list_>
+    struct need_select_do;
+    
+    template<unsigned needs_, typename type_, typename ...list_>
+    struct need_select_do<needs_, type_, list_...> :
+        types::ifel<
+            type_::needs::need &&
+            (needs_ & type_::needs::need) == needs_ &&
+            (needs_ & need_spin::need) == (type_::needs::need & need_spin::need), // select spin variant only if asked for
+            type_,
+            need_select_do<needs_, list_...>
+        > {};
+    
+    template<unsigned need_>
+    struct need_select_do<need_> :
+        types::type<void>
+        {};
+}
+
+template<typename needs_, typename list_>
+struct need_select;
+
+template<typename needs_, typename ...list_>
+struct need_select<needs_, list<list_...>> :
+    #ifndef WATER_THREADS_PREFER_WATER
+    _::need_select_do<needs_::need, list_...>
+    #else
+    types::if_not_void<
+        _::need_select_do<(needs_::need & need_system::need) ? needs_::need : (needs_::need | need_water::need), list_...>,
+        _::need_select_do<needs_::need, list_...>
+    >
+    #endif
+    {};
 
 template<typename type_> constexpr bool is_system()                 { return (type_::needs::need & need_system::need) != 0; }
 template<typename type_> constexpr bool is_water()                  { return (type_::needs::need & need_water::need) != 0; }
@@ -84,18 +92,20 @@ template<typename type_> constexpr bool has_trivial_destructor()    { return (ty
 // it could throw an exception, terminate
 
 inline void panic() {
-	#ifdef WATER_THREADS_PANIC
-	WATER_THREADS_PANIC;
-	#endif
-	}
+    #ifdef WATER_THREADS_PANIC
+    WATER_THREADS_PANIC;
+    #endif
+}
 
-template<typename bool_> void panic_if(bool_ a) {
-	if(a) panic();
-	}
+template<typename bool_>
+void panic_if(bool_ a) {
+    if(a) panic();
+}
 
-template<typename bool_> void panic_if_not(bool_ a) {
-	if(!a) panic();
-	}
+template<typename bool_>
+void panic_if_not(bool_ a) {
+    if(!a) panic();
+}
 
 }}
 #endif

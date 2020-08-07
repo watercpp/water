@@ -25,39 +25,39 @@ char const*const text_end = text + sizeof(text) - 1;
 
 
 inline bool basic() {
-	vector<char> destination;
-	
-	unsigned spaces_or_tab = 4; // indent with 4 spaces
-	auto indent = indent_to(
-		[&destination](char a) { destination.push_back(a); },
-		spaces_or_tab
-		);
-	
-	indent(text_begin, text_end);
-	
-	return !destination.empty();
-	}
+    vector<char> destination;
+    
+    unsigned spaces_or_tab = 4; // indent with 4 spaces
+    auto indent = indent_to(
+        [&destination](char a) { destination.push_back(a); },
+        spaces_or_tab
+    );
+    
+    indent(text_begin, text_end);
+    
+    return !destination.empty();
+}
 
 
 
 // To write a json::node tree as indented JSON text, combine indent with json::write
 
 inline bool indent_nodes() {
-	json::memory<> memory;
-	auto nodes = read_to_memory(memory)(text_begin, text_end).nodes();
-	
-	vector<char> destination;
-	
-	unsigned spaces_or_tab = '\t'; // indent with tab
-	auto indent = indent_to(
-		[&destination](char a) { destination.push_back(a); },
-		spaces_or_tab
-		);
-	
-	write(indent, nodes);
-	
-	return !destination.empty();
-	}
+    json::memory<> memory;
+    auto nodes = read_to_memory(memory)(text_begin, text_end).nodes();
+    
+    vector<char> destination;
+    
+    unsigned spaces_or_tab = '\t'; // indent with tab
+    auto indent = indent_to(
+        [&destination](char a) { destination.push_back(a); },
+        spaces_or_tab
+    );
+    
+    write(indent, nodes);
+    
+    return !destination.empty();
+}
 
 
 
@@ -65,19 +65,19 @@ inline bool indent_nodes() {
 // When spaces_or_tab is 0 it will minify everything to a single line instead of indent.
 
 inline bool loop_and_minify() {
-	vector<char> destination;
-	
-	unsigned spaces_or_tab = 0; // minify
-	auto indent = indent_to(
-		[&destination](char a) { destination.push_back(a); },
-		spaces_or_tab
-		);
-	
-	for(auto t = text_begin; t != text_end; ++t)
-		indent(t, t + 1);
-	
-	return !destination.empty();
-	}
+    vector<char> destination;
+    
+    unsigned spaces_or_tab = 0; // minify
+    auto indent = indent_to(
+        [&destination](char a) { destination.push_back(a); },
+        spaces_or_tab
+    );
+    
+    for(auto t = text_begin; t != text_end; ++t)
+        indent(t, t + 1);
+    
+    return !destination.empty();
+}
 
 
 }}}}

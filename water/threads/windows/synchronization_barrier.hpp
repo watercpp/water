@@ -9,53 +9,63 @@ namespace water { namespace threads {
 
 #if WATER_WINDOWS_VERSION >= WATER_WINDOWS_8
 
-class synchronization_barrier {
-	public:
-		using needs = threads::needs<need_system>;
-	private:
-		synchronization_barrier_t my;
-		unsigned mycount = 0;
-	public:
-		synchronization_barrier(unsigned count) noexcept {
-			if(!count) count = 1;
-			if(InitializeSynchronizationBarrier(&my, count, 0))
-				mycount = count;
-			___water_assert(mycount);
-			}
-		~synchronization_barrier() noexcept {
-			if(mycount) DeleteSynchronizationBarrier(&my);
-			}
-		synchronization_barrier(synchronization_barrier const&) = delete;
-		synchronization_barrier& operator=(synchronization_barrier const&) = delete;
-		bool reset(unsigned count) noexcept {
-			if(!count) count = 1;
-			if(count == mycount) return true;
-			if(mycount) DeleteSynchronizationBarrier(&my);
-			if(InitializeSynchronizationBarrier(&my, count, 0)) {
-				mycount = count;
-				return true;
-				}
-			mycount = 0;
-			___water_assert(mycount);
-			return false;
-			}
-		explicit operator bool() const noexcept {
-			return mycount != 0;
-			}
-		bool operator()() noexcept {
-			return EnterSynchronizationBarrier(&my, 0) != 0;
-			}
-		synchronization_barrier_t& underlying() noexcept {
-			return my;
-			}
-	};
+class synchronization_barrier
+{
+public:
+    using needs = threads::needs<need_system>;
+
+private:
+    synchronization_barrier_t my;
+    unsigned mycount = 0;
+
+public:
+    synchronization_barrier(unsigned count) noexcept {
+        if(!count) count = 1;
+        if(InitializeSynchronizationBarrier(&my, count, 0))
+            mycount = count;
+        ___water_assert(mycount);
+    }
+
+    ~synchronization_barrier() noexcept {
+        if(mycount) DeleteSynchronizationBarrier(&my);
+    }
+
+    synchronization_barrier(synchronization_barrier const&) = delete;
+    synchronization_barrier& operator=(synchronization_barrier const&) = delete;
+
+    bool reset(unsigned count) noexcept {
+        if(!count) count = 1;
+        if(count == mycount) return true;
+        if(mycount) DeleteSynchronizationBarrier(&my);
+        if(InitializeSynchronizationBarrier(&my, count, 0)) {
+            mycount = count;
+            return true;
+        }
+        mycount = 0;
+        ___water_assert(mycount);
+        return false;
+    }
+
+    explicit operator bool() const noexcept {
+        return mycount != 0;
+    }
+
+    bool operator()() noexcept {
+        return EnterSynchronizationBarrier(&my, 0) != 0;
+    }
+
+    synchronization_barrier_t& underlying() noexcept {
+        return my;
+    }
+};
 
 #else
 
-class synchronization_barrier {
-	public:
-		using needs = threads::needs<>;
-	};
+class synchronization_barrier
+{
+public:
+    using needs = threads::needs<>;
+};
 
 #endif
 

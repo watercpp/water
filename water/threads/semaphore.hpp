@@ -8,24 +8,24 @@
 #include WATER_THREADS_INCLUDE(semaphore.hpp)
 namespace water { namespace threads {
 
-template<typename ...needs_> using
- semaphore = typename need_select<needs<needs_...>, semaphore_list>::result;
+template<typename ...needs_>
+using semaphore = typename need_select<needs<needs_...>, semaphore_list>::result;
 
 #if 0
 
-template<typename ...needs_> class
- semaphore {
-	public:
-		semaphore(unsigned value = 0);
-		semaphore(semaphore const&) = delete;
-		semaphore& operator=(semaphore const&) = delete;
-		explicit operator bool() const; // true if constructed ok
-		bool down();
-		bool down(double seconds);
-		bool down(deadline);
-		bool try_down();
-		bool up();
-	};
+template<typename ...needs_>
+class semaphore {
+public:
+    semaphore(unsigned value = 0);
+    semaphore(semaphore const&) = delete;
+    semaphore& operator=(semaphore const&) = delete;
+    explicit operator bool() const; // true if constructed ok
+    bool down();
+    bool down(double seconds);
+    bool down(deadline);
+    bool try_down();
+    bool up();
+};
 
 #endif
 

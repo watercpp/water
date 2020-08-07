@@ -21,14 +21,14 @@ Use xml::read to parse XML text. The function xml::read_to_memory creates a xml:
 
 char constexpr text[] = u8R"###(<?xml version="1.1" encoding="UTF-8"?>
 
-	<room>
-		text
-		<thing upside_down="yes">
-			<description>butter sandwich</description>
-			<location>floor</location>
-		</thing>
-		more text
-	</room>
+    <room>
+        text
+        <thing upside_down="yes">
+            <description>butter sandwich</description>
+            <location>floor</location>
+        </thing>
+        more text
+    </room>
 
 )###";
 
@@ -38,38 +38,38 @@ char const*const text_end = text + sizeof(text) - 1;
 
 
 inline bool basic1() {
-	xml::memory<> memory;
-	auto nodes = read_to_memory(memory)(text_begin, text_end).nodes();
-	if(!nodes)
-		return false; // if it was not valid XML
-	
-	// use the xml::node tree
-	return
-		nodes.nodes("thing").nodes("description").first_value() == "butter sandwich" &&
-		nodes.nodes("thing").attributes("upside_down").value() == "yes";
-	}
+    xml::memory<> memory;
+    auto nodes = read_to_memory(memory)(text_begin, text_end).nodes();
+    if(!nodes)
+        return false; // if it was not valid XML
+    
+    // use the xml::node tree
+    return
+        nodes.nodes("thing").nodes("description").first_value() == "butter sandwich" &&
+        nodes.nodes("thing").attributes("upside_down").value() == "yes";
+}
 
 
 
 // The exact same thing, but without the auto keyword and read_to_memory function
 
 inline bool basic2() {
-	xml::memory<> memory;
-	xml::read<char, xml::memory<>> read{memory};
-	read(text_begin, text_end);
-	if(!read)
-		return false; // if it was not valid xml
-	xml::node<> nodes = read.nodes();
-	
-	// use the xml::node tree
-	xml::node<> thing_description = nodes.nodes("thing").nodes("description");
-	xml::node<> thing_upside_down_attribute = nodes.nodes("thing").attributes("upside_down");
-	xml::text<char const*> description = thing_description.first_value();
-	xml::text<char const*> upside_down = thing_upside_down_attribute.value();
-	return
-		description == "butter sandwich" &&
-		upside_down == "yes";
-	}
+    xml::memory<> memory;
+    xml::read<char, xml::memory<>> read{memory};
+    read(text_begin, text_end);
+    if(!read)
+        return false; // if it was not valid xml
+    xml::node<> nodes = read.nodes();
+    
+    // use the xml::node tree
+    xml::node<> thing_description = nodes.nodes("thing").nodes("description");
+    xml::node<> thing_upside_down_attribute = nodes.nodes("thing").attributes("upside_down");
+    xml::text<char const*> description = thing_description.first_value();
+    xml::text<char const*> upside_down = thing_upside_down_attribute.value();
+    return
+        description == "butter sandwich" &&
+        upside_down == "yes";
+}
 
 
 
@@ -78,28 +78,28 @@ inline bool basic2() {
 // using xml::read.parse_in_place.
 
 inline void copy_memory(void *to, void const *from, size_t bytes) {
-	auto t = static_cast<unsigned char*>(to);
-	auto f = static_cast<unsigned char const*>(from);
-	while(bytes--) *t++ = *f++;
-	}
-	
+    auto t = static_cast<unsigned char*>(to);
+    auto f = static_cast<unsigned char const*>(from);
+    while(bytes--) *t++ = *f++;
+}
+
 inline bool parse_in_place() {
-	xml::memory<> memory;
-	
-	// allocate a buffer large enough to fit the text. it will be freed when the memory object is destroyed 
-	size_t const bytes = static_cast<size_t>(text_end - text_begin);
-	void *buffer = memory.allocate(bytes);
-	// copy the text into the buffer. imagine it was reading from a file instead.
-	copy_memory(buffer, text_begin, bytes);
-	
-	// parse_in_place will modify the buffer
-	auto nodes = read_to_memory(memory).parse_in_place(buffer, bytes).nodes();
-	
-	// use the xml::node tree
-	return
-		nodes.first_value() == "text" &&
-		nodes.nodes().find("thing").next().value() == "more text";
-	}
+    xml::memory<> memory;
+    
+    // allocate a buffer large enough to fit the text. it will be freed when the memory object is destroyed
+    size_t const bytes = static_cast<size_t>(text_end - text_begin);
+    void *buffer = memory.allocate(bytes);
+    // copy the text into the buffer. imagine it was reading from a file instead.
+    copy_memory(buffer, text_begin, bytes);
+    
+    // parse_in_place will modify the buffer
+    auto nodes = read_to_memory(memory).parse_in_place(buffer, bytes).nodes();
+    
+    // use the xml::node tree
+    return
+        nodes.first_value() == "text" &&
+        nodes.nodes().find("thing").next().value() == "more text";
+}
 
 
 

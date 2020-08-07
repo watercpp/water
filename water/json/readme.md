@@ -18,58 +18,58 @@ The water/json/examples folder contains example code.
 
 Use the `read` class to parse JSON text into a structure of `node` objects. All `node` objects belong to a `memory` object, that `memory` object must exist for as long as the nodes are used. The `read_to_memory` function creates a `read` object that uses a `memory` object.
 
-	std::vector<char> input = download_json_as_text_from_the_internet();
-	
-	water::json::memory<> memory;
-	auto read = read_to_memory(memory);
-	read(input.begin(), input.tend());
-	if(!read)
-		trace() << "not valid JSON";
-	auto nodes = read.nodes();
+    std::vector<char> input = download_json_as_text_from_the_internet();
+    
+    water::json::memory<> memory;
+    auto read = read_to_memory(memory);
+    read(input.begin(), input.tend());
+    if(!read)
+        trace() << "not valid JSON";
+    auto nodes = read.nodes();
 
 The `read` parser can parse memory in place. This is the most memory-efficient way to use it. In the example above the data from the input vector is copied. Below, a file is read into a buffer allocated from the `memory` object, then `read.parse_in_place` is used to parse that memory. This will modify the contents of the buffer.
 
-	auto file = open_file_with_json_text();
-	size_t size = file.size();
-	
-	water::json::memory<> memory;
-	void *buffer = memory.allocate(size);
-	file.read(buffer, size);
-	auto read = read_to_memory(memory);
-	read.parse_in_place(buffer, size);
-	if(!read)
-		trace() << "not valid JSON";
-	auto nodes = read.nodes();
+    auto file = open_file_with_json_text();
+    size_t size = file.size();
+    
+    water::json::memory<> memory;
+    void *buffer = memory.allocate(size);
+    file.read(buffer, size);
+    auto read = read_to_memory(memory);
+    read.parse_in_place(buffer, size);
+    if(!read)
+        trace() << "not valid JSON";
+    auto nodes = read.nodes();
 
 The `memory` object will free all memory when its destroyed. After that, nodes that belong to the memory cannot be used.
 
-	
+    
 ## json::write
 
 Use the `write` function to write the `node` structure as JSON text
 
-	std::vector<char> output;
-	
-	write(
-		[&output] (char const* begin, char const* end) {
-			output.insert(output.end(), begin, end);
-			},
-		nodes
-		);
+    std::vector<char> output;
+    
+    write(
+        [&output] (char const* begin, char const* end) {
+            output.insert(output.end(), begin, end);
+        },
+        nodes
+    );
 
 It is possible to find out the size `write` will write using the `write_size` function. This makes it possible to allocate the space needed to write the JSON data before writing:
 
-	size_t size = write_size(nodes);
-	output.reserve(size);
-	
-	bool escape_all = true; // see below
-	write(
-		[&output] (char const* begin, char const* end) {
-			output.insert(output.end(), begin, end);
-			},
-		nodes,
-		escape_all
-		);
+    size_t size = write_size(nodes);
+    output.reserve(size);
+    
+    bool escape_all = true; // see below
+    write(
+        [&output] (char const* begin, char const* end) {
+            output.insert(output.end(), begin, end);
+        },
+        nodes,
+        escape_all
+    );
 
 
 #### Writing UTF-8 or ASCII
@@ -81,33 +81,33 @@ The `write` function has a third argument: A bool `escapae_all`. It is false by 
 
 The `indent` class can format and indent JSON text to make it easier to read. The `write` function does not indent the JSON text, it will always write a single line. The `indent_to` function creates an `indent` object.
 
-	std::vector<char> input = download_json_as_text_from_the_internet();
-	water::str::out_stdout output;
-	
-	auto indent = water::json::indent_to(output, 4); // 4 means indent with 4 spaces per tab
-	indent(input.begin(), input.end());
+    std::vector<char> input = download_json_as_text_from_the_internet();
+    water::str::out_stdout output;
+    
+    auto indent = water::json::indent_to(output, 4); // 4 means indent with 4 spaces per tab
+    indent(input.begin(), input.end());
 
 The thing indent writes to must behave like a function taking a single char like `void function(char a)`. A `water::str::out` does that. It always writes a single char at a time, you might want to buffer the output.
 
 Indent `node` objects by combining `write` and `indent`:
 
-	water::json::node<> nodes = ...;
-	water::str::out_stdout output;
-	
-	auto indent = water::json::indent_to(output, `\t`); // indent with tab
-	write(indent, nodes);
-	
+    water::json::node<> nodes = ...;
+    water::str::out_stdout output;
+    
+    auto indent = water::json::indent_to(output, `\t`); // indent with tab
+    write(indent, nodes);
+    
 
 ## json::memory
 
 The `memory` memory allocator works exactly like the `water::xml::memory` allocator, it uses the same code. It allocates larger blocks of memory from an underlying allocator (`water::allocator` by default) and then makes smaller allocations inside those chunks. It is compact and efficient, but also dumb: Its not possible to free a single allocation, you can only clear the entire memory.
 
-	water::json::memory<water::allocator_nothrow> memory;
-	
-	water::json::node<water::json::memory<water::allocator_nothrow>> node1 = memory.create();
-	auto node2 = memory.create();
+    water::json::memory<water::allocator_nothrow> memory;
+    
+    water::json::node<water::json::memory<water::allocator_nothrow>> node1 = memory.create();
+    auto node2 = memory.create();
 
-	memory.clear(); // do not use node1 and node2 after this!
+    memory.clear(); // do not use node1 and node2 after this!
 
 
 ## json::node

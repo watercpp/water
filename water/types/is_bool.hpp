@@ -7,10 +7,10 @@
 #include <water/types/equal.hpp>
 namespace water { namespace types {
 
-template<typename type_> struct
- is_bool :
-	equal_plain<typename type<type_>::result, bool>
-		{};
+template<typename type_>
+struct is_bool :
+    equal_plain<typename type<type_>::result, bool>
+    {};
 
 }}
 #endif

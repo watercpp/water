@@ -29,80 +29,86 @@ little how this works, but more documentation is needs to be written.
 
 */
 
-template<typename kind_> struct
- collection_tag :
- 	type_plain<kind_>
- 		{};
+template<typename kind_>
+struct collection_tag :
+    type_plain<kind_>
+{};
 
 namespace _ {
-	template<typename a_> struct
-	 collection_tag_to_void
-		{};
-	template<typename a_> struct
-	 collection_tag_to_void<collection_tag<a_> > :
-		type_plain<void>
-			{};
-	
-	template<typename a_, typename = void> struct
-	 do_collection_tag_of :
-		type_plain<void>
-			{};
-	template<typename a_> struct
-	 do_collection_tag_of<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
-		type_plain<typename a_::collection_tag>
-			{};
-	
-	template<typename a_, typename = void> struct
-	 do_collection_kind
-		{};
-	template<typename a_> struct
-	 do_collection_kind<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
-		a_::collection_tag::result
-			{};
-	
-	template<typename a_, typename = void> struct
-	 do_collection_kind_of :
-		type_plain<void>
-			{};
-	template<typename a_> struct
-	 do_collection_kind_of<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
-		a_::collection_tag
-			{};
-	
-	template<typename a_, typename = void> struct
-	 do_is_collection :
-		false_result
-			{};
-	template<typename a_> struct
-	 do_is_collection<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
-		true_result
-			{};
-	
-	}
+
+    template<typename a_>
+    struct collection_tag_to_void
+    {};
+    
+    template<typename a_>
+    struct collection_tag_to_void<collection_tag<a_> > :
+        type_plain<void>
+    {};
+    
+    template<typename a_, typename = void>
+    struct do_collection_tag_of :
+        type_plain<void>
+    {};
+    
+    template<typename a_>
+    struct do_collection_tag_of<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
+        type_plain<typename a_::collection_tag>
+    {};
+    
+    template<typename a_, typename = void>
+    struct do_collection_kind
+    {};
+    
+    template<typename a_>
+    struct do_collection_kind<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
+        a_::collection_tag::result
+    {};
+    
+    template<typename a_, typename = void>
+    struct do_collection_kind_of :
+        type_plain<void>
+    {};
+    
+    template<typename a_>
+    struct do_collection_kind_of<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
+        a_::collection_tag
+    {};
+    
+    template<typename a_, typename = void>
+    struct do_is_collection :
+        false_result
+    {};
+    
+    template<typename a_>
+    struct do_is_collection<a_, typename collection_tag_to_void<typename a_::collection_tag>::result> :
+        true_result
+    {};
+    
+}
 
 // result a_::collection_tag if it exists and is a typedef of types::collecion_tag, else void
-template<typename a_> struct
- collection_tag_of :
-	_::do_collection_tag_of<a_>
-		{};
+template<typename a_>
+struct collection_tag_of :
+    _::do_collection_tag_of<a_>
+{};
 
 // inherits the collection kind if a_ is a collection
-template<typename a_> struct
- collection_kind :
-	_::do_collection_kind<a_>
-		{};
+template<typename a_>
+struct collection_kind :
+    _::do_collection_kind<a_>
+{};
 
 // result the collection kind, or void if not collection
-template<typename a_> struct
- collection_kind_of :
-	_::do_collection_kind_of<a_>
-		{};
+template<typename a_>
+struct collection_kind_of :
+    _::do_collection_kind_of<a_>
+{};
 
 // result true if a_ is a collection
-template<typename a_> struct
- is_collection :
-	_::do_is_collection<a_>
-		{};
+template<typename a_>
+struct is_collection :
+    _::do_is_collection<a_>
+{};
 
 }}
 #endif

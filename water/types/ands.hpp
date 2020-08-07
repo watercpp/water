@@ -20,23 +20,23 @@ ands<>::result is false
 
 */
 
-template<typename ...list_> struct
- ands;
+template<typename ...list_>
+struct ands;
 
-template<typename at_, typename ...list_> struct
- ands<at_, list_...> :
-	ifel<to_bool<at_>::result, ands<list_...>, false_result>
-		{};
+template<typename at_, typename ...list_>
+struct ands<at_, list_...> :
+    ifel<to_bool<at_>::result, ands<list_...>, false_result>
+{};
 
-template<typename at_> struct
- ands<at_> :
-	to_bool<at_>
-		{};
+template<typename at_>
+struct ands<at_> :
+    to_bool<at_>
+{};
 
-template<> struct
- ands<> :
-	false_result
-		{};
+template<>
+struct ands<> :
+    false_result
+{};
 
 }}
 #endif

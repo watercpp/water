@@ -12,16 +12,16 @@
 #include <water/tests/vectors/value_simple.hpp>
 namespace water { namespace tests { namespace vectors {
 
-template<typename vector_, typename ...arguments_> void
- fill_emplace(vector_& v, size_t count, arguments_&& ...arguments) {
- 	if(!count)
- 		return;
- 	size_t reserve = v.size() + count;
- 	v.reserve(reserve);
- 	___water_test(reserve);
- 	do v.emplace_back(static_cast<arguments_&&>(arguments)...); while(--count);
- 	___water_test(v.size() == reserve);
- 	}
+template<typename vector_, typename ...arguments_>
+void fill_emplace(vector_& v, size_t count, arguments_&& ...arguments) {
+    if(!count)
+        return;
+    size_t reserve = v.size() + count;
+    v.reserve(reserve);
+    ___water_test(reserve);
+    do v.emplace_back(static_cast<arguments_&&>(arguments)...); while(--count);
+    ___water_test(v.size() == reserve);
+}
 
 }}}
 #endif

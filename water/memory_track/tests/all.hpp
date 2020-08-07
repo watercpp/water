@@ -8,8 +8,8 @@
 namespace water { namespace memory_track { namespace tests {
 
 inline void all() {
-	basic();
-	}
+    basic();
+}
 
 }}}
 #endif

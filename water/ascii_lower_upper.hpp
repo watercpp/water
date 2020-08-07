@@ -52,21 +52,25 @@ ASCII
 0x7f delete
 */
 
-template<typename char_> constexpr bool ascii_is_lower(char_ a) {
-	return static_cast<char_>(0x61) <= a && a <= static_cast<char_>(0x7a);
-	}
+template<typename char_>
+constexpr bool ascii_is_lower(char_ a) {
+    return static_cast<char_>(0x61) <= a && a <= static_cast<char_>(0x7a);
+}
 
-template<typename char_> constexpr bool ascii_is_upper(char_ a) {
-	return static_cast<char_>(0x41) <= a && a <= static_cast<char_>(0x5a);
-	}
+template<typename char_>
+constexpr bool ascii_is_upper(char_ a) {
+    return static_cast<char_>(0x41) <= a && a <= static_cast<char_>(0x5a);
+}
 
-template<typename char_> constexpr char_ ascii_to_lower(char_ a) {
-	return ascii_is_upper(a) ? a + 0x20 : a;
-	}
+template<typename char_>
+constexpr char_ ascii_to_lower(char_ a) {
+    return ascii_is_upper(a) ? a + 0x20 : a;
+}
 
-template<typename char_> constexpr char_ ascii_to_upper(char_ a) {
-	return ascii_is_lower(a) ? a - 0x20 : a;
-	}
+template<typename char_>
+constexpr char_ ascii_to_upper(char_ a) {
+    return ascii_is_lower(a) ? a - 0x20 : a;
+}
 
 }
 #endif

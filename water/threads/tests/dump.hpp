@@ -15,37 +15,38 @@
 #include <water/str/type_name.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename type_> struct
- dump_type {
-	template<typename o_> dump_type(str::out<o_> *o, char const *prefix) {
-		*o << prefix << str::type_name<type_>() << ' ';
-		if(is_system<type_>()) *o << "system ";
-		if(is_water<type_>()) *o << "water ";
-		if(has_timeout<type_>()) *o << "timeout ";
-		if(is_recursive<type_>()) *o << "recursive ";
-		if(has_constexpr_constructor<type_>()) *o << "constexpr_constructor ";
-		if(has_trivial_destructor<type_>()) *o << "trivial_destructor ";
-		if(is_spin<type_>()) *o << "spin ";
-		if(has_statistics<type_>()) *o << "statistics ";
-		*o << '\n';
-		}
- 	};
+template<typename type_>
+struct dump_type {
+    template<typename o_>
+    dump_type(str::out<o_> *o, char const *prefix) {
+        *o << prefix << str::type_name<type_>() << ' ';
+        if(is_system<type_>()) *o << "system ";
+        if(is_water<type_>()) *o << "water ";
+        if(has_timeout<type_>()) *o << "timeout ";
+        if(is_recursive<type_>()) *o << "recursive ";
+        if(has_constexpr_constructor<type_>()) *o << "constexpr_constructor ";
+        if(has_trivial_destructor<type_>()) *o << "trivial_destructor ";
+        if(is_spin<type_>()) *o << "spin ";
+        if(has_statistics<type_>()) *o << "statistics ";
+        *o << '\n';
+    }
+};
 
 template<typename o_>
- void dump(str::out<o_>& o) {
-	o << "thread_t " << str::type_name<thread_t>() << '\n';
-	o << "priority_exists " << stack_size_exists << '\n';
-	priority p;
-	o << "priority.get() " << p.get() << '\n';
-	o << "priority.min() " << p.min() << '\n';
-	o << "priority.max() " << p.max() << '\n';
-	o << "stack_size_exists " << stack_size_exists << '\n';
-	test_list<dump_type, barrier_list>(&o, "barrier ");
-	test_list<dump_type, condition_list>(&o, "condition ");
-	test_list<dump_type, mutex_list>(&o, "mutex ");
-	test_list<dump_type, read_write_list>(&o, "read_write ");
-	test_list<dump_type, semaphore_list>(&o, "semaphore ");
-	}
+void dump(str::out<o_>& o) {
+    o << "thread_t " << str::type_name<thread_t>() << '\n';
+    o << "priority_exists " << stack_size_exists << '\n';
+    priority p;
+    o << "priority.get() " << p.get() << '\n';
+    o << "priority.min() " << p.min() << '\n';
+    o << "priority.max() " << p.max() << '\n';
+    o << "stack_size_exists " << stack_size_exists << '\n';
+    test_list<dump_type, barrier_list>(&o, "barrier ");
+    test_list<dump_type, condition_list>(&o, "condition ");
+    test_list<dump_type, mutex_list>(&o, "mutex ");
+    test_list<dump_type, read_write_list>(&o, "read_write ");
+    test_list<dump_type, semaphore_list>(&o, "semaphore ");
+}
 
 }}}
 #endif

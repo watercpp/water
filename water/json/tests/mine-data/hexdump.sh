@@ -3,7 +3,7 @@
 
 for arg in "$@"
 do
-	echo $arg
-	hexdump -ve '1/1 "0x%.2x,"' "$arg"
-	echo "\n"
+    echo $arg
+    hexdump -ve '1/1 "0x%.2x,"' "$arg"
+    echo "\n"
 done

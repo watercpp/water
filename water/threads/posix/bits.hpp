@@ -28,100 +28,100 @@
 !defined(WATER_POSIX_BARRIERS) && \
 !defined(WATER_POSIX_NO_BARRIERS) && \
 ((defined(_POSIX_BARRIERS) && _POSIX_BARRIERS > 0) || defined(PTHREAD_BARRIER_SERIAL_THREAD))
-	#define WATER_POSIX_BARRIERS
+    #define WATER_POSIX_BARRIERS
 #endif
 
 #if \
 !defined(WATER_POSIX_PRIORITY_SCHEDULING) && \
 !defined(WATER_POSIX_NO_PRIORITY_SCHEDULING) && \
 (defined(_POSIX_PRIORITY_SCHEDULING) && _POSIX_PRIORITY_SCHEDULING > 0)
-	#define WATER_POSIX_PRIORITY_SCHEDULING
+    #define WATER_POSIX_PRIORITY_SCHEDULING
 #endif
 
 #if \
 !defined(WATER_POSIX_SEMAPHORES) && \
 !defined(WATER_POSIX_NO_SEMAPHORES) && \
 ((defined(_POSIX_SEMAPHORES) && _POSIX_SEMAPHORES > 0) || defined(WATER_SYSTEM_LINUX))
-	#define WATER_POSIX_SEMAPHORES
-	// apple has them, but they are deprecated
+    #define WATER_POSIX_SEMAPHORES
+    // apple has them, but they are deprecated
 #endif
 
 #if \
 !defined(WATER_POSIX_TIMEOUTS) && \
 !defined(WATER_POSIX_NO_TIMEOUTS) && \
 ((defined(_POSIX_TIMEOUTS) && _POSIX_TIMEOUTS > 0) || defined(WATER_SYSTEM_LINUX))
-	#define WATER_POSIX_TIMEOUTS
+    #define WATER_POSIX_TIMEOUTS
 #endif
 
 #if \
 !defined(WATER_POSIX_NANOSLEEP) && \
 !defined(WATER_POSIX_NO_NANOSLEEP) && \
 ((defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0) || defined(WATER_SYSTEM_LINUX) || defined(WATER_SYSTEM_APPLE))
-	#define WATER_POSIX_NANOSLEEP
+    #define WATER_POSIX_NANOSLEEP
 #endif
 
 #if \
 !defined(WATER_POSIX_CLOCK_NANOSLEEP) && \
 !defined(WATER_POSIX_NO_CLOCK_NANOSLEEP) && \
 ((defined(_POSIX_CLOCK_SELECTION) && _POSIX_CLOCK_SELECTION > 0) || defined(WATER_SYSTEM_LINUX))
-	#define WATER_POSIX_CLOCK_NANOSLEEP
+    #define WATER_POSIX_CLOCK_NANOSLEEP
 #endif
-	
+
 #if \
 !defined(WATER_POSIX_THREAD_PRIORITY_SCHEDULING) && \
 !defined(WATER_POSIX_NO_THREAD_PRIORITY_SCHEDULING) && \
 ((defined(_POSIX_THREAD_PRIORITY_SCHEDULING) && _POSIX_THREAD_PRIORITY_SCHEDULING > 0) || defined(WATER_SYSTEM_APPLE))
-	#define WATER_POSIX_THREAD_PRIORITY_SCHEDULING
+    #define WATER_POSIX_THREAD_PRIORITY_SCHEDULING
 #endif
 
 #if \
 !defined(WATER_POSIX_THREAD_ATTR_STACKSIZE) && \
 !defined(WATER_POSIX_NO_THREAD_ATTR_STACKSIZE) && \
 ((defined(_POSIX_THREAD_ATTR_STACKSIZE) && _POSIX_THREAD_ATTR_STACKSIZE > 0) || defined(WATER_SYSTEM_LINUX) || defined(WATER_SYSTEM_APPLE))
-	#define WATER_POSIX_THREAD_ATTR_STACKSIZE
+    #define WATER_POSIX_THREAD_ATTR_STACKSIZE
 #endif
 
 #if \
 !defined(WATER_POSIX_MUTEX_RECURSIVE) && \
 !defined(WATER_POSIX_NO_MUTEX_RECURSIVE) && \
 (defined(_XOPEN_VERSION) || defined(PTHREAD_MUTEX_RECURSIVE))
-	#define WATER_POSIX_MUTEX_RECURSIVE
+    #define WATER_POSIX_MUTEX_RECURSIVE
 #endif
-	
+
 #if \
 !defined(WATER_POSIX_CLOCK_REALTIME) && \
 !defined(WATER_POSIX_NO_CLOCK_REALTIME) && \
 defined(CLOCK_REALTIME)
-	#define WATER_POSIX_CLOCK_REALTIME
+    #define WATER_POSIX_CLOCK_REALTIME
 #endif
 
 #if \
 !defined(WATER_POSIX_CLOCK_MONOTONIC) && \
 !defined(WATER_POSIX_NO_CLOCK_MONOTONIC) && \
 defined(CLOCK_MONOTONIC)
-	#define WATER_POSIX_CLOCK_MONOTONIC
+    #define WATER_POSIX_CLOCK_MONOTONIC
 #endif
 
 #ifdef WATER_THREADS_STATISTICS
-	#include <water/threads/statistics/statistics.hpp>
+    #include <water/threads/statistics/statistics.hpp>
 #endif
 namespace water { namespace threads {
 
 inline void timespec_add(timespec& t, double seconds) {
-	constexpr long nanosecond = 1000000000l;
-	long
-		s = static_cast<long>(seconds),
-		n = static_cast<long>((seconds - s) * 1e9);
-	if(s < 0) s = 0;
-	if(n < 0) n = 0;
-	else if(n >= nanosecond) n = nanosecond - 1;
-	t.tv_nsec += n;
-	if(t.tv_nsec >= nanosecond) {
-		++s;
-		t.tv_nsec -= nanosecond;
-		}
-	t.tv_sec += s;
-	}
+    constexpr long nanosecond = 1000000000l;
+    long
+        s = static_cast<long>(seconds),
+        n = static_cast<long>((seconds - s) * 1e9);
+    if(s < 0) s = 0;
+    if(n < 0) n = 0;
+    else if(n >= nanosecond) n = nanosecond - 1;
+    t.tv_nsec += n;
+    if(t.tv_nsec >= nanosecond) {
+        ++s;
+        t.tv_nsec -= nanosecond;
+    }
+    t.tv_sec += s;
+}
 
 }}
 

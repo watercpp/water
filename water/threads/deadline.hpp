@@ -10,12 +10,12 @@ namespace water { namespace threads {
 
 #if 0
 class deadline {
-	public:
-		deadline(double seconds) noexcept;
-			// deadline this many seconds from now
-		double left() noexcept;
-			// returns how many seconds left
-	};
+public:
+    deadline(double seconds) noexcept;
+        // deadline this many seconds from now
+    double left() noexcept;
+        // returns how many seconds left
+};
 
 #endif
 

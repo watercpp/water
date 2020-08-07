@@ -7,19 +7,23 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename> struct do_is_char : false_result {};
-	template<> struct do_is_char<char> : true_result {};
-	template<> struct do_is_char<signed char> : true_result {};
-	template<> struct do_is_char<unsigned char> : true_result {};
-	template<> struct do_is_char<wchar_t> : true_result {};
-	template<> struct do_is_char<char16_t> : true_result {};
-	template<> struct do_is_char<char32_t> : true_result {};
-	}
 
-template<typename type_> struct
- is_char :
-	_::do_is_char<typename type<type_>::result>
-		{};
+    template<typename>
+    struct do_is_char : false_result {};
+    
+    template<> struct do_is_char<char> : true_result {};
+    template<> struct do_is_char<signed char> : true_result {};
+    template<> struct do_is_char<unsigned char> : true_result {};
+    template<> struct do_is_char<wchar_t> : true_result {};
+    template<> struct do_is_char<char16_t> : true_result {};
+    template<> struct do_is_char<char32_t> : true_result {};
+    
+}
+
+template<typename type_>
+struct is_char :
+    _::do_is_char<typename type<type_>::result>
+{};
 
 }}
 #endif

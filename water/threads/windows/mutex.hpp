@@ -13,20 +13,20 @@
 namespace water { namespace threads {
 
 using mutex_list = list<
-	#ifndef WATER_THREADS_MUTEX_PREFER_WINDOWS_CRITICAL_SECTION
-	srwlock,
-	#endif
-	critical_section,
-	#ifdef WATER_THREADS_MUTEX_PREFER_WINDOWS_CRITICAL_SECTION
-	srwlock,
-	#endif
-	mutex_event,
-	mutex_event_named,
-	recursive<mutex_event>,
-	recursive<mutex_event_named>,
-	mutex_handle,
-	spin_mutex<>
-	>;
+    #ifndef WATER_THREADS_MUTEX_PREFER_WINDOWS_CRITICAL_SECTION
+    srwlock,
+    #endif
+    critical_section,
+    #ifdef WATER_THREADS_MUTEX_PREFER_WINDOWS_CRITICAL_SECTION
+    srwlock,
+    #endif
+    mutex_event,
+    mutex_event_named,
+    recursive<mutex_event>,
+    recursive<mutex_event_named>,
+    mutex_handle,
+    spin_mutex<>
+>;
 
 }}
 #endif

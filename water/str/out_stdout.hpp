@@ -7,9 +7,9 @@
 #include <water/str/buffer.hpp>
 #include <water/str/buffer_lines.hpp>
 #ifdef WATER_NO_CHEADERS
-	#include <stdio.h>
+    #include <stdio.h>
 #else
-	#include <cstdio>
+    #include <cstdio>
 #endif
 namespace water { namespace str {
 
@@ -31,14 +31,14 @@ This will not add newlines by itself or cut off long lines, see buffer.hpp
 */
 
 struct write_to_stdout {
-	void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
-		#ifdef WATER_NO_CHEADERS
-		fputs(cstring, stdout);
-		#else
-		std::fputs(cstring, stdout); // stdout is a macro
-		#endif
-		}
-	};
+    void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
+        #ifdef WATER_NO_CHEADERS
+        fputs(cstring, stdout);
+        #else
+        std::fputs(cstring, stdout); // stdout is a macro
+        #endif
+    }
+};
 
 using out_stdout = out<buffer_lines<write_to_stdout>>;
 

@@ -37,74 +37,92 @@ just a bool, if the system wait object has been created
 
 */
 
-class data {
-	using atomic_ = atomic_if<>;
-	count
-		mywait[2] {},
-		mywake[2] {},
-		mytimeout[2] {},
-		mycreated {};
-	void const* myaddress = 0;
-	char const* myclass = 0;
-	statistics::name myname;
-	public:
-		constexpr data() noexcept = default;
-		data(void const* address, char const* class_name) :
-			myaddress(address),
-			myclass(class_name)
-			{}
-		void const* address() const noexcept {
-			return myaddress;
-			}
-		char const* class_name() const noexcept {
-			return myclass;
-			}
-		statistics::name& name() noexcept {
-			return myname;
-			}
-		statistics::name const& name() const noexcept {
-			return myname;
-			}
-		void name(char const* cstring) noexcept {
-			myname.assign(cstring);
-			}
-		ministr::out<name_assign> name_ministr() noexcept {
-			return ministr::out<name_assign>(myname);
-			}
-		void wait_add(bool good) noexcept {
-			atomic_::add(mywait[good]);
-			}
-		size_t wait(bool good) noexcept {
-			return atomic_::get(mywait[good]);
-			}
-		void wake_add(bool good) noexcept {
-			atomic_::add(mywake[good]);
-			}
-		size_t wake(bool good) noexcept {
-			return atomic_::get(mywake[good]);
-			}
-		void timeout_add(bool good) noexcept {
-			atomic_::add(mytimeout[good]);
-			}
-		size_t timeout(bool good) noexcept {
-			return atomic_::get(mytimeout[good]);
-			}
-		void wait_object_created_set() noexcept {
-			atomic_::set(mycreated, 1);
-			}
-		bool wait_object_created() noexcept {
-			return atomic_::get(mycreated) != 0;
-			}
+class data
+{
+    using atomic_ = atomic_if<>;
+    
+    count
+        mywait[2] {},
+        mywake[2] {},
+        mytimeout[2] {},
+        mycreated {};
+    void const* myaddress = 0;
+    char const* myclass = 0;
+    statistics::name myname;
+
+public:
+    constexpr data() noexcept = default;
+
+    data(void const* address, char const* class_name) :
+        myaddress(address),
+        myclass(class_name)
+    {}
+
+    void const* address() const noexcept {
+        return myaddress;
+    }
+
+    char const* class_name() const noexcept {
+        return myclass;
+    }
+
+    statistics::name& name() noexcept {
+        return myname;
+    }
+
+    statistics::name const& name() const noexcept {
+        return myname;
+    }
+
+    void name(char const* cstring) noexcept {
+        myname.assign(cstring);
+    }
+
+    ministr::out<name_assign> name_ministr() noexcept {
+        return ministr::out<name_assign>(myname);
+    }
+
+    void wait_add(bool good) noexcept {
+        atomic_::add(mywait[good]);
+    }
+
+    size_t wait(bool good) noexcept {
+        return atomic_::get(mywait[good]);
+    }
+
+    void wake_add(bool good) noexcept {
+        atomic_::add(mywake[good]);
+    }
+
+    size_t wake(bool good) noexcept {
+        return atomic_::get(mywake[good]);
+    }
+
+    void timeout_add(bool good) noexcept {
+        atomic_::add(mytimeout[good]);
+    }
+
+    size_t timeout(bool good) noexcept {
+        return atomic_::get(mytimeout[good]);
+    }
+
+    void wait_object_created_set() noexcept {
+        atomic_::set(mycreated, 1);
+    }
+
+    bool wait_object_created() noexcept {
+        return atomic_::get(mycreated) != 0;
+    }
 };
 
 inline ministr::out<name_assign> name_if(data *a) noexcept {
-	if(a) return ministr::out<name_assign>(a->name());
-	return ministr::out<name_assign>();
-	}
+    if(a) return ministr::out<name_assign>(a->name());
+    return ministr::out<name_assign>();
+}
 
 inline void name_if(data *a, char const* cstring) noexcept {
-	if(a) a->name(cstring);
-	}
+    if(a) a->name(cstring);
+}
 
 }}}
 #endif

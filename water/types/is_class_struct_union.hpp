@@ -7,33 +7,44 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename a_> true_size is_class_struct_union_test(int a_::*);
-	template<typename a_> false_size is_class_struct_union_test(...);
-	template<typename a_> struct
-	 do_is_class_struct_union : bool_result<
-		sizeof(_::is_class_struct_union_test<a_>(0)) == sizeof(true)
-		> {};
-	template<typename a_> struct
-	 do_is_class_struct_union<a_&> : false_result
-		{};
-	template<typename a_> struct
-	 do_is_class_struct_union<a_&&> : false_result
-		{};
-	template<typename a_> struct
-	 do_is_class_struct_union<a_ const> : false_result
-		{};
-	template<typename a_> struct
-	 do_is_class_struct_union<a_ const volatile> : false_result
-		{};
-	template<typename a_> struct
-	 do_is_class_struct_union<a_ volatile> : false_result
-		{};
-	}
 
-template<typename type_> struct
- is_class_struct_union :
-	_::do_is_class_struct_union<typename type<type_>::result>
-		{};
+    template<typename a_>
+    true_size is_class_struct_union_test(int a_::*);
+    
+    template<typename a_>
+    false_size is_class_struct_union_test(...);
+    
+    template<typename a_>
+    struct do_is_class_struct_union : bool_result<
+        sizeof(_::is_class_struct_union_test<a_>(0)) == sizeof(true)
+    > {};
+    
+    template<typename a_>
+    struct do_is_class_struct_union<a_&> : false_result
+    {};
+    
+    template<typename a_>
+    struct do_is_class_struct_union<a_&&> : false_result
+    {};
+    
+    template<typename a_>
+    struct do_is_class_struct_union<a_ const> : false_result
+    {};
+    
+    template<typename a_>
+    struct do_is_class_struct_union<a_ const volatile> : false_result
+    {};
+    
+    template<typename a_>
+    struct do_is_class_struct_union<a_ volatile> : false_result
+    {};
+    
+}
+
+template<typename type_>
+struct is_class_struct_union :
+    _::do_is_class_struct_union<typename type<type_>::result>
+{};
 
 }}
 #endif

@@ -7,16 +7,24 @@
 #include <water/types/result.hpp>
 namespace water { namespace types {
 namespace _ {
-	template<typename a_> struct do_is_function : false_result {};
-	template<typename r_> struct do_is_function<r_()> : true_result {};
-	template<typename r_, typename ...a_> struct do_is_function<r_(a_...)> : true_result {};
-	template<typename r_, typename ...a_> struct do_is_function<r_(a_..., ...)> : true_result {};
-	}
 
-template<typename type_> struct
- is_function :
-	_::do_is_function<typename type<type_>::result>
-		{};
+    template<typename a_>
+    struct do_is_function : false_result {};
+    
+    template<typename r_>
+    struct do_is_function<r_()> : true_result {};
+    
+    template<typename r_, typename ...a_>
+    struct do_is_function<r_(a_...)> : true_result {};
+    
+    template<typename r_, typename ...a_>
+    struct do_is_function<r_(a_..., ...)> : true_result {};
+}
+
+template<typename type_>
+struct is_function :
+    _::do_is_function<typename type<type_>::result>
+{};
 
 // future: argument types to a list?
 

@@ -9,13 +9,13 @@
 #include <water/types/is_int.hpp>
 namespace water { namespace types {
 
-template<typename type_> struct
- is_bool_float_int :
-	bool_result<
-		is_bool<type_>::result ||
-		is_float<type_>::result ||
-		is_int<type_>::result
-		> {};
+template<typename type_>
+struct is_bool_float_int :
+    bool_result<
+        is_bool<type_>::result ||
+        is_float<type_>::result ||
+        is_int<type_>::result
+    > {};
 
 }}
 #endif

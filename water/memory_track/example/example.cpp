@@ -8,31 +8,31 @@
 #include <new>
 namespace water { namespace memory_track { namespace example {
 
-memory_type global_memory_object;
+    memory_type global_memory_object;
 
-memory_type& memory() {
-	return global_memory_object;
-	}
+    memory_type& memory() {
+        return global_memory_object;
+    }
 
-void* operator_new_nothrow(size_t size, memory_tag_type tag) {
-	return memory().allocate(size, tag, {});
-	}
+    void* operator_new_nothrow(size_t size, memory_tag_type tag) {
+        return memory().allocate(size, tag, {});
+    }
 
-void* operator_new(size_t size, memory_tag_type tag) {
-	void *r = operator_new_nothrow(size, tag);
-	if(!r) throw std::bad_alloc{};
-	return r;
-	}
+    void* operator_new(size_t size, memory_tag_type tag) {
+        void *r = operator_new_nothrow(size, tag);
+        if(!r) throw std::bad_alloc{};
+        return r;
+    }
 
-void operator_delete(void *pointer, memory_tag_type tag) {
-	memory().free(pointer, 0, tag, {});
-	}
+    void operator_delete(void *pointer, memory_tag_type tag) {
+        memory().free(pointer, 0, tag, {});
+    }
 
-auto dump_later = later([]{
-	str::out_trace o;
-	o << "water::memory_track::example\n";
-	dump_to(o);
-	});
+    auto dump_later = later([]{
+        str::out_trace o;
+        o << "water::memory_track::example\n";
+        dump_to(o);
+    });
 
 }}}
 

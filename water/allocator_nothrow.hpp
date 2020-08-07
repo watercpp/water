@@ -25,22 +25,26 @@ using allocator_nothrow = allocator_malloc_nothrow;
 #include <new>
 namespace water {
 
-struct allocator_nothrow {
-	void* allocate(size_t bytes) noexcept {
-		return ::operator new(bytes, std::nothrow);
-		}
-	void free(void *pointer, size_t = 0) noexcept {
-		::operator delete(pointer, std::nothrow);
-		}
-	template<typename type_>
-	 type_* allocate(size_t count = 1) noexcept {
-		return static_cast<type_*>(::operator new(sizeof(type_) * count, std::nothrow));
-		}
-	template<typename type_>
-	 void free(void *pointer, size_t /*count*/ = 1) noexcept {
-		::operator delete(pointer, std::nothrow);
-		}
-	};
+struct allocator_nothrow
+{
+    void* allocate(size_t bytes) noexcept {
+        return ::operator new(bytes, std::nothrow);
+    }
+
+    void free(void *pointer, size_t = 0) noexcept {
+        ::operator delete(pointer, std::nothrow);
+    }
+
+    template<typename type_>
+    type_* allocate(size_t count = 1) noexcept {
+        return static_cast<type_*>(::operator new(sizeof(type_) * count, std::nothrow));
+    }
+
+    template<typename type_>
+    void free(void *pointer, size_t /*count*/ = 1) noexcept {
+        ::operator delete(pointer, std::nothrow);
+    }
+};
 
 }
 

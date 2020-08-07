@@ -13,7 +13,7 @@ namespace water { namespace types {
 equal<a_, b_>::result is true if the result of a_ and b_ are equal. They are if
 - any_result<a_> and any_result<b_> have the same result_kind, and
 - any_result<a_>::result and any_result<b_>::result are equal
- 
+
 Example:
 - equal<int, int>::result is true
 - equal<int, void>::result is false
@@ -25,44 +25,47 @@ Example:
 
 The result_kind should have:
 
-	struct some_kind {
-		template<typename a_, typename b_> struct equal
-		};
+    struct some_kind {
+        template<typename a_, typename b_> struct equal
+    };
 
 equal_plain<a_, b_>::result is true if a_ and b_ are exactly the same type
 
 */
 
 namespace _ {
-	template<
-		typename a_,
-		typename b_,
-		typename ta_ = typename a_::result_tag,
-		typename tb_ = typename b_::result_tag,
-		typename x_ = void
-		> struct
-	 do_equal :
-		false_result
-			{};
-	template<typename a_, typename b_, typename k_> struct
-	 do_equal<a_, b_, result_tag<k_>, result_tag<k_>, to_void<typename k_::template equal<void, void> >> :
-		k_::template equal<a_, b_>
-			{};
-	}
 
-template<typename a_, typename b_> struct
- equal :
-	_::do_equal<any_result<a_>, any_result<b_> >
-		{};
+    template<
+        typename a_,
+        typename b_,
+        typename ta_ = typename a_::result_tag,
+        typename tb_ = typename b_::result_tag,
+        typename x_ = void
+    >
+    struct do_equal :
+        false_result
+    {};
+    
+    template<typename a_, typename b_, typename k_>
+    struct do_equal<a_, b_, result_tag<k_>, result_tag<k_>, to_void<typename k_::template equal<void, void> >> :
+        k_::template equal<a_, b_>
+    {};
+}
 
-template<typename a_, typename b_> struct
- equal_plain :
-	false_result
-		{};
-template<typename a_> struct
- equal_plain<a_, a_> :
-	true_result
-		{};
+template<typename a_, typename b_>
+struct equal :
+    _::do_equal<any_result<a_>, any_result<b_> >
+{};
+
+template<typename a_, typename b_>
+struct equal_plain :
+    false_result
+{};
+
+template<typename a_>
+struct equal_plain<a_, a_> :
+    true_result
+{};
 
 }}
 #endif

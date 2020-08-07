@@ -10,10 +10,10 @@
 namespace water { namespace threads {
 
 using barrier_list = list<
-	barrier_semaphore,
-	synchronization_barrier, // second because tests fail for it
-	spin_barrier<>
-	>;
+    barrier_semaphore,
+    synchronization_barrier, // second because tests fail for it
+    spin_barrier<>
+>;
 
 }}
 #endif

@@ -10,14 +10,14 @@
 namespace water { namespace threads { namespace tests {
 
 inline void thread_sleep_yield() {
-	___water_test(sleep(deadline(0.2)));
-	___water_test(sleep(0.1));
-	___water_test(sleep(0));
-	yield();
-	#if defined(WATER_SYSTEM_APPLE) && !defined(WATER_THREADS_NO_APPLE)
-	___water_test(mach_wait_until(mach_time() - mach_time_from_seconds(60)) == 0);
-	#endif
-	}
+    ___water_test(sleep(deadline(0.2)));
+    ___water_test(sleep(0.1));
+    ___water_test(sleep(0));
+    yield();
+    #if defined(WATER_SYSTEM_APPLE) && !defined(WATER_THREADS_NO_APPLE)
+    ___water_test(mach_wait_until(mach_time() - mach_time_from_seconds(60)) == 0);
+    #endif
+}
 
 }}}
 #endif

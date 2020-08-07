@@ -6,9 +6,9 @@
 #define WATER_MINISTR_OUT_STDOUT_HPP
 #include <water/ministr/ministr.hpp>
 #ifdef WATER_NO_CHEADERS
-	#include <stdio.h>
+    #include <stdio.h>
 #else
-	#include <cstdio>
+    #include <cstdio>
 #endif
 namespace water { namespace ministr {
 
@@ -23,22 +23,22 @@ This will add a newline to the end by itself.
 */
 
 struct write_to_stdout {
-	void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from ministr::out
-		#ifdef WATER_NO_CHEADERS
-		fputs(cstring, stdout);
-		#else
-		std::fputs(cstring, stdout); // stdout is a macro
-		#endif
-		}
-	};
+    void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from ministr::out
+        #ifdef WATER_NO_CHEADERS
+        fputs(cstring, stdout);
+        #else
+        std::fputs(cstring, stdout); // stdout is a macro
+        #endif
+    }
+};
 
 using out_stdout = out<
-	write_to_stdout,
-	ministr::configuration<
-		typename ministr::configuration_default::number_format,
-		ministr::settings_end<typename ministr::configuration_default::settings, '\n'>
-		>
-	>;
+    write_to_stdout,
+    ministr::configuration<
+        typename ministr::configuration_default::number_format,
+        ministr::settings_end<typename ministr::configuration_default::settings, '\n'>
+    >
+>;
 
 }}
 #endif

@@ -8,45 +8,56 @@
 #include <water/test.hpp>
 namespace water { namespace memory_track { namespace tests {
 
-class cookie_copy_callback {
-	public:
-		using cookie_type = memory_track::cookie<>;
-	private:
-		cookie_type my {};
-		char const* myerror = 0;
-		bool myfail = false;
-	public:
-		void allocate_will_fail(bool a) noexcept {
-			myfail = a;
-			}
-		bool allocate(cookie_type const *cookie, size_t /*bytes_allocated_now*/) noexcept {
-			my = *cookie;
-			my.next = my.prev = 0;
-			return !myfail; // return false to make allocation fail
-			}
-		void free(cookie_type const *cookie) noexcept {
-			my = *cookie;
-			my.next = my.prev = 0;
-			}
-		bool free_error(cookie_type const *cookie, void *pointer, size_t bytes, tag const& t, char const* error) noexcept {
-			// cookie can be 0
-			if(cookie)
-				free(cookie);
-			else
-				my = {};
-			myerror = error;
-			unused(pointer, bytes, t); // avoid warnings
-			return false; // dont breakpoint
-			}
-		cookie_type const& cookie() const {
-			return my;
-			}
-		char const* error() const {
-			return myerror;
-			}
-	private:
-		template<typename ...a_> void unused(a_ const&...) {}
-	};
+class cookie_copy_callback
+{
+public:
+    using cookie_type = memory_track::cookie<>;
+
+private:
+    cookie_type my {};
+    char const* myerror = 0;
+    bool myfail = false;
+
+public:
+    void allocate_will_fail(bool a) noexcept {
+        myfail = a;
+    }
+
+    bool allocate(cookie_type const *cookie, size_t /*bytes_allocated_now*/) noexcept {
+        my = *cookie;
+        my.next = my.prev = 0;
+        return !myfail; // return false to make allocation fail
+    }
+
+    void free(cookie_type const *cookie) noexcept {
+        my = *cookie;
+        my.next = my.prev = 0;
+    }
+
+    bool free_error(cookie_type const *cookie, void *pointer, size_t bytes, tag const& t, char const* error) noexcept {
+        // cookie can be 0
+        if(cookie)
+            free(cookie);
+        else
+            my = {};
+        myerror = error;
+        unused(pointer, bytes, t); // avoid warnings
+        return false; // dont breakpoint
+    }
+
+    cookie_type const& cookie() const {
+        return my;
+    }
+
+    char const* error() const {
+        return myerror;
+    }
+
+private:
+    template<typename ...a_>
+    void unused(a_ const&...) {}
+    
+};
 
 using test_memory = memory<void, cookie_copy_callback>;
 

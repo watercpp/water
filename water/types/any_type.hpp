@@ -16,16 +16,16 @@ any_type<integer<int, 123>>::result is int
 
 The result_kind must have:
 
-	struct some_kind {
-		template<typename a_> struct type;
-		};
+    struct some_kind {
+        template<typename a_> struct type;
+    };
 
 */
 
-template<typename type_> struct
- any_type :
-	result_kind<any_result<type_> >::template type<any_result<type_> >
-		{};
+template<typename type_>
+struct any_type :
+    result_kind<any_result<type_> >::template type<any_result<type_> >
+{};
 
 }}
 #endif

@@ -9,23 +9,23 @@
 #include WATER_THREADS_INCLUDE(mutex.hpp)
 namespace water { namespace threads {
 
-template<typename ...needs_> using
- mutex = typename need_select<needs<needs_...>, mutex_list>::result;
+template<typename ...needs_>
+using mutex = typename need_select<needs<needs_...>, mutex_list>::result;
 
 #if 0
 
-template<typename ...needs_> class
- mutex {
-	public:
-		mutex();
-		mutex(mutex const&) = delete;
-		mutex& operator=(mutex const&) = delete;
-		void lock();
-		bool lock(double seconds);
-		bool lock(deadline);
-		bool try_lock();
-		void unlock();
-	};
+template<typename ...needs_>
+class mutex {
+public:
+    mutex();
+    mutex(mutex const&) = delete;
+    mutex& operator=(mutex const&) = delete;
+    void lock();
+    bool lock(double seconds);
+    bool lock(deadline);
+    bool try_lock();
+    void unlock();
+};
 
 #endif
 

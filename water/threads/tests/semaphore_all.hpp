@@ -7,16 +7,16 @@
 #include <water/threads/tests/semaphore_pong.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename semaphore_> struct
- semaphore_all_tests {
- 	semaphore_all_tests() {
- 		semaphore_pong<semaphore_>();
- 		}
- 	};
+template<typename semaphore_>
+struct semaphore_all_tests {
+    semaphore_all_tests() {
+        semaphore_pong<semaphore_>();
+    }
+};
 
 inline void semaphore_all() {
-	test_list<semaphore_all_tests, semaphore_list>();
-	}
+    test_list<semaphore_all_tests, semaphore_list>();
+}
 
 }}}
 #endif

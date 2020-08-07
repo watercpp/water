@@ -25,16 +25,16 @@ When its 0, does not indent the XML at all. More compact but less readable for h
 When its anything else, indents the XML with that many spaces.
 
 
-example1 will use the defaults and write the XML like this: 
-	
-	<?xml version="1.0" encoding="UTF-8"?>
-	<hello>
-		world
-	</hello>
+example1 will use the defaults and write the XML like this:
+    
+    <?xml version="1.0" encoding="UTF-8"?>
+    <hello>
+        world
+    </hello>
 
 example2 will not indent and not write the XML delcaration, like this:
-	
-	<hello>world</hello>
+    
+    <hello>world</hello>
 
 */
 
@@ -43,20 +43,20 @@ size_t constexpr text_size = sizeof(text) - 1;
 
 
 inline bool example1() {
-	xml::memory<> memory;
-	auto nodes = read_to_memory(memory)(text, text_size).nodes();
-	
-	vector<char> destination;
-	
-	write(
-		[&destination](char const* begin, char const* end) {
-			destination.insert(destination.end(), begin, end);
-			},
-		nodes
-		);
-	
-	return !destination.empty();
-	}
+    xml::memory<> memory;
+    auto nodes = read_to_memory(memory)(text, text_size).nodes();
+    
+    vector<char> destination;
+    
+    write(
+        [&destination](char const* begin, char const* end) {
+            destination.insert(destination.end(), begin, end);
+        },
+        nodes
+    );
+    
+    return !destination.empty();
+}
 
 
 
@@ -64,27 +64,27 @@ inline bool example1() {
 // And the xml_declaration plus indent_spaces_or_tab arguments are used.
 
 inline bool example2() {
-	xml::memory<> memory;
-	auto nodes = read_to_memory(memory)(text, text_size).nodes();
-	bool xml_declaration = false;
-	unsigned indent_spaces_or_tab = 0; // do not indent
-	
-	size_t size = write_size(nodes, xml_declaration, indent_spaces_or_tab);
-	
-	vector<char> destination;
-	destination.reserve(size);
-	
-	size_t size_written = write(
-		[&destination](char const* begin, char const* end) {
-			destination.insert(destination.end(), begin, end);
-			},
-		nodes,
-		xml_declaration,
-		indent_spaces_or_tab
-		);
-	
-	return size_written = size && destination.size() == size;
-	}
+    xml::memory<> memory;
+    auto nodes = read_to_memory(memory)(text, text_size).nodes();
+    bool xml_declaration = false;
+    unsigned indent_spaces_or_tab = 0; // do not indent
+    
+    size_t size = write_size(nodes, xml_declaration, indent_spaces_or_tab);
+    
+    vector<char> destination;
+    destination.reserve(size);
+    
+    size_t size_written = write(
+        [&destination](char const* begin, char const* end) {
+            destination.insert(destination.end(), begin, end);
+        },
+        nodes,
+        xml_declaration,
+        indent_spaces_or_tab
+    );
+    
+    return size_written = size && destination.size() == size;
+}
 
 }}}}
 #endif

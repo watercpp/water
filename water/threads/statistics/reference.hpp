@@ -7,19 +7,23 @@
 #include <water/threads/statistics/data.hpp>
 namespace water { namespace threads { namespace statistics {
 
-class reference {
-	atomic<data*> my{};
-	public:
-		constexpr reference() noexcept = default;
-		reference(reference const&) = delete;
-		reference& operator=(reference const&) = delete;
-		data* get() const noexcept {
-			return my.load(memory_order_relaxed);
-			}
-		void set(data *a) noexcept {
-			my.store(a, memory_order_relaxed);
-			}
-	};
+class reference
+{
+    atomic<data*> my{};
+
+public:
+    constexpr reference() noexcept = default;
+    reference(reference const&) = delete;
+    reference& operator=(reference const&) = delete;
+
+    data* get() const noexcept {
+        return my.load(memory_order_relaxed);
+    }
+
+    void set(data *a) noexcept {
+        my.store(a, memory_order_relaxed);
+    }
+};
 
 }}}
 #endif

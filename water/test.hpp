@@ -15,29 +15,29 @@ Define WATER_TEST_FAILED or ___water_test yourself if there is a better way.
 
 All compilers seem to have "assignment within conditional expression" warnings. On all compiler this can be avided with:
 
-	if(static_cast<bool>(__VA_ARGS__) == true)
+    if(static_cast<bool>(__VA_ARGS__) == true)
 
 But then Visual C++ 2015 has warning: C4800: 'void *': forcing value to bool 'true' or 'false' (performance warning)
 This workaround with a const reference to remove the __VA_ARGS__ from the conditional seems to work:
 
-	auto const& water_test_result = (__VA_ARGS__);
-	if(water_test_result)
+    auto const& water_test_result = (__VA_ARGS__);
+    if(water_test_result)
 
 */
 
 #ifndef WATER_TEST_FAILED
-	#include <water/trace.hpp>
-	#define WATER_TEST_FAILED(file, line, function, code) ::water::trace() << "___water_test failed " << file << ':' << line << ' ' << function << ' ' << code; ___water_breakpoint();
+    #include <water/trace.hpp>
+    #define WATER_TEST_FAILED(file, line, function, code) ::water::trace() << "___water_test failed " << file << ':' << line << ' ' << function << ' ' << code; ___water_breakpoint();
 #endif
 
 #ifdef ___water_test
-	// done
+    // done
 #elif defined(WATER_COMPILER_MICROSOFT)
-	#define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __FUNCSIG__, #__VA_ARGS__); } while(0)
+    #define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __FUNCSIG__, #__VA_ARGS__); } while(0)
 #elif defined(WATER_COMPILER_CLANG) || defined(WATER_COMPILER_GCC)
-	#define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __PRETTY_FUNCTION__, #__VA_ARGS__); } while(0)
+    #define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __PRETTY_FUNCTION__, #__VA_ARGS__); } while(0)
 #else
-	#define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __func__, #__VA_ARGS__); } while(0)
+    #define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __func__, #__VA_ARGS__); } while(0)
 #endif
 
 #endif

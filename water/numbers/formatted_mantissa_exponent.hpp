@@ -11,23 +11,28 @@ namespace water { namespace numbers {
 
 // a formatted floatingpoint number for writing as a string, returned by format_float
 
-template<typename float_> class
- formatted_mantissa_exponent {
-	formatted<float_iterator<float_>>  mymantissa;
-	formatted<int_iterator<int>> myexponent;
-	public:
-		formatted_mantissa_exponent() = default;
-		formatted_mantissa_exponent(formatted<float_iterator<float_>> const& mantissa, formatted<int_iterator<int>> const& exponent) :
-			mymantissa(mantissa),
-			myexponent(exponent)
-			{}
-		formatted<float_iterator<float_>> const& mantissa() const {
-			return mymantissa;
-			}
-		formatted<int_iterator<int>> const& exponent() const {
-			return myexponent;
-			}
-	};
+template<typename float_>
+class formatted_mantissa_exponent
+{
+    formatted<float_iterator<float_>>  mymantissa;
+    formatted<int_iterator<int>> myexponent;
+
+public:
+    formatted_mantissa_exponent() = default;
+
+    formatted_mantissa_exponent(formatted<float_iterator<float_>> const& mantissa, formatted<int_iterator<int>> const& exponent) :
+        mymantissa(mantissa),
+        myexponent(exponent)
+    {}
+
+    formatted<float_iterator<float_>> const& mantissa() const {
+        return mymantissa;
+    }
+
+    formatted<int_iterator<int>> const& exponent() const {
+        return myexponent;
+    }
+};
 
 }}
 #endif

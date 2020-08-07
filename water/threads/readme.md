@@ -32,9 +32,9 @@ what you need, the template will select something that fulfills those needs or v
 
 Example, `mutex`:
 
-	mutex<> one; // no special needs
-	mutex<need_timeout> two; // has timed waits
-	mutex<need_constexpr_constructor, need_recursive> three; // recursive mutex with constexpr construction
+    mutex<> one; // no special needs
+    mutex<need_timeout> two; // has timed waits
+    mutex<need_constexpr_constructor, need_recursive> three; // recursive mutex with constexpr construction
 
 The variants that can selected can be divided into 3 groups
 
@@ -57,11 +57,11 @@ Define `WATER_THREADS_PREFER_WATER` to prefer water variants over system variant
 A condition variable might not work with any mutex. Use the `mutex_for_condition` template to make a
 mutex that can be used with the condition variable:
 
-	condition<need_water> c;
-	mutex_for_condition<condition<need_water>> m;
-	lock(m);
-	wait(c, m);
-	unlock(m);
+    condition<need_water> c;
+    mutex_for_condition<condition<need_water>> m;
+    lock(m);
+    wait(c, m);
+    unlock(m);
 
 The spin variants are not system specific, the other variants are system specific.
 Spin variants are never selected unless `need_spin` is specified.
@@ -100,10 +100,10 @@ Look at:
 You can assign a name to each synchronization object so it will be easier to find in the generated
 data. Use the `name_if` + `statistics_pointer` functions:
 
-	mutex<> m;
-	semaphore<> s;
-	___water_threads_statistics(name_if(statistics_pointer(m), "hello");)
-	___water_threads_statistics(name_if(statistics_pointer(s)) << "hello" << 123;)
+    mutex<> m;
+    semaphore<> s;
+    ___water_threads_statistics(name_if(statistics_pointer(m), "hello");)
+    ___water_threads_statistics(name_if(statistics_pointer(s)) << "hello" << 123;)
 
 The second `name_if` is a `water::ministr::out`.
 
@@ -112,37 +112,37 @@ The second `name_if` is a `water::ministr::out`.
 
 In `water::threads` a thread is represented by a simple type `thread_t` or `join_t`. A thread is started with the `run` function. This is a low level, minimal layer over posix `pthread_create` and windows `CreateThread`/`_beginthreadex`.
 
-	auto function = [] { do_something(); };
-	water::threads::join_t thread;
-	bool success = water::threads::run(function, thread);
-	if(success)
-		join(thread);
+    auto function = [] { do_something(); };
+    water::threads::join_t thread;
+    bool success = water::threads::run(function, thread);
+    if(success)
+        join(thread);
 
 In this example, notice that `function` is **not** copied. Make sure that the function object passed to threads::run exists as long as the thread is running. For this reason, you usually want a `water::threads::join_t` variable that you can `join` later to know when the thread has finished (There are `run` overloads without a `join_t`).
 
 You can set priority, stack size and the Apple specific "quality of service" (that can be quite important on iOS) on a thread. If the operating system does not let you set the priority, stack_size or quality of service those options are ignored. This example shows how to use `run` with a regular function plus a pointer:
 
-	some_type *pointer_to_something = new some_type;
-	void function(some_type*);
-	
-	water::threads::priority priority;
-	unsigned average_priority = priority.min() + (priority.max() - priority.min()) / 2;
-	
-	water::threads::run_options options;
-	options.priority(average_priority);
-	options.stack_size(1024 * 1024);
-	options.qos(water::threads::qos_user_interactive);
-	
-	water::threads::join_t thread;
-	bool success = water::threads::run<water::threads::function<some_type, &function>>(
-		pointer_to_something,
-		join,
-		options
-		);
-	if(success) {
-		join(thread);
-		delete pointer_to_something;
-		}
+    some_type *pointer_to_something = new some_type;
+    void function(some_type*);
+    
+    water::threads::priority priority;
+    unsigned average_priority = priority.min() + (priority.max() - priority.min()) / 2;
+    
+    water::threads::run_options options;
+    options.priority(average_priority);
+    options.stack_size(1024 * 1024);
+    options.qos(water::threads::qos_user_interactive);
+    
+    water::threads::join_t thread;
+    bool success = water::threads::run<water::threads::function<some_type, &function>>(
+        pointer_to_something,
+        join,
+        options
+    );
+    if(success) {
+        join(thread);
+        delete pointer_to_something;
+    }
 
 See
 

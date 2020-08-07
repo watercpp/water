@@ -38,35 +38,38 @@ the collection_kind must have
 
 */
 
-template<typename c_, int i_ = 0> struct
- at :
-	c_::collection_tag::result::template at<c_, i_>
-		{};
-		
+template<typename c_, int i_ = 0>
+struct at :
+    c_::collection_tag::result::template at<c_, i_>
+{};
+
 // is types::at<c_, at_::result>
-template<typename c_, typename at_> struct
- at_type :
-	c_::collection_tag::result::template at<c_, at_::result>
-		{};
+template<typename c_, typename at_>
+struct at_type :
+    c_::collection_tag::result::template at<c_, at_::result>
+{};
 
 namespace _ {
-	template<typename a_, typename = void> struct
-	 do_at_exists :
-		false_result
-			{};
-	template<typename a_> struct
-	 do_at_exists<a_, to_void<typename a_::template at<void, 0> >> :
-		true_result
-			{};
-	}
+
+    template<typename a_, typename = void>
+    struct do_at_exists :
+        false_result
+    {};
+    
+    template<typename a_>
+    struct do_at_exists<a_, to_void<typename a_::template at<void, 0> >> :
+        true_result
+    {};
+
+}
 
 // result true if
 // - c_ is a collection, and the kind has at<c_, 0>
 // - c_ is not a collection, and it has at<c_, 0> (for testing the collection_kind directly)
-template<typename c_> struct
- at_exists :
-	_::do_at_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
-		{};
+template<typename c_>
+struct at_exists :
+    _::do_at_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
+{};
 
 }}
 #endif

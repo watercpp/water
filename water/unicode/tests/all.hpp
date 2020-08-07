@@ -9,9 +9,9 @@
 namespace water { namespace unicode { namespace tests {
 
 inline void all() {
-	conversion{};
-	adjust_end();
-	}
+    conversion{};
+    adjust_end();
+}
 
 }}}
 #endif

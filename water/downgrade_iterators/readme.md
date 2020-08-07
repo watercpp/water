@@ -16,19 +16,19 @@ proxy classes for the pointer and reference types.
 
 ## Example: Downgrade vector iterators to input iterators
 
-	#include <water/downgrade_iterators/downgrade_iterators.hpp>
-	
-	std::vector<int> v;
-	water::downgrade_iterators::input<std::vector<int>::iterator>
-		begin{v.begin()},
-		end{v.end()};
-	int sum = 0;
-	while(begin != end) {
-		sum += *begin;
-		++begin;
-		}
-		
+    #include <water/downgrade_iterators/downgrade_iterators.hpp>
+    
+    std::vector<int> v;
+    water::downgrade_iterators::input<std::vector<int>::iterator>
+        begin{v.begin()},
+        end{v.end()};
+    int sum = 0;
+    while(begin != end) {
+        sum += *begin;
+        ++begin;
+    }
+        
 
 There are function to create iterators with less typing:
 
-	auto i = water::downgrade_iterators::input_from(v.begin());
+    auto i = water::downgrade_iterators::input_from(v.begin());

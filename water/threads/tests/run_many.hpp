@@ -12,31 +12,31 @@ namespace water { namespace threads { namespace tests {
 
 constexpr unsigned run_many_max = 512;
 
-template<typename function_> unsigned
- run_many(function_ function, unsigned count) {
-	if(!count || count > run_many_max)
-		return 0;
-	unsigned at = 0;
-	join_t list[run_many_max];
-	do {
-		bool run_ok = run(function, list[at]);
-		___water_test(run_ok);
-		if(!run_ok) --count;
-		else ++at;
-		} while(at != count);
-	at = 0;
-	while(at != count) {
-		bool join_ok = join(list[at]);
-		___water_test(join_ok);
-		++at;
-		}
-	return at;
-	}
+template<typename function_>
+unsigned run_many(function_ function, unsigned count) {
+    if(!count || count > run_many_max)
+        return 0;
+    unsigned at = 0;
+    join_t list[run_many_max];
+    do {
+        bool run_ok = run(function, list[at]);
+        ___water_test(run_ok);
+        if(!run_ok) --count;
+        else ++at;
+    } while(at != count);
+    at = 0;
+    while(at != count) {
+        bool join_ok = join(list[at]);
+        ___water_test(join_ok);
+        ++at;
+    }
+    return at;
+}
 
-template<typename function_> unsigned
- run_many_reference(function_& function, unsigned count) {
-	return run_many<function_&>(function, count);
-	}
+template<typename function_>
+unsigned run_many_reference(function_& function, unsigned count) {
+    return run_many<function_&>(function, count);
+}
 
 }}}
 #endif

@@ -8,58 +8,75 @@
 #include <water/threads/windows/name.hpp>
 namespace water { namespace threads {
 
-class hold_semaphore {
-	void *my = 0;
-	public:
-		using hold_type = handle_hold;
-		constexpr hold_semaphore() noexcept = default;
-		hold_semaphore(hold_semaphore const&) = delete;
-		hold_semaphore& operator=(hold_semaphore const&) = delete;
-		~hold_semaphore() noexcept {
-			if(my) CloseHandle(my);
-			}
-		void get_or_create(hold_type& to) noexcept {
-			to.set(semaphore_create(0));
-			}
-		void get(hold_type& to) noexcept {
-			to.set(my);
-			}
-	};
+class hold_semaphore
+{
+    void *my = 0;
 
-class hold_semaphore_atomic {
-	handle_atomic my {};
-	public:
-		using hold_type = handle_hold;
-		constexpr hold_semaphore_atomic() noexcept = default;
-		hold_semaphore_atomic(hold_semaphore_atomic const&) = delete;
-		hold_semaphore_atomic& operator=(hold_semaphore_atomic const&) = delete;
-		~hold_semaphore_atomic() noexcept {
-			if(void *h = my.load(memory_order_relaxed))
-				CloseHandle(h);
-			}
-		void get_or_create(hold_type& to) noexcept {
-			void *h = my.load(memory_order_relaxed);
-			if(!h || h == handle_bad)
-				h = atomic_create(my, []{ return semaphore_create(); });
-			to.set(h);
-			}
-		void get(hold_type& to) noexcept {
-			void *h = my.load(memory_order_relaxed);
-			if(h == handle_bad) h = 0;
-			to.set(h);
-			}
-	};
+public:
+    using hold_type = handle_hold;
+    
+    constexpr hold_semaphore() noexcept = default;
+    hold_semaphore(hold_semaphore const&) = delete;
+    hold_semaphore& operator=(hold_semaphore const&) = delete;
 
-class hold_semaphore_named {
-	public:
-		using hold_type = handle_close;
-		void get_or_create(hold_type& to) noexcept {
-			to.set(semaphore_create(0, name("hold_semaphore_named", this)));
-			}
-		void get(hold_type& to) noexcept {
-			to.set(OpenSemaphoreW(semaphore_modify_state, 0, name("hold_semaphore_named", this)));
-			}
-	};
+    ~hold_semaphore() noexcept {
+        if(my) CloseHandle(my);
+    }
+
+    void get_or_create(hold_type& to) noexcept {
+        to.set(semaphore_create(0));
+    }
+
+    void get(hold_type& to) noexcept {
+        to.set(my);
+    }
+};
+
+
+class hold_semaphore_atomic
+{
+    handle_atomic my {};
+
+public:
+    using hold_type = handle_hold;
+    
+    constexpr hold_semaphore_atomic() noexcept = default;
+    hold_semaphore_atomic(hold_semaphore_atomic const&) = delete;
+    hold_semaphore_atomic& operator=(hold_semaphore_atomic const&) = delete;
+
+    ~hold_semaphore_atomic() noexcept {
+        if(void *h = my.load(memory_order_relaxed))
+            CloseHandle(h);
+    }
+
+    void get_or_create(hold_type& to) noexcept {
+        void *h = my.load(memory_order_relaxed);
+        if(!h || h == handle_bad)
+            h = atomic_create(my, []{ return semaphore_create(); });
+        to.set(h);
+    }
+
+    void get(hold_type& to) noexcept {
+        void *h = my.load(memory_order_relaxed);
+        if(h == handle_bad) h = 0;
+        to.set(h);
+    }
+};
+
+
+class hold_semaphore_named
+{
+public:
+    using hold_type = handle_close;
+    
+    void get_or_create(hold_type& to) noexcept {
+        to.set(semaphore_create(0, name("hold_semaphore_named", this)));
+    }
+
+    void get(hold_type& to) noexcept {
+        to.set(OpenSemaphoreW(semaphore_modify_state, 0, name("hold_semaphore_named", this)));
+    }
+};
 
 }}
 #endif

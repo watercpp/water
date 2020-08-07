@@ -19,18 +19,18 @@ Use types::to_bool<types::ors<....>>::result to get a bool
 
 */
 
-template<typename ...list_> struct
- ors;
+template<typename ...list_>
+struct ors;
 
-template<typename at_, typename ...list_> struct
- ors<at_, list_...> :
-	ifel<to_bool<at_>::result, at_, ors<list_...>>
-		{};
+template<typename at_, typename ...list_>
+struct ors<at_, list_...> :
+    ifel<to_bool<at_>::result, at_, ors<list_...>>
+{};
 
-template<> struct
- ors<> :
-	any_result<>
-		{};
+template<>
+struct ors<> :
+    any_result<>
+{};
 
 }}
 #endif

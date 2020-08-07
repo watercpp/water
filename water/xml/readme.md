@@ -31,17 +31,17 @@ The xml::node object points to something in the xml::memory, like an iterator or
 There is no need to use recursive functions or keep a stack of xml::node objects, it is always possible to traverse the node tree in all directions from a single xml::node object.
 
 
-	<?xml version="1.0" encoding="UTF-8"?>
-	<tag1>
-		text1
-		<tag2 attribute1="1" attribute2="2">
-			text2
-			<tag3/>
-		</tag2>
-		<tag4>text3</tag4>
-		<!-- comment -->
-		text4
-	</tag1>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <tag1>
+        text1
+        <tag2 attribute1="1" attribute2="2">
+            text2
+            <tag3/>
+        </tag2>
+        <tag4>text3</tag4>
+        <!-- comment -->
+        text4
+    </tag1>
 
 This XML text are turned into a xml::node tree like this:
 
@@ -69,16 +69,16 @@ Nodes that contain other nodes return the first of the contained nodes with the 
 Nodes at the same level can be searched by `name()` using the `find("something")` function. If node `a` is text1, using `auto b = a.find("tag4")` will result in node `b` pointing to tag4. The find function will start searching at the current position, so `auto c = b.find("tag4")` will result in `b == c`. To find the next result use next and find together `auto d = b.next().find("tag4")`. In this case there is no other node with name "tag4", so `d` will point to nowhere and convert to false.
 
 The `nodes("something")` and `attributes("something")` functions are shortcuts to find nodes contained inside a node:
-	
-	xml::node<> tag1 = ...;
-	
-	auto a = tag1.nodes("tag4");
-	auto b = tag1.nodes().find("tag4"); // same result
-	assert(a == b && a.name() == "tag4");
-	
-	a = tag1.nodes("tag2").attributes("attribute2");
-	b = tag1.nodes().find("tag2").attributes().find("attribute2"); // same result
-	assert(a.value() == b.value() && a.value() == "2");
+    
+    xml::node<> tag1 = ...;
+    
+    auto a = tag1.nodes("tag4");
+    auto b = tag1.nodes().find("tag4"); // same result
+    assert(a == b && a.name() == "tag4");
+    
+    a = tag1.nodes("tag2").attributes("attribute2");
+    b = tag1.nodes().find("tag2").attributes().find("attribute2"); // same result
+    assert(a.value() == b.value() && a.value() == "2");
 
 There are overloads of find, nodes and attributes that take begin and end iterators, begin + size or any obect with begin() end() like std::string.
 
@@ -90,13 +90,13 @@ The `first_value()` function returns the first value-only node from the nodes co
 #### Mutable and constant nodes
 
 A mutable node has functions to set the name and value, insert or remove nodes and even create new nodes. A constant node is a read-only node. A mutable node converts to a constant node. Its the same xml::node class only the mutable node has the memory template argument set:
-	
-	xml::memory<> memory;
-	
-	xml::node<char, xml::memory<>> mutalbe_node = memory.create();
-	xml::node<char> constant_node = mutalbe_node;
-	
-	mutalbe_node.name("hello").first_value("world");
+    
+    xml::memory<> memory;
+    
+    xml::node<char, xml::memory<>> mutalbe_node = memory.create();
+    xml::node<char> constant_node = mutalbe_node;
+    
+    mutalbe_node.name("hello").first_value("world");
 
 The resulting XML from mutalbe_node is `<hello>world</hello>`, the first_value will create a new node for the text content.
 
@@ -111,17 +111,17 @@ it from that encoding to UTF-8/16/32 it will be possible to parse it using xml::
 
 ## Example
 
-	size_t file_size_in_bytes = ...;
-	xml::memory<> memory;
-	void *buffer = memory.allocate(file_size_in_bytes);
-	read_the_whole_file_into_memory(buffer, file_size_in_bytes, file);
-	auto nodes = read_to_memory(memory).parse_in_place(buffer, file_size_in_bytes).nodes();
-	if(nodes)
-		out << "parse success!!!\n";
+    size_t file_size_in_bytes = ...;
+    xml::memory<> memory;
+    void *buffer = memory.allocate(file_size_in_bytes);
+    read_the_whole_file_into_memory(buffer, file_size_in_bytes, file);
+    auto nodes = read_to_memory(memory).parse_in_place(buffer, file_size_in_bytes).nodes();
+    if(nodes)
+        out << "parse success!!!\n";
 
-	write(out, nodes); // output xml text to a water::str::out
+    write(out, nodes); // output xml text to a water::str::out
 
-	memory.clear(); // free all memory allocated with this memory object, including all nodes
+    memory.clear(); // free all memory allocated with this memory object, including all nodes
 
 Here the file is read into memory allocated by xml::memory, then read_to_memory is used
 to create a xml::read parser that reads to the xml::memory object.
@@ -131,22 +131,22 @@ the file and avoid extra allocations.
 
 ## Example, create document from scratch
 
-	xml::memory<> memory;
-	auto root = create(memory);
-	root.name("root");
-	auto tag = root.push_back().name("tag");
-	root.push_back().value("world");
-	tag.attributes(root.create().name("attribute").value("value"));
-	tag.create().value("hello").insert_before(tag);
+    xml::memory<> memory;
+    auto root = create(memory);
+    root.name("root");
+    auto tag = root.push_back().name("tag");
+    root.push_back().value("world");
+    tag.attributes(root.create().name("attribute").value("value"));
+    tag.create().value("hello").insert_before(tag);
 
 This is the XML:
 
-	<?xml version="1.0" encoding="UTF-8"?>
-	<root>
-		hello  
-		<tag attribute="value"/>
-		world
-	</root>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <root>
+        hello  
+        <tag attribute="value"/>
+        world
+    </root>
 
 
 ## Intended use

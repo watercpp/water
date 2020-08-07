@@ -21,28 +21,32 @@ the collection_kind must have:
 
 */
 
-template<typename c_> struct
- size :
-	c_::collection_tag::result::template size<c_>
-		{};
+template<typename c_>
+struct size :
+    c_::collection_tag::result::template size<c_>
+{};
 
 namespace _ {
-	template<typename, typename = void> struct
-	 do_size_exists :
-		false_result
-			{};
-	template<typename a_> struct
-	 do_size_exists<a_, to_void<typename a_::template size<void>>> :
-		true_result
-			{};
-	}
+
+    template<typename, typename = void>
+    struct do_size_exists :
+        false_result
+    {};
+    
+    template<typename a_>
+    struct do_size_exists<a_, to_void<typename a_::template size<void>>> :
+        true_result
+    {};
+    
+}
+
 // result true if
 // - c_ is a collection, and the kind has size<c_>
 // - c_ is not a collection, and it has size<c_>
-template<typename c_> struct
- size_exists :
-	_::do_size_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
-		{};
+template<typename c_>
+struct size_exists :
+    _::do_size_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
+{};
 
 }}
 #endif

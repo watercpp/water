@@ -31,7 +31,7 @@ typedef bool (&false_size)[2];
 //   types::bool_result<
 //     sizeof(_::test_some_type<typename types::type<a_>::result>(0)) == sizeof(true)
 //     > {};
-// 
+//
 // to make it compile on more compilers and witout warnings:
 // - have test-functions outside the result struct
 // - always qualify test-function with namespace
@@ -42,17 +42,22 @@ typedef bool (&false_size)[2];
 
 // tag_overload_is_exact, workaround for codewarrior probably not needed any more
 namespace _ {
-	struct do_tag_overload_tag;
-	struct do_test_tag_overload { typedef void tag; };
-	template<typename t_ = do_test_tag_overload, typename tag_ = do_tag_overload_tag> struct
-	 do_tag_overload_is_exact {
-		enum type { result = true };
-		};
-	template<typename t_> struct
-	 do_tag_overload_is_exact<t_, typename t_::tag> {
-		enum type { result = false };
-		};
-	}
+
+    struct do_tag_overload_tag;
+    
+    struct do_test_tag_overload { typedef void tag; };
+    
+    template<typename t_ = do_test_tag_overload, typename tag_ = do_tag_overload_tag>
+    struct do_tag_overload_is_exact {
+        enum type { result = true };
+    };
+    
+    template<typename t_>
+    struct do_tag_overload_is_exact<t_, typename t_::tag> {
+        enum type { result = false };
+    };
+}
+
 bool constexpr tag_overload_is_exact = _::do_tag_overload_is_exact<>::result;
 
 }}

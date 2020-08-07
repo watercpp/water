@@ -9,9 +9,9 @@
 namespace water { namespace threads {
 
 using condition_list = list<
-	pthread_cond,
-	condition_futex<>
-	>;
+    pthread_cond,
+    condition_futex<>
+>;
 
 }}
 #endif

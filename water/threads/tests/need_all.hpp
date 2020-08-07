@@ -9,26 +9,26 @@
 namespace water { namespace threads { namespace tests {
 
 inline void need_all() {
-	unsigned constexpr
-		all = needs<
-		need_system,
-		need_water,
-		need_timeout,
-		need_recursive,
-		need_constexpr_constructor,
-		need_trivial_destructor,
-		need_spin
-		>::need,
-		none = needs<>::need,
-		some = needs<
-		need_water,
-		need_recursive,
-		need_trivial_destructor
-		>::need;
-	static_assert(all == (1 << 7) - 1, "test");
-	static_assert(none == 0, "test");
-	static_assert(some != 0, "test");
-	}
+    unsigned constexpr
+        all = needs<
+            need_system,
+            need_water,
+            need_timeout,
+            need_recursive,
+            need_constexpr_constructor,
+            need_trivial_destructor,
+            need_spin
+        >::need,
+        none = needs<>::need,
+        some = needs<
+            need_water,
+            need_recursive,
+            need_trivial_destructor
+        >::need;
+    static_assert(all == (1 << 7) - 1, "test");
+    static_assert(none == 0, "test");
+    static_assert(some != 0, "test");
+}
 
 }}}
 #endif

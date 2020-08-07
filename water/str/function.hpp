@@ -12,9 +12,9 @@ namespace water { namespace str {
 For functions that take begin,end as char pointers. This will convert any input that is not using a buffer
 
 struct function_ {
-	void operator()(char const* begin, char const* end)
-	};
-	
+    void operator()(char const* begin, char const* end)
+};
+
 The begin,end range is *not* 0 terminated
 
 out_function([](char16_t const* b, char16_t const *e) { ... }) << "hello";
@@ -22,95 +22,112 @@ out_function([](char16_t const* b, char16_t const *e) { ... }) << "hello";
 */
 
 namespace _ {
-	
-	// this works on visual c++, see tests::function_type_detect for methods that did not work
+    
+    // this works on visual c++, see tests::function_type_detect for methods that did not work
 
-	template<typename f_> void     function_test(...);
-	template<typename f_> char     function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))* = 0);
-	template<typename f_> char16_t function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))* = 0);
-	template<typename f_> char32_t function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))* = 0);
-	template<typename f_> wchar_t  function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))* = 0);
+    template<typename f_> void     function_test(...);
+    template<typename f_> char     function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))* = 0);
+    template<typename f_> char16_t function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))* = 0);
+    template<typename f_> char32_t function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))* = 0);
+    template<typename f_> wchar_t  function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))* = 0);
 
-	template<typename function_, typename char_ = decltype(function_test<typename types::no_reference<function_>::result>(0))> struct
-	 function_char : types::type_plain<char_>
-		{};
-	template<typename function_> struct
-	 function_char<function_, void>
-		{};
+    template<typename function_, typename char_ = decltype(function_test<typename types::no_reference<function_>::result>(0))>
+    struct function_char : types::type_plain<char_>
+    {};
+    
+    template<typename function_>
+    struct function_char<function_, void>
+    {};
 
-	}
+}
 
-template<typename function_, typename char_ = typename _::function_char<function_>::result> class
- function {
-	public:
-		using char_type = char_;
-		using function_type = function_;
-	private:
-		function_type my;
-	public:
-		function() : // constructors not default because visual c++ 2015
-			my{}
-			{}
-		function(function const& a) :
-			my{a.my}
-			{}
-		function(function&& a) :
-			my{static_cast<function_type&&>(a.my)}
-			{}
-		template<typename ...arguments_, typename not_copy_constructor<function, arguments_...>::result = 0>
-		 function(arguments_&&... a) :
-			my{static_cast<arguments_&&>(a)...}
-			{}
-		function& operator=(function const& a) {
-			my = a.my;
-			return *this;
-			}
-		function& operator=(function&& a) {
-			my = static_cast<function_type&&>(a.my);
-			return *this;
-			}
-		void swap(function& a) {
-			swap_from_swap(my, a.my);
-			}
-		void operator()(char_type const* begin, char_type const* end) {
-			if(begin != end)
-				my(begin, end);
-			}
-		void operator()(char_type* begin, char_type* end) {
-			operator()(static_cast<char_type const*>(begin), static_cast<char_type const*>(end));
-			}
-		template<typename iterator_> void operator()(iterator_ begin, iterator_ end) {
-			unsigned constexpr size = 256;
-			char_type
-				buffer[size],
-				*b = buffer;
-			while(begin != end) {
-				if(b == buffer + size) {
-					auto e = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(buffer + 0, b);
-					operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(e));
-					auto b2 = buffer;
-					while(e != b) *b2++ = *e++;
-					b = b2;
-					}
-				*b++ = static_cast<char_type>(*begin);
-				++begin;
-				}
-			if(b != buffer)
-				operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(b));
-			}
-	};
+template<typename function_, typename char_ = typename _::function_char<function_>::result>
+class function
+{
+public:
+    using char_type = char_;
+    using function_type = function_;
 
-template<typename function_, typename char_> void swap(function<function_, char_>& a, function<function_, char_>& b) {
-	a.swap(b);
-	}
+private:
+    function_type my;
 
-template<typename function_> out<function<function_>> out_function(function_&& f, settings s = {}) {
-	return out<function<function_>>(s, static_cast<function_&&>(f));
-	}
+public:
+    function() : // constructors not default because visual c++ 2015
+        my{}
+    {}
 
-template<typename char_, typename function_> out<function<function_, char_>> out_function(function_&& f, settings s = {}) {
-	return out<function<function_, char_>>(s, static_cast<function_&&>(f));
-	}
+    function(function const& a) :
+        my{a.my}
+    {}
+
+    function(function&& a) :
+        my{static_cast<function_type&&>(a.my)}
+    {}
+
+    template<typename ...arguments_, typename not_copy_constructor<function, arguments_...>::result = 0>
+    function(arguments_&&... a) :
+        my{static_cast<arguments_&&>(a)...}
+    {}
+
+    function& operator=(function const& a) {
+        my = a.my;
+        return *this;
+    }
+
+    function& operator=(function&& a) {
+        my = static_cast<function_type&&>(a.my);
+        return *this;
+    }
+
+    void swap(function& a) {
+        swap_from_swap(my, a.my);
+    }
+
+    void operator()(char_type const* begin, char_type const* end) {
+        if(begin != end)
+            my(begin, end);
+    }
+
+    void operator()(char_type* begin, char_type* end) {
+        operator()(static_cast<char_type const*>(begin), static_cast<char_type const*>(end));
+    }
+
+    template<typename iterator_>
+    void operator()(iterator_ begin, iterator_ end) {
+        unsigned constexpr size = 256;
+        char_type
+            buffer[size],
+            *b = buffer;
+        while(begin != end) {
+            if(b == buffer + size) {
+                auto e = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(buffer + 0, b);
+                operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(e));
+                auto b2 = buffer;
+                while(e != b) *b2++ = *e++;
+                b = b2;
+            }
+            *b++ = static_cast<char_type>(*begin);
+            ++begin;
+        }
+        if(b != buffer)
+            operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(b));
+    }
+};
+
+template<typename function_, typename char_>
+void swap(function<function_, char_>& a, function<function_, char_>& b) {
+    a.swap(b);
+}
+
+template<typename function_>
+out<function<function_>> out_function(function_&& f, settings s = {}) {
+    return out<function<function_>>(s, static_cast<function_&&>(f));
+}
+
+template<typename char_, typename function_>
+out<function<function_, char_>> out_function(function_&& f, settings s = {}) {
+    return out<function<function_, char_>>(s, static_cast<function_&&>(f));
+}
 
 }}
 #endif

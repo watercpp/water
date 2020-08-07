@@ -8,8 +8,8 @@
 namespace water { namespace threads {
 
 inline void yield() noexcept {
-	sched_yield(); //"no errors are defined"
-	}
+    sched_yield(); //"no errors are defined"
+}
 
 }}
 #endif

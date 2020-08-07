@@ -23,23 +23,27 @@ if_not_void<enum_result<123>, int>::result is 123
 */
 
 namespace _ {
-	template<typename a_, typename b_> struct
-	 do_if_not_void :
-		any_result<a_>
-			{};
-	template<typename b_> struct
-	 do_if_not_void<void, b_> :
-		any_result<b_>
-			{};
-	template<> struct
-	 do_if_not_void<void, nothing>
-		{};
-	}
 
-template<typename if_not_void_, typename else_ = nothing> struct
- if_not_void :
-	_::do_if_not_void<typename type<if_not_void_>::result, else_>
-		{};
+    template<typename a_, typename b_>
+    struct do_if_not_void :
+        any_result<a_>
+    {};
+    
+    template<typename b_>
+    struct do_if_not_void<void, b_> :
+        any_result<b_>
+    {};
+    
+    template<>
+    struct do_if_not_void<void, nothing>
+    {};
+    
+}
+
+template<typename if_not_void_, typename else_ = nothing>
+struct if_not_void :
+    _::do_if_not_void<typename type<if_not_void_>::result, else_>
+{};
 
 }}
 #endif

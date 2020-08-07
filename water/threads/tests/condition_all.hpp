@@ -9,18 +9,18 @@
 #include <water/threads/tests/condition_wake_all.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename condition_> struct
- condition_all_tests {
-  condition_all_tests() {
- 		condition_functions<condition_>();
- 		condition_pong<condition_>();
- 		condition_wake_all<condition_>();
- 		}
- 	};
+template<typename condition_>
+struct condition_all_tests {
+    condition_all_tests() {
+        condition_functions<condition_>();
+        condition_pong<condition_>();
+        condition_wake_all<condition_>();
+    }
+};
 
 inline void condition_all() {
-	test_list<condition_all_tests, condition_list>();
-	}
+    test_list<condition_all_tests, condition_list>();
+}
 
 }}}
 #endif

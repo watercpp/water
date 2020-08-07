@@ -8,30 +8,30 @@
 namespace water { namespace types { namespace tests {
 
 int constexpr reference_hpp =
-	
-	type_assert<is_reference<int&>>::assert +
-	type_assert<is_reference<int&&>>::assert +
-	type_assert<nots<is_reference<int>>>::assert +
-	type_assert<nots<is_rvalue_reference<int&>>>::assert +
-	type_assert<is_rvalue_reference<int&&>>::assert +
-	type_assert<nots<is_rvalue_reference<int>>>::assert +
-	
-	type_assert<equal<no_reference<int&>, int>>::assert +
-	type_assert<equal<no_reference<int&&>, int>>::assert +
-	type_assert<equal<no_reference<int>, int>>::assert +
-	
-	type_assert<equal<to_reference<int&>, int&>>::assert +
-	type_assert<equal<to_reference<int&&>, int&>>::assert +
-	type_assert<equal<to_reference<int>, int&>>::assert +
-	
-	type_assert<equal<no_rvalue_reference<int&>, int&>>::assert +
-	type_assert<equal<no_rvalue_reference<int&&>, int>>::assert +
-	type_assert<equal<no_rvalue_reference<int>, int>>::assert +
-	
-	type_assert<equal<to_rvalue_reference<int&>, int&&>>::assert +
-	type_assert<equal<to_rvalue_reference<int&&>, int&&>>::assert +
-	type_assert<equal<to_rvalue_reference<int>, int&&>>::assert;
-	
+    
+    type_assert<is_reference<int&>>::assert +
+    type_assert<is_reference<int&&>>::assert +
+    type_assert<nots<is_reference<int>>>::assert +
+    type_assert<nots<is_rvalue_reference<int&>>>::assert +
+    type_assert<is_rvalue_reference<int&&>>::assert +
+    type_assert<nots<is_rvalue_reference<int>>>::assert +
+    
+    type_assert<equal<no_reference<int&>, int>>::assert +
+    type_assert<equal<no_reference<int&&>, int>>::assert +
+    type_assert<equal<no_reference<int>, int>>::assert +
+    
+    type_assert<equal<to_reference<int&>, int&>>::assert +
+    type_assert<equal<to_reference<int&&>, int&>>::assert +
+    type_assert<equal<to_reference<int>, int&>>::assert +
+    
+    type_assert<equal<no_rvalue_reference<int&>, int&>>::assert +
+    type_assert<equal<no_rvalue_reference<int&&>, int>>::assert +
+    type_assert<equal<no_rvalue_reference<int>, int>>::assert +
+    
+    type_assert<equal<to_rvalue_reference<int&>, int&&>>::assert +
+    type_assert<equal<to_rvalue_reference<int&&>, int&&>>::assert +
+    type_assert<equal<to_rvalue_reference<int>, int&&>>::assert;
+    
 
 }}}
 #endif

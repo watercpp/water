@@ -14,14 +14,23 @@ out << type_name<int>();
 
 */
 
-template<typename type_> struct type_name_do : callback<type_name_do<type_>> {
-	template<typename o_> void operator()(out<o_>& o) {
-		type_name_to<type_>(o);
-		}
-	};
+template<typename type_>
+struct type_name_do : callback<type_name_do<type_>> {
+    template<typename o_>
+    void operator()(out<o_>& o) {
+        type_name_to<type_>(o);
+    }
+};
 
-template<typename type_> type_name_do<type_> type_name() { return {}; }
-template<typename type_> type_name_do<type_> type_name(type_ const&) { return {}; }
+template<typename type_>
+type_name_do<type_> type_name() {
+    return {};
+}
+
+template<typename type_>
+type_name_do<type_> type_name(type_ const&) {
+    return {};
+}
 
 }}
 #endif

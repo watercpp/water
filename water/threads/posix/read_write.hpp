@@ -9,9 +9,9 @@
 namespace water { namespace threads {
 
 using read_write_list = list<
-	pthread_rwlock,
-	spin_read_write<>
-	>;
+    pthread_rwlock,
+    spin_read_write<>
+>;
 
 }}
 #endif

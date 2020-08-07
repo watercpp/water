@@ -19,10 +19,10 @@ Note that this will add a newline by itself, see buffer_lines.hpp
 */
 
 struct write_to_trace {
-	void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
-		trace(cstring);
-		}
-	};
+    void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
+        trace(cstring);
+    }
+};
 
 using out_trace = out<buffer_lines<write_to_trace>>;
 

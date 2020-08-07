@@ -28,43 +28,49 @@ Bits      Ones complement    Twos complement    Signed magnitude
 */
 
 enum class signed_representation {
-	none = 0,
-	ones_complement = 1,
-	twos_complement = 2,
-	signed_magnitude = -1
-	};
+    none = 0,
+    ones_complement = 1,
+    twos_complement = 2,
+    signed_magnitude = -1
+};
 
 namespace _ {
-	template<typename int_> struct
-	 signed_representation_do : types::integer<
-		signed_representation,
-		(static_cast<int_>(-1) >= static_cast<int_>(0)) ? signed_representation::none : // unsigned
-		(~static_cast<int_>(0) == static_cast<int_>(-1)) ? signed_representation::twos_complement : // 0xffff is -1
-		(~static_cast<int_>(0) == static_cast<int_>(-0)) ? signed_representation::ones_complement : // 0xffff is -0 could be a trap value
-		(~static_cast<int_>(0) <= static_cast<int_>(-2)) ? signed_representation::signed_magnitude : // 0xffff is -max
-		signed_representation::none
-		> {};
-	}
 
-template<typename type_> constexpr signed_representation signed_representation_of() {
-	return types::ifel<
-		types::is_int<type_>::result,
-		_::signed_representation_do<typename types::type<type_>::result>,
-		types::integer<signed_representation, signed_representation::none>
-		>::result;
-	}
+    template<typename int_>
+    struct signed_representation_do : types::integer<
+        signed_representation,
+        (static_cast<int_>(-1) >= static_cast<int_>(0)) ? signed_representation::none : // unsigned
+        (~static_cast<int_>(0) == static_cast<int_>(-1)) ? signed_representation::twos_complement : // 0xffff is -1
+        (~static_cast<int_>(0) == static_cast<int_>(-0)) ? signed_representation::ones_complement : // 0xffff is -0 could be a trap value
+        (~static_cast<int_>(0) <= static_cast<int_>(-2)) ? signed_representation::signed_magnitude : // 0xffff is -max
+        signed_representation::none
+    > {};
+    
+}
 
-template<typename type_> constexpr bool is_ones_complement() {
-	return signed_representation_of<type_>() == signed_representation::ones_complement;
-	}
+template<typename type_>
+constexpr signed_representation signed_representation_of() {
+    return types::ifel<
+        types::is_int<type_>::result,
+        _::signed_representation_do<typename types::type<type_>::result>,
+        types::integer<signed_representation, signed_representation::none>
+    >::result;
+}
 
-template<typename type_> constexpr bool is_twos_complement() {
-	return signed_representation_of<type_>() == signed_representation::twos_complement;
-	}
+template<typename type_>
+constexpr bool is_ones_complement() {
+    return signed_representation_of<type_>() == signed_representation::ones_complement;
+}
 
-template<typename type_> constexpr bool is_signed_magnitude() {
-	return signed_representation_of<type_>() == signed_representation::signed_magnitude;
-	}
+template<typename type_>
+constexpr bool is_twos_complement() {
+    return signed_representation_of<type_>() == signed_representation::twos_complement;
+}
+
+template<typename type_>
+constexpr bool is_signed_magnitude() {
+    return signed_representation_of<type_>() == signed_representation::signed_magnitude;
+}
 
 }
 #endif

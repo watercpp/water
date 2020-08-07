@@ -8,21 +8,21 @@
 #include WATER_THREADS_INCLUDE(barrier.hpp)
 namespace water { namespace threads {
 
-template<typename ...needs_> using
- barrier = typename need_select<needs<needs_...>, barrier_list>::result;
+template<typename ...needs_>
+using barrier = typename need_select<needs<needs_...>, barrier_list>::result;
 
 #if 0
 
-template<typename ...needs_> class
- barrier {
-	public:
-		barrier(unsigned count);
-		barrier(barrier const&) = delete;
-		barrier& operator=(barrier const&) = delete;
-		explicit operator bool() const; // true if constructed ok
-		bool operator()(); // returns true for one of the threads, the reset get false
-		bool reset(unsigned count); // change the thread count, this must not be in use while doing this
-	};
+template<typename ...needs_>
+class barrier {
+public:
+    barrier(unsigned count);
+    barrier(barrier const&) = delete;
+    barrier& operator=(barrier const&) = delete;
+    explicit operator bool() const; // true if constructed ok
+    bool operator()(); // returns true for one of the threads, the reset get false
+    bool reset(unsigned count); // change the thread count, this must not be in use while doing this
+};
 
 #endif
 

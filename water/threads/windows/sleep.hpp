@@ -8,14 +8,14 @@
 namespace water { namespace threads {
 
 inline bool sleep(double seconds) noexcept {
-	Sleep(milli_from_seconds(seconds)); // is void
-	return true;
-	}
+    Sleep(milli_from_seconds(seconds)); // is void
+    return true;
+}
 
 inline bool sleep(deadline d) noexcept {
-	Sleep(d.milli_left()); // is void
-	return true;
-	}
+    Sleep(d.milli_left()); // is void
+    return true;
+}
 
 }}
 #endif

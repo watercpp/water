@@ -10,10 +10,10 @@
 namespace water { namespace temporary { namespace tests {
 
 inline void all() {
-	allocator_all();
-	block_all();
-	vector_all();
-	}
+    allocator_all();
+    block_all();
+    vector_all();
+}
 
 }}}
 #endif

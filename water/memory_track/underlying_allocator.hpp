@@ -8,11 +8,11 @@
 #include <water/configuration.hpp>
 #include <water/throw_if.hpp>
 #ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
-	// nothing
+    // nothing
 #elif defined(WATER_NO_CHEADERS)
-	#include <stdlib.h>
+    #include <stdlib.h>
 #else
-	#include <cstdlib>
+    #include <cstdlib>
 #endif
 namespace water { namespace memory_track {
 
@@ -26,41 +26,52 @@ memory_track::memory uses this to allocate memory, also useful to allocate untra
 
 struct underlying_allocator_exception {};
 
-template<bool> struct underlying_allocator_exception_select { using result = underlying_allocator_exception; };
-template<> struct underlying_allocator_exception_select<false> { using result = void; };
+template<bool>
+struct underlying_allocator_exception_select {
+    using result = underlying_allocator_exception;
+};
 
-template<bool exception_ = false> struct
- underlying_allocator {
- 	static bool constexpr is_noexcept = !exception_; 
-	void* allocate(size_t bytes) noexcept(is_noexcept) {
-		#ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
-		void *r = WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().allocate(bytes);
-		#elif defined(WATER_NO_CHEADERS)
-		void *r = ::malloc(bytes);
-		#else
-		void *r = std::malloc(bytes);
-		#endif
-		if(!r) throw_if<typename underlying_allocator_exception_select<exception_>::result>();
-		return r;
-		}
-	void free(void *pointer, size_t /*bytes*/) noexcept {
-		#ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
-		WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().free(pointer, bytes);
-		#elif defined(WATER_NO_CHEADERS)
-		::free(pointer);
-		#else
-		std::free(pointer);
-		#endif
-		}
-	template<typename type_>
-	 type_* allocate(size_t count = 1) noexcept(is_noexcept) {
-		return static_cast<type_*>(allocate(sizeof(type_) * count));
-		}
-	template<typename type_>
-	 void free(void *pointer, size_t /*count*/ = 1) noexcept {
-		free(pointer, 0);
-		}
-	};
+template<>
+struct underlying_allocator_exception_select<false> {
+    using result = void;
+};
+
+template<bool exception_ = false>
+struct underlying_allocator
+{
+    static bool constexpr is_noexcept = !exception_;
+    void* allocate(size_t bytes) noexcept(is_noexcept) {
+        #ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
+        void *r = WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().allocate(bytes);
+        #elif defined(WATER_NO_CHEADERS)
+        void *r = ::malloc(bytes);
+        #else
+        void *r = std::malloc(bytes);
+        #endif
+        if(!r) throw_if<typename underlying_allocator_exception_select<exception_>::result>();
+        return r;
+    }
+
+    void free(void *pointer, size_t /*bytes*/) noexcept {
+        #ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
+        WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().free(pointer, bytes);
+        #elif defined(WATER_NO_CHEADERS)
+        ::free(pointer);
+        #else
+        std::free(pointer);
+        #endif
+    }
+
+    template<typename type_>
+    type_* allocate(size_t count = 1) noexcept(is_noexcept) {
+        return static_cast<type_*>(allocate(sizeof(type_) * count));
+    }
+
+    template<typename type_>
+    void free(void *pointer, size_t /*count*/ = 1) noexcept {
+        free(pointer, 0);
+    }
+};
 
 using underlying_allocator_throw = underlying_allocator<true>;
 using underlying_allocator_nothrow = underlying_allocator<>;

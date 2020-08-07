@@ -9,9 +9,9 @@
 namespace water { namespace fixed { namespace tests {
 
 inline void all() {
-	lookup();
-	memory_functions();
-	}
+    lookup();
+    memory_functions();
+}
 
 }}}
 #endif

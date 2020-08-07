@@ -54,36 +54,36 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 !defined(WATER_COMPILER_GCC) && \
 !defined(WATER_COMPILER_MICROSOFT)
 
-	#if defined(__clang__)
-		#define WATER_COMPILER_CLANG
-		#if !defined(WATER_NO_RTTI) && !__has_feature(cxx_rtti)
-			#define WATER_NO_RTTI
-		#endif
-		#if !defined(WATER_NO_EXCEPTIONS) && !__has_feature(cxx_exceptions)
-			#define WATER_NO_EXCEPTIONS
-		#endif
-		
-	#elif defined(__GNUC__)
-		#define WATER_COMPILER_GCC ((__GNUC__ * 10) + __GNUC_MINOR__) // 4.1 is 41
-		#if WATER_COMPILER_GCC >= 41 && !defined(WATER_NO_EXCEPTIONS) && !defined(__EXCEPTIONS)
-			#define WATER_NO_EXCEPTIONS
-		#endif
-		#if WATER_COMPILER_GCC >= 43 && !defined(WATER_NO_RTTI) && !defined(__GXX_RTTI)
-			#define WATER_NO_RTTI
-		#endif
-		
-	#elif defined(_MSC_VER)
-		#define WATER_COMPILER_MICROSOFT _MSC_VER
-		// visual c++ 2003 / 7.1 is 1310
-		// visual c++ 2005 / 8.0 is 1400
-		#if !defined(WATER_NO_RTTI) && !defined(_CPPRTTI)
-			#define WATER_NO_RTTI
-		#endif
-		#if !defined(WATER_NO_EXCEPTIONS) && !defined(_CPPUNWIND)
-			#define WATER_NO_EXCEPTIONS
-		#endif
-		
-	#endif
+    #if defined(__clang__)
+        #define WATER_COMPILER_CLANG
+        #if !defined(WATER_NO_RTTI) && !__has_feature(cxx_rtti)
+            #define WATER_NO_RTTI
+        #endif
+        #if !defined(WATER_NO_EXCEPTIONS) && !__has_feature(cxx_exceptions)
+            #define WATER_NO_EXCEPTIONS
+        #endif
+        
+    #elif defined(__GNUC__)
+        #define WATER_COMPILER_GCC ((__GNUC__ * 10) + __GNUC_MINOR__) // 4.1 is 41
+        #if WATER_COMPILER_GCC >= 41 && !defined(WATER_NO_EXCEPTIONS) && !defined(__EXCEPTIONS)
+            #define WATER_NO_EXCEPTIONS
+        #endif
+        #if WATER_COMPILER_GCC >= 43 && !defined(WATER_NO_RTTI) && !defined(__GXX_RTTI)
+            #define WATER_NO_RTTI
+        #endif
+        
+    #elif defined(_MSC_VER)
+        #define WATER_COMPILER_MICROSOFT _MSC_VER
+        // visual c++ 2003 / 7.1 is 1310
+        // visual c++ 2005 / 8.0 is 1400
+        #if !defined(WATER_NO_RTTI) && !defined(_CPPRTTI)
+            #define WATER_NO_RTTI
+        #endif
+        #if !defined(WATER_NO_EXCEPTIONS) && !defined(_CPPUNWIND)
+            #define WATER_NO_EXCEPTIONS
+        #endif
+        
+    #endif
 #endif
 
 // WATER_CPU_*
@@ -93,45 +93,45 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 !defined(WATER_CPU_POWERPC) && \
 !defined(WATER_CPU_X86)
 
-	#if \
-	defined(__aarch64__) || \
-	defined(__arm64__)
-		#define WATER_CPU_ARM 64
+    #if \
+    defined(__aarch64__) || \
+    defined(__arm64__)
+        #define WATER_CPU_ARM 64
 
-	#elif \
-	defined(__arm__)
-		#define WATER_CPU_ARM 32
+    #elif \
+    defined(__arm__)
+        #define WATER_CPU_ARM 32
 
-	#elif \
-	defined(__powerpc__) || \
-	defined(__POWERPC__) || \
-	defined(__ppc__) || \
-	defined(__PPC__) || \
-	defined(powerc)
-		#if \
-		defined(__ppc64__) || \
-		defined(__LP64__)
-			#define WATER_CPU_POWERPC 64
-		#else
-			#define WATER_CPU_POWERPC 32
-		#endif
-	
-	#elif \
-	defined(__amd64__) || \
-	defined(__x86_64__) || \
-	defined(_M_AMD64) || \
-	defined(_M_X64)
-		#define WATER_CPU_X86 64
-	
-	#elif \
-	defined(__i386__) || \
-	defined(__i386) || \
-	defined(_M_IX86) || \
-	defined(_X86_) || \
-	defined(__INTEL__)
-		#define WATER_CPU_X86 32
-	
-	#endif
+    #elif \
+    defined(__powerpc__) || \
+    defined(__POWERPC__) || \
+    defined(__ppc__) || \
+    defined(__PPC__) || \
+    defined(powerc)
+        #if \
+        defined(__ppc64__) || \
+        defined(__LP64__)
+            #define WATER_CPU_POWERPC 64
+        #else
+            #define WATER_CPU_POWERPC 32
+        #endif
+    
+    #elif \
+    defined(__amd64__) || \
+    defined(__x86_64__) || \
+    defined(_M_AMD64) || \
+    defined(_M_X64)
+        #define WATER_CPU_X86 64
+    
+    #elif \
+    defined(__i386__) || \
+    defined(__i386) || \
+    defined(_M_IX86) || \
+    defined(_X86_) || \
+    defined(__INTEL__)
+        #define WATER_CPU_X86 32
+    
+    #endif
 #endif
 
 // WATER_ENDIAN_*
@@ -139,21 +139,21 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 #if \
 !defined(WATER_ENDIAN_BIG) && \
 !defined(WATER_ENDIAN_LITTLE)
-	
-	#if \
-	defined(__BIG_ENDIAN__) || \
-	defined(_BIG_ENDIAN) || \
-	(defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-		#define WATER_ENDIAN_BIG
-	
-	#elif \
-	defined(__LITTLE_ENDIAN__) || \
-	defined(_LITTLE_ENDIAN) || \
-	(defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
-	defined(WATER_CPU_X86)
-		#define WATER_ENDIAN_LITTLE
-	
-	#endif
+    
+    #if \
+    defined(__BIG_ENDIAN__) || \
+    defined(_BIG_ENDIAN) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        #define WATER_ENDIAN_BIG
+    
+    #elif \
+    defined(__LITTLE_ENDIAN__) || \
+    defined(_LITTLE_ENDIAN) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
+    defined(WATER_CPU_X86)
+        #define WATER_ENDIAN_LITTLE
+    
+    #endif
 #endif
 
 // WATER_SYSTEM_*
@@ -162,39 +162,39 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 !defined(WATER_SYSTEM_APPLE) && \
 !defined(WATER_SYSTEM_LINUX) && \
 !defined(WATER_SYSTEM_WINDOWS)
-	
-	#if \
-	defined(linux) || \
-	defined(__linux) || \
-	defined(__linux__)
-		#define WATER_SYSTEM_LINUX
+    
+    #if \
+    defined(linux) || \
+    defined(__linux) || \
+    defined(__linux__)
+        #define WATER_SYSTEM_LINUX
 
-	#elif \
-	defined(__APPLE__) || \
-	defined(macintosh) || \
-	defined(__MACOS__)
-		#define WATER_SYSTEM_APPLE
+    #elif \
+    defined(__APPLE__) || \
+    defined(macintosh) || \
+    defined(__MACOS__)
+        #define WATER_SYSTEM_APPLE
 
-	#elif \
-	defined(_WIN32) || \
-	defined(_WIN64)
-		#define WATER_SYSTEM_WINDOWS
+    #elif \
+    defined(_WIN32) || \
+    defined(_WIN64)
+        #define WATER_SYSTEM_WINDOWS
 
-	#endif
+    #endif
 #endif
 
 #if \
 !defined(WATER_SYSTEM_POSIX)
-	#if \
-	defined(_XOPEN_SOURCE) || \
-	defined(_POSIX_C_SOURCE) || \
-	defined(__unix__) || \
-	defined(__unix) || \
-	defined(unix) || \
-	defined(WATER_SYSTEM_LINUX) || \
-	defined(WATER_SYSTEM_APPLE)
-		#define WATER_SYSTEM_POSIX
-	#endif
+    #if \
+    defined(_XOPEN_SOURCE) || \
+    defined(_POSIX_C_SOURCE) || \
+    defined(__unix__) || \
+    defined(__unix) || \
+    defined(unix) || \
+    defined(WATER_SYSTEM_LINUX) || \
+    defined(WATER_SYSTEM_APPLE)
+        #define WATER_SYSTEM_POSIX
+    #endif
 #endif
 
 #endif //WATER_NO_CONFIGURATION

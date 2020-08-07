@@ -30,36 +30,37 @@ using memory_tag_type = memory_type::tag_type;
 
 memory_type& memory();
 
-template<typename base_> void dump_to(str::out<base_>& to) {
-	out(to, memory());
-		{
-		vector<statistics_for_name, underlying_allocator<>> v;
-		memory().statistics_by_name_to([&v](statistics_for_name const* b, statistics_for_name const* e) {
-			if(b != e)
-				v.assign(b, e);
-			});
-		for(auto &s : v) {
-			to << "tag " << s.name << '\n';
-			out(to, s, 2);
-			}
-		}
-		{
-		vector<typename memory_type::cookie_type, underlying_allocator<>> v;
-		memory().cookies_to([&v](typename memory_type::cookie_iterator i) {
-			if(i) {
-				auto e = i;
-				do v.push_back(*i); while(++i != e);
-				}
-			});
-		if(v.empty())
-			to << "no cookies\n";
-		else {
-			to << "cookies\n";
-			for(auto &c : v)
-				to << "  " << c << '\n';
-			}
-		}
-	}
+template<typename base_>
+void dump_to(str::out<base_>& to) {
+    out(to, memory());
+    {
+        vector<statistics_for_name, underlying_allocator<>> v;
+        memory().statistics_by_name_to([&v](statistics_for_name const* b, statistics_for_name const* e) {
+            if(b != e)
+                v.assign(b, e);
+        });
+        for(auto &s : v) {
+            to << "tag " << s.name << '\n';
+            out(to, s, 2);
+        }
+    }
+    {
+        vector<typename memory_type::cookie_type, underlying_allocator<>> v;
+        memory().cookies_to([&v](typename memory_type::cookie_iterator i) {
+            if(i) {
+                auto e = i;
+                do v.push_back(*i); while(++i != e);
+            }
+        });
+        if(v.empty())
+            to << "no cookies\n";
+        else {
+            to << "cookies\n";
+            for(auto &c : v)
+                to << "  " << c << '\n';
+        }
+    }
+}
 
 }}}
 #endif

@@ -8,16 +8,17 @@
 #include <water/threads/barrier.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename barrier_> struct
- barrier_1 {
-	barrier_1() {
-		barrier_ b(1);
-		___water_threads_statistics(name_if(statistics_pointer(b), "water::threads::tests::barrier_1"));
-		___water_test(b);
-		bool one = b();
-		___water_test(one);
-		}
-	};
+template<typename barrier_>
+struct barrier_1
+{
+    barrier_1() {
+        barrier_ b(1);
+        ___water_threads_statistics(name_if(statistics_pointer(b), "water::threads::tests::barrier_1"));
+        ___water_test(b);
+        bool one = b();
+        ___water_test(one);
+    }
+};
 
 }}}
 #endif

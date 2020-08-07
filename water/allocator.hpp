@@ -31,22 +31,26 @@ using allocator = allocator_malloc;
 #include <new>
 namespace water {
 
-struct allocator {
-	void* allocate(size_t bytes) noexcept(false) {
-		return ::operator new(bytes);
-		}
-	void free(void *pointer, size_t = 0) noexcept {
-		::operator delete(pointer);
-		}
-	template<typename type_>
-	 type_* allocate(size_t count = 1) noexcept(false) {
-		return static_cast<type_*>(::operator new(sizeof(type_) * count));
-		}
-	template<typename type_>
-	 void free(void *pointer, size_t /*count*/ = 1) noexcept {
-		::operator delete(pointer);
-		}
-	};
+struct allocator
+{
+    void* allocate(size_t bytes) noexcept(false) {
+        return ::operator new(bytes);
+    }
+
+    void free(void *pointer, size_t = 0) noexcept {
+        ::operator delete(pointer);
+    }
+
+    template<typename type_>
+    type_* allocate(size_t count = 1) noexcept(false) {
+        return static_cast<type_*>(::operator new(sizeof(type_) * count));
+    }
+
+    template<typename type_>
+    void free(void *pointer, size_t /*count*/ = 1) noexcept {
+        ::operator delete(pointer);
+    }
+};
 
 }
 #endif

@@ -14,14 +14,14 @@
 namespace water { namespace numbers { namespace tests {
 
 inline void all() {
-	fpclassify_all();
-	format_all();
-	locale_words_all();
-	parse_all();
-	write_read_all();
-	write_read_write_all();
-	max_digits_all();
-	}
+    fpclassify_all();
+    format_all();
+    locale_words_all();
+    parse_all();
+    write_read_all();
+    write_read_write_all();
+    max_digits_all();
+}
 
 }}}
 #endif

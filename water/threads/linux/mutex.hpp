@@ -12,13 +12,13 @@
 namespace water { namespace threads {
 
 using mutex_list = list<
-	pthread_mutex,
-	pthread_mutex_recursive,
-	mutex_futex<>,
-	recursive<mutex_futex<>>,
-	mutex_sem<>,
-	spin_mutex<>
-	>;
+    pthread_mutex,
+    pthread_mutex_recursive,
+    mutex_futex<>,
+    recursive<mutex_futex<>>,
+    mutex_sem<>,
+    spin_mutex<>
+>;
 
 }}
 #endif

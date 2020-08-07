@@ -14,91 +14,104 @@ Although the class is very simple, it has been really useful.
 
 example 1:
 
-	auto later = water::later([](){ trace() << "later"; });
-	trace() << "now";
+    auto later = water::later([](){ trace() << "later"; });
+    trace() << "now";
 
 output:
 
-	now
-	later
-	
+    now
+    later
+    
 
 example 2:
 
-	type *pointer = new type;
-	auto delete_later = water::later([pointer] { delete pointer; });
-	pointer->do_something();
+    type *pointer = new type;
+    auto delete_later = water::later([pointer] { delete pointer; });
+    pointer->do_something();
 
 
 example 3:
 
-	gpu_buffer_struct buffer{};
-	if(gpu_texture_lock_texture_memory(texture, &buffer)) {
-		auto unlock_later = water::later([texture, &buffer] {
-			gpu_texture_unlock_texture_memory(texture, &buffer);
-			});
-		do_something(buffer.pointer, buffer.width, buffer.height);
-		}
+    gpu_buffer_struct buffer{};
+    if(gpu_texture_lock_texture_memory(texture, &buffer)) {
+        auto unlock_later = water::later([texture, &buffer] {
+            gpu_texture_unlock_texture_memory(texture, &buffer);
+        });
+        do_something(buffer.pointer, buffer.width, buffer.height);
+    }
 
 
 example 4:
-	
-	auto clenaup_if_something_goes_wrong = water::later([] { cleanup(); });
-	if(operaton_1() == success) {
-		do_something();
-		if(operation_2() == success) {
-			// all good, no need to cleanup
-			clenaup_if_something_goes_wrong.dont();
-			}
-		}
+    
+    auto clenaup_if_something_goes_wrong = water::later([] { cleanup(); });
+    if(operaton_1() == success) {
+        do_something();
+        if(operation_2() == success) {
+            // all good, no need to cleanup
+            clenaup_if_something_goes_wrong.dont();
+        }
+    }
 
 */
 
-template<typename function_> class
- later_move {
- 	function_ my;
- 	bool mydo = false;
- 	public:
- 		later_move() = default; // makes no sense?
- 		explicit later_move(function_&& a) :
- 			my{static_cast<function_&&>(a)},
- 			mydo{true}
- 			{}
- 		later_move(later_move const& a) = delete;
- 		later_move(later_move&& a) :
- 			my{a.my},
- 			mydo{a.mydo}
- 			{
- 			a.mydo = false;
- 			}
- 		~later_move() {
- 			if(mydo) my();
- 			}
- 		later_move& operator=(later_move const& a) = delete;
- 		later_move& operator=(later_move&& a) {
- 			swap(a);
- 			return *this;
- 			}
- 		void swap(later_move& a) {
- 			swap_from_swap(a.my, my);
- 			swap_from_swap(a.mydo, mydo);
- 			}
- 		void dont() {
- 			mydo = false;
- 			}
- 		void now() {
- 			if(mydo) my();
- 			mydo = false;
- 			}
- 	};
+template<typename function_>
+class later_move
+{
+    function_ my;
+    bool mydo = false;
 
-template<typename function_> later_move<function_> later(function_&& a) {
-	return later_move<function_>{static_cast<function_&&>(a)};
-	}
+public:
+    later_move() = default; // makes no sense?
+    
+    explicit later_move(function_&& a) :
+        my{static_cast<function_&&>(a)},
+        mydo{true}
+    {}
 
-template<typename function_> void swap(later_move<function_>& a, later_move<function_>& b) {
-	a.swap(b);
-	}
+    later_move(later_move const& a) = delete;
+
+    later_move(later_move&& a) :
+        my{a.my},
+        mydo{a.mydo}
+    {
+        a.mydo = false;
+    }
+
+    ~later_move() {
+        if(mydo) my();
+    }
+
+    later_move& operator=(later_move const& a) = delete;
+
+    later_move& operator=(later_move&& a) {
+        swap(a);
+        return *this;
+    }
+
+    void swap(later_move& a) {
+        swap_from_swap(a.my, my);
+        swap_from_swap(a.mydo, mydo);
+    }
+
+    void dont() {
+        mydo = false;
+    }
+
+    void now() {
+        if(mydo) my();
+        mydo = false;
+    }
+};
+
+template<typename function_>
+later_move<function_> later(function_&& a) {
+    return later_move<function_>{static_cast<function_&&>(a)};
+}
+
+template<typename function_>
+void swap(later_move<function_>& a, later_move<function_>& b) {
+    a.swap(b);
+}
 
 }
 #endif

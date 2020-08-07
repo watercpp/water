@@ -9,11 +9,16 @@
 namespace water { namespace logs {
 
 namespace _ {
-	template<typename range_, typename result_, typename = decltype(types::make<range_&>().begin() == types::make<range_&>().end())> struct
- 	 if_range_do : types::type_plain<result_> {};
+
+    template<typename range_, typename result_, typename = decltype(types::make<range_&>().begin() == types::make<range_&>().end())>
+    struct if_range_do :
+        types::type_plain<result_>
+    {};
+
 }
 
-template<typename range_, typename result_> using if_range = typename _::if_range_do<range_, result_>::result;
+template<typename range_, typename result_>
+using if_range = typename _::if_range_do<range_, result_>::result;
 
 }}
 #endif

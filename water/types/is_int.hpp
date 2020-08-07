@@ -18,27 +18,31 @@ is_int<bool>::result is false
 */
 
 namespace _ {
-	template<typename> struct do_is_int : false_result {};
-	template<> struct do_is_int<char> : true_result {};
-	template<> struct do_is_int<signed char> : true_result {};
-	template<> struct do_is_int<unsigned char> : true_result {};
-	template<> struct do_is_int<wchar_t> : true_result {};
-	template<> struct do_is_int<short> : true_result {};
-	template<> struct do_is_int<unsigned short> : true_result {};
-	template<> struct do_is_int<int> : true_result {};
-	template<> struct do_is_int<unsigned int> : true_result {};
-	template<> struct do_is_int<long> : true_result {};
-	template<> struct do_is_int<unsigned long> : true_result {};
-	template<> struct do_is_int<long long> : true_result {};
-	template<> struct do_is_int<unsigned long long> : true_result {};
-	template<> struct do_is_int<char16_t> : true_result {};
-	template<> struct do_is_int<char32_t> : true_result {};
-	}
 
-template<typename type_> struct
- is_int :
-	_::do_is_int<typename type<type_>::result>
-		{};
+    template<typename>
+    struct do_is_int : false_result {};
+    
+    template<> struct do_is_int<char> : true_result {};
+    template<> struct do_is_int<signed char> : true_result {};
+    template<> struct do_is_int<unsigned char> : true_result {};
+    template<> struct do_is_int<wchar_t> : true_result {};
+    template<> struct do_is_int<short> : true_result {};
+    template<> struct do_is_int<unsigned short> : true_result {};
+    template<> struct do_is_int<int> : true_result {};
+    template<> struct do_is_int<unsigned int> : true_result {};
+    template<> struct do_is_int<long> : true_result {};
+    template<> struct do_is_int<unsigned long> : true_result {};
+    template<> struct do_is_int<long long> : true_result {};
+    template<> struct do_is_int<unsigned long long> : true_result {};
+    template<> struct do_is_int<char16_t> : true_result {};
+    template<> struct do_is_int<char32_t> : true_result {};
+    
+}
+
+template<typename type_>
+struct is_int :
+    _::do_is_int<typename type<type_>::result>
+{};
 
 }}
 #endif

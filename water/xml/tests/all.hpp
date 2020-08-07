@@ -8,8 +8,8 @@
 namespace water { namespace xml { namespace tests {
 
 inline void all() {
-	unicode_test{}();
-	}
+    unicode_test{}();
+}
 
 }}}
 #endif

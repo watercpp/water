@@ -11,16 +11,19 @@ namespace water { namespace types {
 
 type_assert<type_>::assert generates a compile time error when types::to_bool<type_>::result is false.
 This error will usually describe the type of type_, static_assert sometimes does not.
-(This also works with C++ 98)  
+(This also works with C++ 98)
 
 The techique is very simple:
 
-	template<bool if_> struct if_assert        { enum { assert = 1 }; };
-	template<>         struct if_assert<false> {};
-	bool const b = ...;
-	int constexpr e = if_assert<b>::assert;
-	static_assert(if_assert<b>::assert, "hello");
-	static_cast<void>(if_assert<b>::assert);
+    template<bool if_>
+    struct if_assert { enum { assert = 1 }; };
+    template<>
+    struct if_assert<false> {};
+    
+    bool const b = ...;
+    int constexpr e = if_assert<b>::assert;
+    static_assert(if_assert<b>::assert, "hello");
+    static_cast<void>(if_assert<b>::assert);
 
 When b above is false, the compiler error can look like
 - assert is not a member of if_assert<0>
@@ -32,10 +35,11 @@ usually describes the type.
 
 Example: a function requires it's template argument to be a built in integer type:
 
-	template<typename type_> type_ function(type_ a) {
-		static_cast<void>(types::type_assert<types::is_int<type_>>::assert);
-		return a;
-		}
+    template<typename type_>
+    type_ function(type_ a) {
+        static_cast<void>(types::type_assert<types::is_int<type_>>::assert);
+        return a;
+    }
 
 If function(1.23) is called (with a double) the compiler error could be:
 "assert is not a member of types::type_assert<types::is_int<double>>"
@@ -44,18 +48,19 @@ The assert member must be used in the code, static_assert(type_assert<...>::asse
 
 */
 
-template<int if_> struct
- if_assert {
-	enum type { assert = 1 }; // 1 to make it work in static_assert
-	};
-template<> struct
- if_assert<0>
-	{};
+template<int if_>
+struct if_assert {
+    enum type { assert = 1 }; // 1 to make it work in static_assert
+};
 
-template<typename if_> struct
- type_assert :
-	if_assert<to_bool<if_>::result>
-		{};
+template<>
+struct if_assert<0>
+{};
+
+template<typename if_>
+struct type_assert :
+    if_assert<to_bool<if_>::result>
+{};
 
 }}
 #endif

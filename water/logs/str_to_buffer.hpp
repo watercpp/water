@@ -20,33 +20,41 @@ out << "hello";
 
 */
 
-template<typename buffer_> class
- str_to_buffer {
- 	public:
- 		using char_type = char;
- 	private:
-	 	write_to_buffer<buffer_> my;
- 	public:
- 		str_to_buffer(buffer_& b, typename buffer_::tag_type const& tag = {}) :
- 			my(b, tag)
- 			{}
- 		str_to_buffer(buffer_ *b, typename buffer_::tag_type const& tag = {}) :
- 			my(b, tag)
- 			{}
- 		~str_to_buffer() {
- 			flush();
- 			}
- 		void flush() {
-			my.write();
-			}
-		template<typename iterator_> void operator()(iterator_ begin, iterator_ end) {
-			while(begin != end) {
-				auto c = *begin;
-				if(c) my(c);
-				++begin;
-				}
-			}
- 	};
+template<typename buffer_>
+class str_to_buffer
+{
+public:
+    using char_type = char;
+
+private:
+    write_to_buffer<buffer_> my;
+
+public:
+    str_to_buffer(buffer_& b, typename buffer_::tag_type const& tag = {}) :
+        my(b, tag)
+    {}
+
+    str_to_buffer(buffer_ *b, typename buffer_::tag_type const& tag = {}) :
+        my(b, tag)
+    {}
+
+    ~str_to_buffer() {
+        flush();
+    }
+
+    void flush() {
+        my.write();
+    }
+
+    template<typename iterator_>
+    void operator()(iterator_ begin, iterator_ end) {
+        while(begin != end) {
+            auto c = *begin;
+            if(c) my(c);
+            ++begin;
+        }
+    }
+};
 
 }}
 #endif

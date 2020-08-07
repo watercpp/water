@@ -10,24 +10,26 @@ namespace water { namespace types { namespace tests {
 
 unsigned constexpr recurse_depth = 1026;
 
-template<unsigned at_> struct
- recurse2;
+template<unsigned at_>
+struct recurse2;
 
-template<unsigned at_ = 0> struct
- recurse : recurse2<at_ + 1>
-	{};
-template<> struct
- recurse<recurse_depth> {
-	enum type { result };
-	};
+template<unsigned at_ = 0>
+struct recurse : recurse2<at_ + 1>
+{};
 
-template<unsigned at_> struct
- recurse2 : recurse<at_ + 1>
-	{};
-template<> struct
- recurse2<recurse_depth> {
-	enum type { result };
-	};
+template<>
+struct recurse<recurse_depth> {
+    enum type { result };
+};
+
+template<unsigned at_>
+struct recurse2 : recurse<at_ + 1>
+{};
+
+template<>
+struct recurse2<recurse_depth> {
+    enum type { result };
+};
 
 int constexpr recurse_result = recurse<>::result;
 

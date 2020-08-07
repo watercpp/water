@@ -19,29 +19,32 @@ the collection_kind must have
 
 */
 
-template<typename c_, int at_ = 0> struct
- remove :
-	c_::collection_tag::result::template remove<c_, at_>
-		{};
+template<typename c_, int at_ = 0>
+struct remove :
+    c_::collection_tag::result::template remove<c_, at_>
+{};
 
 namespace _ {
-	template<typename a_, typename = void> struct
-	 do_remove_exists :
-		false_result
-			{};
-	template<typename a_> struct
-	 do_remove_exists<a_, to_void<typename a_::template remove<void, 0> >> :
-		true_result
-			{};
-	}
+
+    template<typename a_, typename = void>
+    struct do_remove_exists :
+        false_result
+    {};
+    
+    template<typename a_>
+    struct do_remove_exists<a_, to_void<typename a_::template remove<void, 0> >> :
+        true_result
+    {};
+    
+}
 
 // result true if
 // - c_ is a collection, and the kind has remove<c_, 0>
 // - c_ is not a collection, and it has remove<c_, 0>
-template<typename c_> struct
- remove_exists :
-	_::do_remove_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
-		{};
+template<typename c_>
+struct remove_exists :
+    _::do_remove_exists<typename ifel<is_collection<c_>::result, collection_kind_of<c_>, type<c_> >::result>
+{};
 
 }}
 #endif

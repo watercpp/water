@@ -10,10 +10,10 @@
 namespace water { namespace threads {
 
 using semaphore_list = list<
-	semaphore_futex<>,
-	sem,
-	spin_semaphore<>
-	>;
+    semaphore_futex<>,
+    sem,
+    spin_semaphore<>
+>;
 
 }}
 #endif

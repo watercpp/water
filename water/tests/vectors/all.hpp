@@ -12,12 +12,12 @@
 namespace water { namespace tests { namespace vectors {
 
 inline void all() {
-	construct();
-	access();
-	modify();
-	more();
-	move();
-	}
+    construct();
+    access();
+    modify();
+    more();
+    move();
+}
 
 }}}
 #endif

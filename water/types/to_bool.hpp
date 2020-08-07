@@ -29,28 +29,32 @@ if a_ is not a result, it is always false
 
 the result_kind should have
 
-	struct some_kind {
-		template<typename a_> struct to_bool;
-		};
+    struct some_kind {
+        template<typename a_> struct to_bool;
+    };
 
 */
 
-namespace _ {	
-	template<typename a_, typename k_ = typename result_kind_of<a_>::result, typename x_ = void> struct
-	 do_to_bool : true_result
-		{};
-	template<typename a_> struct
-	 do_to_bool<a_, void, void> : false_result
-		{};
-	template<typename a_, typename k_> struct
-	 do_to_bool<a_, k_, to_void<typename k_::template to_bool<void> >> :
-		k_::template to_bool<a_>
-			{};
-	}
+namespace _ {
 
-template<typename a_> struct
- to_bool : _::do_to_bool<a_>
-	{};
+    template<typename a_, typename k_ = typename result_kind_of<a_>::result, typename x_ = void>
+    struct do_to_bool : true_result
+    {};
+
+    template<typename a_>
+    struct do_to_bool<a_, void, void> : false_result
+    {};
+
+    template<typename a_, typename k_>
+    struct do_to_bool<a_, k_, to_void<typename k_::template to_bool<void> >> :
+        k_::template to_bool<a_>
+    {};
+
+}
+
+template<typename a_>
+struct to_bool : _::do_to_bool<a_>
+{};
 
 }}
 #endif

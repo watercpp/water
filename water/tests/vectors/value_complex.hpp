@@ -10,77 +10,86 @@ namespace water { namespace tests { namespace vectors {
 struct value_complex_emplace {};
 
 struct value_complex_count {
-	ptrdiff_t
-		count = 0,
-		copies = 0;
-	};
+    ptrdiff_t
+        count = 0,
+        copies = 0;
+};
 
-class value_complex {
-	value_complex_count *my;
-	void const *myself; // this pointer, catch memcpy
-	unsigned mycopies = 0;
-	bool mymoved = false;
-	public:
-		explicit value_complex(value_complex_count& a) :
-			my(&a),
-			myself(this)
-			{
-			++my->count;
-			}
-		value_complex(value_complex_count *a, value_complex_emplace&&, value_complex_emplace&&) :
-			my(a),
-			myself(this)
-			{
-			++my->count;
-			}
-		value_complex(value_complex const& a) :
-			my(a.my),
-			myself(this),
-			mycopies(a.mycopies + 1)
-			{
-			if(my) {
-				++my->count;
-				++my->copies;
-				}
-			}
-		value_complex(value_complex&& a) :
-			my(a.my),
-			myself(this),
-			mycopies(a.mycopies + 1)
-			{
-			a.my = 0;
-			a.mymoved = true;
-			}
-		~value_complex() {
-			___water_test(myself == this);
-			if(my) --my->count;
-			}
-		value_complex& operator=(value_complex const& a) {
-			if(my)
-				--my->count;
-			my = a.my;
-			if(my) {
-				++my->count;
-				++my->copies;
-				}
-			mycopies = a.mycopies + 1;
-			mymoved = false;
-			return *this;
-			}
-		value_complex& operator=(value_complex&& a) {
-			if(my)
-				--my->count;
-			my = a.my;
-			a.my = 0;
-			mycopies = a.mycopies;
-			mymoved = false;
-			a.mymoved = true;
-			return *this;
-			}
-		bool valid() const {
-			return myself == this;
-			}
-	};
+class value_complex
+{
+    value_complex_count *my;
+    void const *myself; // this pointer, catch memcpy
+    unsigned mycopies = 0;
+    bool mymoved = false;
+
+public:
+    explicit value_complex(value_complex_count& a) :
+        my(&a),
+        myself(this)
+    {
+        ++my->count;
+    }
+
+    value_complex(value_complex_count *a, value_complex_emplace&&, value_complex_emplace&&) :
+        my(a),
+        myself(this)
+    {
+        ++my->count;
+    }
+
+    value_complex(value_complex const& a) :
+        my(a.my),
+        myself(this),
+        mycopies(a.mycopies + 1)
+    {
+        if(my) {
+            ++my->count;
+            ++my->copies;
+        }
+    }
+
+    value_complex(value_complex&& a) :
+        my(a.my),
+        myself(this),
+        mycopies(a.mycopies + 1)
+    {
+        a.my = 0;
+        a.mymoved = true;
+    }
+
+    ~value_complex() {
+        ___water_test(myself == this);
+        if(my) --my->count;
+    }
+
+    value_complex& operator=(value_complex const& a) {
+        if(my)
+            --my->count;
+        my = a.my;
+        if(my) {
+            ++my->count;
+            ++my->copies;
+        }
+        mycopies = a.mycopies + 1;
+        mymoved = false;
+        return *this;
+    }
+
+    value_complex& operator=(value_complex&& a) {
+        if(my)
+            --my->count;
+        my = a.my;
+        a.my = 0;
+        mycopies = a.mycopies;
+        mymoved = false;
+        a.mymoved = true;
+        return *this;
+    }
+
+    bool valid() const {
+        return myself == this;
+    }
+};
 
 }}}
 #endif

@@ -20,22 +20,22 @@ namespace water {
 
 bool constexpr atomic_exists = false;
 
-template<typename type_> struct
- atomic {
- 	type_ load() const; // for decltype
- 	};
+template<typename type_>
+struct atomic {
+    type_ load() const; // for decltype
+};
 
 using atomic_int = atomic<ptrdiff_t>;
 using atomic_uint = atomic<size_t>;
 
 enum memory_order {
-	memory_order_relaxed
-	memory_order_consume
-	memory_order_acquire
-	memory_order_release
-	memory_order_acq_rel
-	memory_order_seq_cst
-	};
+    memory_order_relaxed
+    memory_order_consume
+    memory_order_acquire
+    memory_order_release
+    memory_order_acq_rel
+    memory_order_seq_cst
+};
 
 }
 

@@ -11,11 +11,11 @@
 namespace water { namespace threads { namespace tests {
 
 inline void thread_all() {
-	thread_priority();
-	thread_run();
-	thread_sleep_yield();
-	thread_stack_size();
-	}
+    thread_priority();
+    thread_run();
+    thread_sleep_yield();
+    thread_stack_size();
+}
 
 }}}
 #endif

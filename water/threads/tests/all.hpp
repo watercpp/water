@@ -17,23 +17,23 @@
 namespace water { namespace threads { namespace tests {
 
 inline void all() {
-	#ifdef WATER_SYSTEM_WINDOWS
-	timeBeginPeriod(1); // cant take sleep(0.001) becomes 16ms
-	#pragma comment(lib, "winmm.lib")
-	#endif
-	barrier_all();
-	condition_all();
-	mutex_all();
-	need_all();
-	once_all();
-	read_write_all();
-	semaphore_all();
-	thread_all();
-	trivial();
-	#ifdef WATER_SYSTEM_WINDOWS
-	timeEndPeriod(1);
-	#endif
-	}
+    #ifdef WATER_SYSTEM_WINDOWS
+    timeBeginPeriod(1); // cant take sleep(0.001) becomes 16ms
+    #pragma comment(lib, "winmm.lib")
+    #endif
+    barrier_all();
+    condition_all();
+    mutex_all();
+    need_all();
+    once_all();
+    read_write_all();
+    semaphore_all();
+    thread_all();
+    trivial();
+    #ifdef WATER_SYSTEM_WINDOWS
+    timeEndPeriod(1);
+    #endif
+}
 
 }}}
 #endif

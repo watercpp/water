@@ -13,13 +13,13 @@
 namespace water { namespace str { namespace tests {
 
 inline void all() {
-	everything_all();
-	function_all();
-	function_type_detect_all();
-	lifetime_all();
-	rvalue_all();
-	default_settings_locale_flush_all();
-	}
+    everything_all();
+    function_all();
+    function_type_detect_all();
+    lifetime_all();
+    rvalue_all();
+    default_settings_locale_flush_all();
+}
 
 }}}
 #endif

@@ -10,34 +10,34 @@
 #include <water/threads/tests/barrier_3.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename barrier_> struct
- barrier_all_tests {
- 	barrier_all_tests() {
-		barrier_1<barrier_>();
-		barrier_2<barrier_>();
-		barrier_3<barrier_>();
-		}
-	};
+template<typename barrier_>
+struct barrier_all_tests {
+    barrier_all_tests() {
+        barrier_1<barrier_>();
+        barrier_2<barrier_>();
+        barrier_3<barrier_>();
+    }
+};
 
 struct barrier_dummy {};
 
 inline void barrier_all() {
 
-	#ifdef WATER_THREADS_WINDOWS
+    #ifdef WATER_THREADS_WINDOWS
 
-	barrier_all_tests<barrier_semaphore>();
-	barrier_all_tests<spin_barrier<>>();
-	types::ifel<synchronization_barrier::needs::need != 0, barrier_1<synchronization_barrier>, barrier_dummy>::result{};
-	types::ifel<synchronization_barrier::needs::need != 0, barrier_2<synchronization_barrier>, barrier_dummy>::result{};
-	// synchronization_barrier cannot do barrier_3
-	//barrier_all<synchronization_barrier>();
-	
-	#else
-	
-	test_list<barrier_all_tests, barrier_list>();
+    barrier_all_tests<barrier_semaphore>();
+    barrier_all_tests<spin_barrier<>>();
+    types::ifel<synchronization_barrier::needs::need != 0, barrier_1<synchronization_barrier>, barrier_dummy>::result{};
+    types::ifel<synchronization_barrier::needs::need != 0, barrier_2<synchronization_barrier>, barrier_dummy>::result{};
+    // synchronization_barrier cannot do barrier_3
+    //barrier_all<synchronization_barrier>();
+    
+    #else
+    
+    test_list<barrier_all_tests, barrier_list>();
 
-	#endif
-	}
+    #endif
+}
 
 }}}
 #endif

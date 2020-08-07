@@ -24,46 +24,46 @@ size_t constexpr text_size = sizeof(text) - 1;
 
 
 inline bool basic() {
-	json::memory<> memory;
-	auto nodes = read_to_memory(memory)(text, text_size).nodes();
-	
-	vector<char> destination;
-	
-	write(
-		[&destination](char const* begin, char const* end) {
-			destination.insert(destination.end(), begin, end);
-			},
-		nodes
-		);
-	
-	return !destination.empty();
-	}
+    json::memory<> memory;
+    auto nodes = read_to_memory(memory)(text, text_size).nodes();
+    
+    vector<char> destination;
+    
+    write(
+        [&destination](char const* begin, char const* end) {
+            destination.insert(destination.end(), begin, end);
+        },
+        nodes
+    );
+    
+    return !destination.empty();
+}
 
 
 
 // Here write_size is used to reserve memory in the vector before writing.
-// And the escape_all argument is used 
+// And the escape_all argument is used
 
 inline bool escape_all_and_measure_size() {
-	json::memory<> memory;
-	auto nodes = read_to_memory(memory)(text, text_size).nodes();
-	bool escape_all = true;
-	
-	size_t size = write_size(nodes, escape_all);
-	
-	vector<char> destination;
-	destination.reserve(size);
-	
-	size_t size_written = write(
-		[&destination](char const* begin, char const* end) {
-			destination.insert(destination.end(), begin, end);
-			},
-		nodes,
-		escape_all
-		);
-	
-	return size_written = size && destination.size() == size;
-	}
+    json::memory<> memory;
+    auto nodes = read_to_memory(memory)(text, text_size).nodes();
+    bool escape_all = true;
+    
+    size_t size = write_size(nodes, escape_all);
+    
+    vector<char> destination;
+    destination.reserve(size);
+    
+    size_t size_written = write(
+        [&destination](char const* begin, char const* end) {
+            destination.insert(destination.end(), begin, end);
+        },
+        nodes,
+        escape_all
+    );
+    
+    return size_written = size && destination.size() == size;
+}
 
 
 }}}}

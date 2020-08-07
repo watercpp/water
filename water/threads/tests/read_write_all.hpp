@@ -10,23 +10,23 @@
 #include <water/threads/tests/read_write_count.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename read_write_> struct
- read_write_all_tests {
-  read_write_all_tests() {
- 		read_write_functions<read_write_>();
- 		read_write_count<read_write_>();
- 		}
- 	};
+template<typename read_write_>
+struct read_write_all_tests {
+    read_write_all_tests() {
+        read_write_functions<read_write_>();
+        read_write_count<read_write_>();
+    }
+};
 
 inline void read_write_all() {
-	#ifdef WATER_SYSTEM_LINUX
-	// for some reason read_write_count deadlocks on android with pthread_rwlock ????
-	read_write_functions<pthread_rwlock>();
- 	test_list<read_write_all_tests, list<threads::read_write_count<>, threads::spin_read_write<>>>();
-	#else
-	test_list<read_write_all_tests, read_write_list>();
-	#endif
-	}
+    #ifdef WATER_SYSTEM_LINUX
+    // for some reason read_write_count deadlocks on android with pthread_rwlock ????
+    read_write_functions<pthread_rwlock>();
+    test_list<read_write_all_tests, list<threads::read_write_count<>, threads::spin_read_write<>>>();
+    #else
+    test_list<read_write_all_tests, read_write_list>();
+    #endif
+}
 
 }}}
 #endif
