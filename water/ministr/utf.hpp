@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -115,12 +115,6 @@ public:
 
 
 
-template<typename char_>
-struct utf_char_const_pointer {
-    char_ const *pointer;
-    utf_char_const_pointer(char_ const* a) : pointer{a} {}
-};
-
 unsigned constexpr wchar_utf = unicode::utf_from_char<wchar_t>::result == 16 ? 16 : 32;
 
 template<typename p_, typename w_>
@@ -175,7 +169,7 @@ out<out<p_, w_>, write_utf_string<wchar_t const*, typename out<p_, w_>::settings
 template<typename p_, typename w_>
 out<out<p_, w_>, write_utf_string<char16_t const*, typename out<p_, w_>::settings, 0, 16> > operator<<(
     out<p_, w_> const& o,
-    utf_char_const_pointer<char16_t> a
+    char_const_pointer<char16_t> a
 ) {
     return {o, {a.pointer}};
 }
@@ -183,7 +177,7 @@ out<out<p_, w_>, write_utf_string<char16_t const*, typename out<p_, w_>::setting
 template<typename p_, typename w_>
 out<out<p_, w_>, write_utf_string<char32_t const*, typename out<p_, w_>::settings, 0, 32> > operator<<(
     out<p_, w_> const& o,
-    utf_char_const_pointer<char32_t> a
+    char_const_pointer<char32_t> a
 ) {
     return {o, {a.pointer}};
 }
@@ -191,7 +185,7 @@ out<out<p_, w_>, write_utf_string<char32_t const*, typename out<p_, w_>::setting
 template<typename p_, typename w_>
 out<out<p_, w_>, write_utf_string<wchar_t const*, typename out<p_, w_>::settings, 0, wchar_utf> > operator<<(
     out<p_, w_> const& o,
-    utf_char_const_pointer<wchar_t> a
+    char_const_pointer<wchar_t> a
 ) {
     return {o, {a.pointer}};
 }

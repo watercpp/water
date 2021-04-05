@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -24,7 +24,7 @@ class utf_length
     static_assert(utf_ == 8 || utf_ == 16 || utf_ == 32, "utf_ must be 8, 16, 32");
     
     using select_ = typename
-        types::ifel<utf_ == 8, char8_t,
+        types::ifel<utf_ == 8, uchar_t,
         types::ifel<utf_ == 16, char16_t,
         types::ifel<utf_ == 32, char32_t
     > > >::result;
@@ -90,7 +90,7 @@ private:
     };
     
     template<typename iterator_, typename verify_>
-    void length(char8_t*, iterator_ b, size_t s, verify_&& verify) {
+    void length(uchar_t*, iterator_ b, size_t s, verify_&& verify) {
         while(s) {
             char32_t c;
             unsigned n = utf8_decode_verify_and_move(c, b, s);
@@ -105,7 +105,7 @@ private:
     }
 
     template<typename iterator_, typename verify_>
-    void length(char8_t*, iterator_ b, iterator_ e, verify_&& verify) {
+    void length(uchar_t*, iterator_ b, iterator_ e, verify_&& verify) {
         while(b != e) {
             char32_t c;
             unsigned n = utf8_decode_verify_and_move(c, b, e);

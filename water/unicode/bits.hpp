@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,11 +7,12 @@
 #include <water/water.hpp>
 #include <water/types/types.hpp>
 #include <water/iterator.hpp>
+#include <water/char8.hpp>
 namespace water { namespace unicode {
 
 using size_t = decltype(sizeof(0));
 
-using char8_t = unsigned char;
+using uchar_t = unsigned char;
     
 template<typename>
 struct to_void {
@@ -39,9 +40,10 @@ struct if_not_random_access<iterator_, result_, random_access_iterator_tag>
 template<typename char_>
 inline char32_t cast(char_ a) { return static_cast<char32_t>(a); }
 inline char16_t cast(char16_t a) { return a; }
-inline char8_t cast(char8_t a) { return a; }
-inline char8_t cast(char a) { return static_cast<char8_t>(a); }
-inline char8_t cast(signed char a) { return static_cast<char8_t>(a); }
+inline uchar_t cast(uchar_t a) { return a; }
+inline uchar_t cast(char a) { return static_cast<uchar_t>(a); }
+inline uchar_t cast(signed char a) { return static_cast<uchar_t>(a); }
+inline uchar_t cast(char8_or_not a) { return static_cast<uchar_t>(a); } // the normal utf-8 type for this namespace is still unsigned char
 
 
 template<typename iterator_>

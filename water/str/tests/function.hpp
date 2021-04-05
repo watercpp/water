@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,7 +15,7 @@ test out_function + function
 
 template<typename char_>
 void function_char() {
-    char x[] = u8"hello world 1!\nhello world 2!";
+    char x[] = "hello world 1!\nhello world 2!";
     char16_t hello[] = u"hello";
     char_ c[256] {};
     char_

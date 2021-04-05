@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -9,6 +9,7 @@
 #include <water/unicode/utf.hpp>
 #include <water/unicode/utf_iterators.hpp>
 #include <water/swap.hpp>
+#include <water/char8.hpp>
 namespace water { namespace str {
 
 using numbers::settings;
@@ -406,6 +407,11 @@ out<write_>& operator<<(out<write_>& o, wchar_t a) {
     return o(a);
 }
 
+template<typename write_>
+out<write_>& operator<<(out<write_>& o, char8_or_not a) {
+    return o(a);
+}
+
 // numbers
 
 template<typename if_, typename result_>
@@ -471,6 +477,7 @@ template<> struct void_const_pointer_if<char> {};
 template<> struct void_const_pointer_if<char16_t> {};
 template<> struct void_const_pointer_if<char32_t> {};
 template<> struct void_const_pointer_if<wchar_t> {};
+template<> struct void_const_pointer_if<char8_or_not> {};
 
 struct void_const_pointer {
     void const *pointer;
@@ -508,6 +515,11 @@ out<write_>& operator<<(out<write_>& o, specific<wchar_t const*> a) {
     return o(a.get());
 }
 
+template<typename write_>
+out<write_>& operator<<(out<write_>& o, specific<char8_or_not const*> a) {
+    return o(a.get());
+}
+
 // arrays
 
 template<typename write_, size_t size_>
@@ -527,6 +539,11 @@ out<write_>& operator<<(out<write_>& o, char32_t const (&a)[size_]) {
 
 template<typename write_, size_t size_>
 out<write_>& operator<<(out<write_>& o, wchar_t const (&a)[size_]) {
+    return o(a, size_);
+}
+
+template<typename write_, size_t size_>
+out<write_>& operator<<(out<write_>& o, char8_or_not const (&a)[size_]) {
     return o(a, size_);
 }
 

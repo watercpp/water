@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,6 +12,7 @@
 #include <water/ascii_lower_upper.hpp>
 #include <water/unicode/utf.hpp>
 #include <water/cmath.hpp>
+#include <water/char8.hpp>
 namespace water { namespace numbers {
 
 template<typename iterator_>

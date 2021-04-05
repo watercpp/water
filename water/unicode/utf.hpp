@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -121,7 +121,7 @@ struct char_from_utf :
 
 template<>
 struct char_from_utf<8> :
-    types::type_plain<char8_t>
+    types::type_plain<uchar_t>
 {};
 
 template<>
@@ -141,7 +141,7 @@ struct utf_from_iterator :
 {};
 
 
-constexpr char8_t utf8_first_lookup[0x100] = {
+constexpr uchar_t utf8_first_lookup[0x100] = {
     // 1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 1
@@ -166,14 +166,14 @@ namespace _ {
 
     template<typename char_, bool = (static_cast<char_>(-1) > 0 && static_cast<char_>(-1) <= 0xff)>
     struct utf8_first_lookup_do {
-        static char8_t at(char_ a) {
+        static uchar_t at(char_ a) {
             return utf8_first_lookup[a];
         }
     };
     
     template<typename char_>
     struct utf8_first_lookup_do<char_, false> {
-        static char8_t at(char_ a) {
+        static uchar_t at(char_ a) {
             return 0 <= a && a <= 0xff ? utf8_first_lookup[a] : 0;
         }
     };
@@ -182,16 +182,16 @@ namespace _ {
 
 
 template<typename char_>
-inline char8_t utf8_first_of(char_ a) {
+inline uchar_t utf8_first_of(char_ a) {
     return _::utf8_first_lookup_do<char_>::at(a);
 }
 
-inline char8_t utf8_first_of(char a) {
-    return utf8_first_of(static_cast<char8_t>(a));
+inline uchar_t utf8_first_of(char a) {
+    return utf8_first_of(static_cast<uchar_t>(a));
 }
 
-inline char8_t utf8_first_of(signed char a) {
-    return utf8_first_of(static_cast<char8_t>(a));
+inline uchar_t utf8_first_of(signed char a) {
+    return utf8_first_of(static_cast<uchar_t>(a));
 }
 
 
@@ -204,11 +204,11 @@ inline char16_t utf8_unpack(char_ c0, char_ c1) {
 }
 
 inline char16_t utf8_unpack(char c0, char c1) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1));
 }
 
 inline char16_t utf8_unpack(signed char c0, signed char c1) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1));
 }
 
 template<typename char_>
@@ -221,11 +221,11 @@ inline char16_t utf8_unpack(char_ c0, char_ c1, char_ c2) {
 }
 
 inline char16_t utf8_unpack(char c0, char c1, char c2) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2));
 }
 
 inline char16_t utf8_unpack(signed char c0, signed char c1, signed char c2) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2));
 }
 
 template<typename char_>
@@ -239,11 +239,11 @@ inline char32_t utf8_unpack(char_ c0, char_ c1, char_ c2, char_ c3) {
 }
 
 inline char32_t utf8_unpack(char c0, char c1, char c2, char c3) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2), static_cast<uchar_t>(c3));
 }
 
 inline char32_t utf8_unpack(signed char c0, signed char c1, signed char c2, signed char c3) {
-    return utf8_unpack(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+    return utf8_unpack(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2), static_cast<uchar_t>(c3));
 }
 
 
@@ -255,11 +255,11 @@ bool utf8_verify(char_, char_ c1) {
 }
 
 inline bool utf8_verify(char c0, char c1) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1));
 }
 
 inline bool utf8_verify(signed char c0, signed char c1) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1));
 }
 
 template<typename char_>
@@ -273,11 +273,11 @@ bool utf8_verify(char_ c0, char_ c1, char_ c2) {
 }
 
 inline bool utf8_verify(char c0, char c1, char c2) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2));
 }
 
 inline bool utf8_verify(signed char c0, signed char c1, signed char c2) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2));
 }
 
 template<typename char_>
@@ -292,11 +292,11 @@ bool utf8_verify(char_ c0, char_ c1, char_ c2, char_ c3) {
 }
 
 inline bool utf8_verify(char c0, char c1, char c2, char c3) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2), static_cast<uchar_t>(c3));
 }
 
 inline bool utf8_verify(signed char c0, signed char c1, signed char c2, signed char c3) {
-    return utf8_verify(static_cast<char8_t>(c0), static_cast<char8_t>(c1), static_cast<char8_t>(c2), static_cast<char8_t>(c3));
+    return utf8_verify(static_cast<uchar_t>(c0), static_cast<uchar_t>(c1), static_cast<uchar_t>(c2), static_cast<uchar_t>(c3));
 }
 
 
@@ -327,23 +327,23 @@ inline char32_t utf16_unpack(char_ c0, char_ c1) {
 
 template<typename to_>
 inline void utf8_pack(to_& to0, to_& to1, char32_t from) {
-    to0 = static_cast<char8_t>(0xc0 | (from >> 6));
-    to1 = static_cast<char8_t>(0x80 | (from & 0x3f));
+    to0 = static_cast<uchar_t>(0xc0 | (from >> 6));
+    to1 = static_cast<uchar_t>(0x80 | (from & 0x3f));
 }
 
 template<typename to_>
 inline void utf8_pack(to_& to0, to_& to1, to_& to2, char32_t from) {
-    to0 = static_cast<char8_t>(0xe0 | (from >> 12));
-    to1 = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-    to2 = static_cast<char8_t>(0x80 | (from & 0x3f));
+    to0 = static_cast<uchar_t>(0xe0 | (from >> 12));
+    to1 = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+    to2 = static_cast<uchar_t>(0x80 | (from & 0x3f));
 }
 
 template<typename to_>
 inline void utf8_pack(to_& to0, to_& to1, to_& to2, to_& to3, char32_t from) {
-    to0 = static_cast<char8_t>(0xf0 | (from >> 18));
-    to1 = static_cast<char8_t>(0x80 | ((from >> 12) & 0x3f));
-    to2 = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-    to3 = static_cast<char8_t>(0x80 | (from & 0x3f));
+    to0 = static_cast<uchar_t>(0xf0 | (from >> 18));
+    to1 = static_cast<uchar_t>(0x80 | ((from >> 12) & 0x3f));
+    to2 = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+    to3 = static_cast<uchar_t>(0x80 | (from & 0x3f));
 }
 
 
@@ -1005,24 +1005,24 @@ template<typename iterator_>
 unsigned utf8_encode(iterator_ to, char32_t from) {
     // return 1 to 4, the number of characters written
     if(from <= 0x7f) {
-        *to = static_cast<char8_t>(from);
+        *to = static_cast<uchar_t>(from);
         return 1;
     }
     if(from <= 0x7ff) {
-        *to = static_cast<char8_t>(0xc0 | (from >> 6));
-        *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+        *to = static_cast<uchar_t>(0xc0 | (from >> 6));
+        *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
         return 2;
     }
     if(from <= 0xffffu) {
-        *to = static_cast<char8_t>(0xe0 | (from >> 12));
-        *++to = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-        *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+        *to = static_cast<uchar_t>(0xe0 | (from >> 12));
+        *++to = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+        *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
         return 3;
     }
-    *to = static_cast<char8_t>(0xf0 | (from >> 18));
-    *++to = static_cast<char8_t>(0x80 | ((from >> 12) & 0x3f));
-    *++to = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-    *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+    *to = static_cast<uchar_t>(0xf0 | (from >> 18));
+    *++to = static_cast<uchar_t>(0x80 | ((from >> 12) & 0x3f));
+    *++to = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+    *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
     return 4;
 }
 
@@ -1067,27 +1067,27 @@ template<typename iterator_>
 unsigned utf8_encode_and_move(iterator_& to, char32_t from) {
     // return 1 to 4, the number of characters written
     if(from <= 0x7f) {
-        *to = static_cast<char8_t>(from);
+        *to = static_cast<uchar_t>(from);
         ++to;
         return 1;
     }
     if(from <= 0x7ff) {
-        *to = static_cast<char8_t>(0xc0 | (from >> 6));
-        *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+        *to = static_cast<uchar_t>(0xc0 | (from >> 6));
+        *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
         ++to;
         return 2;
     }
     if(from <= 0xffffu) {
-        *to = static_cast<char8_t>(0xe0 | (from >> 12));
-        *++to = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-        *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+        *to = static_cast<uchar_t>(0xe0 | (from >> 12));
+        *++to = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+        *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
         ++to;
         return 3;
     }
-    *to = static_cast<char8_t>(0xf0 | (from >> 18));
-    *++to = static_cast<char8_t>(0x80 | ((from >> 12) & 0x3f));
-    *++to = static_cast<char8_t>(0x80 | ((from >> 6) & 0x3f));
-    *++to = static_cast<char8_t>(0x80 | (from & 0x3f));
+    *to = static_cast<uchar_t>(0xf0 | (from >> 18));
+    *++to = static_cast<uchar_t>(0x80 | ((from >> 12) & 0x3f));
+    *++to = static_cast<uchar_t>(0x80 | ((from >> 6) & 0x3f));
+    *++to = static_cast<uchar_t>(0x80 | (from & 0x3f));
     ++to;
     return 4;
 }

@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -553,10 +553,26 @@ namespace _ {
     
     template<typename type_> type_ make();
     
+    template<typename a_> struct no_const_reference_do { using result = a_; };
+    template<typename a_> struct no_const_reference_do<a_&> { using result = a_; };
+    template<typename a_> struct no_const_reference_do<a_ const&> { using result = a_; };
+    template<typename a_> struct no_const_reference_do<a_ const> { using result = a_; };
+    
+    template<typename a_> using no_const_reference = typename _::no_const_reference_do<a_>::result;
+    
+    using char8_or_char = no_const_reference<decltype(*u8"")>;
+    
+    enum class not_char8 : unsigned char;
+    
+    template<typename char8_ = char8_or_char> struct char8_or_not_do { using result = char8_; };
+    template<> struct char8_or_not_do<char> { using result = not_char8; };
+    
+    using char8_or_not = char8_or_not_do<>::result;
+    
     template<typename iterator_>
-    void copy(iterator_& to, iterator_ const& to_end, char const *from, unsigned size) {
+    void copy(iterator_& to, iterator_ const& to_end, char8_or_char const *from, unsigned size) {
         while(to != to_end && size) {
-            *to = *from++;
+            *to = static_cast<char>(*from++);
             ++to;
             --size;
         }
@@ -685,17 +701,13 @@ namespace _ {
         return r;
     }
     
-    template<typename a_> struct no_const_reference_do { using result = a_; };
-    template<typename a_> struct no_const_reference_do<a_&> { using result = a_; };
-    template<typename a_> struct no_const_reference_do<a_ const&> { using result = a_; };
-    template<typename a_> struct no_const_reference_do<a_ const> { using result = a_; };
-    
 }
 
 
 
-template<typename a_> using no_const_reference = typename _::no_const_reference_do<a_>::result;
+using _::no_const_reference;
 
+using _::char8_or_not;
 
 
 template<bool utf8_, typename iterator_>
@@ -856,7 +868,7 @@ namespace _ {
         }
     }
     
-    constexpr char digits[2][17] = {
+    constexpr char8_or_char digits[2][17] = {
         u8"0123456789abcdef",
         u8"0123456789ABCDEF"
     };
@@ -926,9 +938,9 @@ public:
             i0 *= static_cast<type_>(-1); // avoid warnings for -unsigned
             i *= static_cast<type_>(-1);
         }
-        *--to = _::digits[!number_format_::lowercase][i0];
+        *--to = static_cast<char>(_::digits[!number_format_::lowercase][i0]);
         while(--digits) {
-            *--to = _::digits[!number_format_::lowercase][i % b];
+            *--to = static_cast<char>(_::digits[!number_format_::lowercase][i % b]);
             i /= b;
         }
         return end;
@@ -951,9 +963,10 @@ public:
 // then void_const_pointer_if disables the constructor for char const*
 // after that if_bool is needed, a plain bool operator would be used for pointers
 
+template<typename char_>
 struct char_const_pointer {
-    char const *pointer;
-    char_const_pointer(char const* a) : pointer{a} {}
+    char_ const *pointer;
+    char_const_pointer(char_ const* a) : pointer{a} {}
 };
 
 template<typename type_> struct void_const_pointer_if { using result = void_const_pointer_if; };
@@ -961,6 +974,7 @@ template<> struct void_const_pointer_if<char> {};
 template<> struct void_const_pointer_if<char16_t> {}; // disable here so you know you need utf.hpp
 template<> struct void_const_pointer_if<char32_t> {};
 template<> struct void_const_pointer_if<wchar_t> {};
+template<> struct void_const_pointer_if<char8_or_not> {};
 
 struct void_const_pointer {
     void const *pointer;
@@ -990,7 +1004,31 @@ out<out<p_, w_>, write_string<char const*, typename out<p_, w_>::settings, size_
 template<typename p_, typename w_>
 out<out<p_, w_>, write_string<char const*, typename out<p_, w_>::settings> > operator<<(
     out<p_, w_> const& o,
-    char_const_pointer a
+    char_const_pointer<char> a
+) {
+    return {o, {a.pointer}};
+}
+
+template<typename p_, typename w_>
+out<out<p_, w_>, write_char> operator<<(
+    out<p_, w_> const& o,
+    char8_or_not a
+) {
+    return {o, static_cast<char>(a)};
+}
+
+template<typename p_, typename w_, unsigned size_>
+out<out<p_, w_>, write_string<char8_or_not const*, typename out<p_, w_>::settings, size_>> operator<<(
+    out<p_, w_> const& o,
+    char8_or_not const (&a)[size_]
+) {
+    return {o, {a, a + size_}};
+}
+
+template<typename p_, typename w_>
+out<out<p_, w_>, write_string<char8_or_not const*, typename out<p_, w_>::settings> > operator<<(
+    out<p_, w_> const& o,
+    char_const_pointer<char8_or_not> a
 ) {
     return {o, {a.pointer}};
 }
@@ -1239,7 +1277,7 @@ public:
             auto t = begin + digits;
             auto u = *f;
             do {
-                *--t = _::digits[!number_format_::lowercase][u & 0xf];
+                *--t = static_cast<char>(_::digits[!number_format_::lowercase][u & 0xf]);
                 u >>= 4;
             } while(t != begin);
             begin += digits;

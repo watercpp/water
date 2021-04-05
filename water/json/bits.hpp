@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,9 +12,10 @@
 #include <water/unicode/utf.hpp>
 #include <water/unicode/byterator.hpp>
 #include <water/swap.hpp>
+#include <water/char8.hpp>
 namespace water { namespace json {
 
-using char8_t = types::ifel_type<types::is_unsigned<char>, char, unsigned char>::result;
+using uchar_t = types::ifel_type<types::is_unsigned<char>, char, unsigned char>::result;
 using int64_t = int_bits_at_least<64>;
 using int32_t = int_bits_at_least<32>;
 using uint16_t = uint_bits_at_least<16>;
@@ -35,10 +36,10 @@ enum class type : char {
 // 64bit: 40 bytes
 struct memory_node {
     memory_node *in;
-    char8_t *name;
+    uchar_t *name;
     union {
         memory_node **nodes; // array or object
-        char8_t *string;
+        uchar_t *string;
         int64_t integer;
         bool boolean;
     };
@@ -56,7 +57,7 @@ struct memory_node {
     };
     uint16_t name_size;
     json::type type;
-    char8_t extra; // used for number, imprecisce
+    uchar_t extra; // used for number, imprecisce
 };
 
 namespace _ {
@@ -162,6 +163,7 @@ inline char16_t      string_compare_cast(char16_t a)      { return a; }
 inline unsigned char string_compare_cast(unsigned char a) { return a; }
 inline unsigned char string_compare_cast(signed char a)   { return static_cast<unsigned char>(a); }
 inline unsigned char string_compare_cast(char a)          { return static_cast<unsigned char>(a); }
+inline char8_or_not  string_compare_cast(char8_or_not a)  { return a; }
 
 }}
 #endif

@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,7 +27,7 @@ how is 0.0000000123 parsed???
 this does not preserve negative 0
 */
 
-inline void read_digit(int64_t& integer, bool& imprecise, int32_t& overflow, char8_t digit, bool minus) {
+inline void read_digit(int64_t& integer, bool& imprecise, int32_t& overflow, uchar_t digit, bool minus) {
     auto d = static_cast<int64_t>(digit - '0');
     if(!overflow) {
         if(minus) {
@@ -72,7 +72,7 @@ bool read_number(number& to, iterator_& from, iterator_ end) {
         ++from;
     auto first_digit = from;
     while(from != end && ('0' <= *from && *from <= '9')) {
-        read_digit(integer, imprecise, overflow, static_cast<char8_t>(*from), minus);
+        read_digit(integer, imprecise, overflow, static_cast<uchar_t>(*from), minus);
         ++from;
     }
     if(from == first_digit)
@@ -82,7 +82,7 @@ bool read_number(number& to, iterator_& from, iterator_ end) {
     if(from != end && *from == '.') {
         auto decimal_point = from++;
         while(from != end && ('0' <= *from && *from <= '9')) {
-            read_digit(integer, imprecise, overflow, static_cast<char8_t>(*from), minus);
+            read_digit(integer, imprecise, overflow, static_cast<uchar_t>(*from), minus);
             if(point != numeric_limits<int32_t>::min())
                 --point;
             ++from;

@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,7 +27,7 @@ public:
 private:
     memory_type *mymemory;
     memory_node *my = 0;
-    char8_t
+    uchar_t
         *myat = 0,
         *myend = 0;
     bool
@@ -61,8 +61,8 @@ public:
 
     read& parse_in_place(char *begin, char *end) {
         reset();
-        myat = static_cast<char8_t*>(static_cast<void*>(begin));
-        myend = static_cast<char8_t*>(static_cast<void*>(end));
+        myat = static_cast<uchar_t*>(static_cast<void*>(begin));
+        myend = static_cast<uchar_t*>(static_cast<void*>(end));
         myat = parse();
         return *this;
     }
@@ -72,7 +72,7 @@ public:
         reset();
         if(pointer && bytes) {
             auto e = encoding(pointer, bytes);
-            char8_t *p = static_cast<char8_t*>(pointer) + e.byte_order_mark();
+            uchar_t *p = static_cast<uchar_t*>(pointer) + e.byte_order_mark();
             size_t s = bytes - e.byte_order_mark();
             if(e.utf32()) {
                 if(s % 4)
@@ -91,7 +91,7 @@ public:
                 auto length = unicode::utf_length<16>(from, s / 2);
                 if(!length)
                     return *this;
-                p = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1));
+                p = static_cast<uchar_t*>(mymemory->allocate_with_undo(length.utf8(), 1));
                 if(!p)
                     return *this;
                 auto convert = unicode::utf_from_utf<8, 16>(p, from, s / 2);
@@ -109,7 +109,7 @@ public:
     read& operator()(iterator_ begin, iterator_ end) {
         reset();
         // avoid "conditional expression is constant" warning :(
-        copy_or_convert_and_parse(begin, end, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, char8_t, char16_t>::result{});
+        copy_or_convert_and_parse(begin, end, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, uchar_t, char16_t>::result{});
         return *this;
     }
 
@@ -117,7 +117,7 @@ public:
     read& operator()(iterator_ begin, size_t size) {
         reset();
         // avoid "conditional expression is constant" warning :(
-        copy_or_convert_and_parse(begin, size, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, char8_t, char16_t>::result{});
+        copy_or_convert_and_parse(begin, size, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, uchar_t, char16_t>::result{});
         return *this;
     }
 
@@ -143,7 +143,7 @@ public:
 
 private:
     template<typename iterator_>
-    void copy_or_convert_and_parse(iterator_ begin, iterator_ end, char8_t) {
+    void copy_or_convert_and_parse(iterator_ begin, iterator_ end, uchar_t) {
         copy_and_parse(begin, size(begin, end));
     }
 
@@ -153,7 +153,7 @@ private:
     }
 
     template<typename iterator_>
-    void copy_or_convert_and_parse(iterator_ begin, size_t size, char8_t) {
+    void copy_or_convert_and_parse(iterator_ begin, size_t size, uchar_t) {
         copy_and_parse(begin, size);
     }
 
@@ -164,11 +164,11 @@ private:
 
     template<typename iterator_>
     void copy_and_parse(iterator_ begin, size_t size) {
-        if(size && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(size, 1))) != 0) {
+        if(size && (myat = static_cast<uchar_t*>(mymemory->allocate_with_undo(size, 1))) != 0) {
             myend = myat + size;
             auto to = myat;
             do {
-                *to = static_cast<char8_t>(*begin);
+                *to = static_cast<uchar_t>(*begin);
                 ++begin;
             } while(++to != myend);
             myat = parse();
@@ -178,7 +178,7 @@ private:
     template<typename iterator_, typename iterator_or_size_>
     void convert_and_parse(iterator_ begin, iterator_or_size_ end_or_size) {
         auto length = unicode::utf_length_from(begin, end_or_size);
-        if(length.utf8() && (myat = static_cast<char8_t*>(mymemory->allocate_with_undo(length.utf8(), 1))) != 0) {
+        if(length.utf8() && (myat = static_cast<uchar_t*>(mymemory->allocate_with_undo(length.utf8(), 1))) != 0) {
             auto convert = unicode::utf_from_utf(myat, begin, end_or_size);
             myend = convert.end();
             ___water_assert(convert.size() == length.utf8());
@@ -200,7 +200,7 @@ private:
         return r;
     }
 
-    bool is_space(char8_t a) const {
+    bool is_space(uchar_t a) const {
         // no unicode space, only these are allowed
         return
             a == 0x20 || // space
@@ -215,7 +215,7 @@ private:
             return false;
         unsigned i = 0;
         do {
-            if(myat[i] != static_cast<char8_t>(a[i]))
+            if(myat[i] != static_cast<uchar_t>(a[i]))
                 return false;
         } while(++i != size_ - 1);
         myat += size_ - 1;
@@ -226,12 +226,12 @@ private:
         while(myat != myend && is_space(*myat)) ++myat;
     }
 
-    char8_t* parse() {
-        char8_t *r = myat;
+    uchar_t* parse() {
+        uchar_t *r = myat;
         memory_node
             *previous = 0, // 0 if first inside object/array
             *in = 0; // inside non-empty object/array
-        char8_t
+        uchar_t
             *name_begin = 0, // object name. empty name is fine
             *name_end = 0;
         while(myat != myend) {
@@ -249,7 +249,7 @@ private:
             if(*myat == '"') {
                 // "hello"
                 // "hello": something (if inside object)
-                char8_t
+                uchar_t
                     *begin = ++myat,
                     *end = read_string(myat, myend);
                 if(!end)

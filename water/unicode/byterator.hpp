@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,11 +19,11 @@ public:
     using value_type = typename types::ifel<bits_ <= 16, char16_t, char32_t>::result;
     using reference = value_type;
     using pointer = value_type const*;
-    using difference_type = decltype(static_cast<char8_t*>(0) - static_cast<char8_t*>(0));
+    using difference_type = decltype(static_cast<uchar_t*>(0) - static_cast<uchar_t*>(0));
 
 private:
-    char8_t const *my = 0;
-    char8_t myorder[4] = {0,1,2,3}; // myorder[0] is most significant byte
+    uchar_t const *my = 0;
+    uchar_t myorder[4] = {0,1,2,3}; // myorder[0] is most significant byte
     static constexpr difference_type bytes_ = static_cast<difference_type>(bits_ / 8 + (bits_ % 8 ? 1 : 0));
     template<difference_type> struct unpack_select;
 
@@ -31,7 +31,7 @@ public:
     byterator() = default;
 
     byterator(void const* pointer, bool big_endian) :
-        my(static_cast<char8_t const*>(pointer))
+        my(static_cast<uchar_t const*>(pointer))
     {
         if(!big_endian) {
             myorder[0] = bytes_ - 1;
@@ -48,12 +48,12 @@ public:
         unsigned byte2 = 0,
         unsigned byte3 = 0
     ) :
-        my(static_cast<char8_t const*>(pointer)),
+        my(static_cast<uchar_t const*>(pointer)),
         myorder{
-            static_cast<char8_t>(byte0),
-            static_cast<char8_t>(byte1),
-            static_cast<char8_t>(byte2),
-            static_cast<char8_t>(byte3)
+            static_cast<uchar_t>(byte0),
+            static_cast<uchar_t>(byte1),
+            static_cast<uchar_t>(byte2),
+            static_cast<uchar_t>(byte3)
         }
     {
         // byte0 is the most significant byte, so big_endian 32-bit would have byte0 = 0, byte1 = 1, byte2 = 2, byte3 = 3
@@ -140,20 +140,20 @@ public:
     }
 
 private:
-    value_type unpack(char8_t const* a, unpack_select<2>*) const {
+    value_type unpack(uchar_t const* a, unpack_select<2>*) const {
         return
             (static_cast<value_type>(a[myorder[0]]) << 8) |
             a[myorder[1]];
     }
 
-    value_type unpack(char8_t const* a, unpack_select<3>*) const {
+    value_type unpack(uchar_t const* a, unpack_select<3>*) const {
         return
             (static_cast<value_type>(a[myorder[0]]) << 8) |
             (static_cast<value_type>(a[myorder[1]]) << 8) |
             a[myorder[2]];
     }
 
-    value_type unpack(char8_t const* a, unpack_select<4>*) const {
+    value_type unpack(uchar_t const* a, unpack_select<4>*) const {
         return
             (static_cast<value_type>(a[myorder[0]]) << 24) |
             (static_cast<value_type>(a[myorder[1]]) << 16) |

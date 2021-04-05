@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -24,7 +24,7 @@ This example show the different functions for moving around the tree structure.
 
 */
 
-char constexpr text[] = u8R"###({
+char constexpr text[] = R"###({
     "zero": true,
     "one": 123,
     "two": 12.34E45,

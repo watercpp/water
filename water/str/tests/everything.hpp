@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -63,7 +63,8 @@ public:
     void operator++() {}
 };
 
-char constexpr everything_char[] = u8"hello";
+char constexpr everything_char[] = "hello";
+char8_or_char constexpr everything_char8[] = u8"hello";
 char16_t constexpr everything_char16[] = u"hello";
 char32_t constexpr everything_char32[] = U"hello";
 wchar_t constexpr everything_wchar[] = L"hello";
@@ -96,16 +97,19 @@ void everything_except_copy(out<o_>& o) {
     o.number(1);
     o
         << everything_char
+        << everything_char8
         << everything_char16
         << everything_char32
         << everything_wchar
         << '\n'
         << (everything_char + 0)
+        << (everything_char8 + 0)
         << (everything_char16 + 0)
         << (everything_char32 + 0)
         << (everything_wchar + 0)
         << everything_begin_end{}
         << '\n'
+        << u8"\n"[0]
         << u'\n'
         << U'\n'
         << L'\n'
@@ -208,6 +212,7 @@ void everything_type() {
 
 inline void everything_all() {
     everything_type<char>();
+    everything_type<char8_or_char>();
     everything_type<char16_t>();
     everything_type<char32_t>();
     everything_type<wchar_t>();

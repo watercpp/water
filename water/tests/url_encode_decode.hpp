@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,6 +8,7 @@
 #include <water/url_encode_decode.hpp>
 #include <water/numeric_limits.hpp>
 #include <water/reverse_iterator.hpp>
+#include <water/char8.hpp>
 namespace water { namespace tests {
 
 template<typename iterator1_, typename iterator2_>
@@ -35,25 +36,25 @@ void url_encode_decode(iterator_ begin, iterator_ end) {
 }
 
 template<size_t size_>
-void url_encode_decode(char const (&cstring)[size_]) {
+void url_encode_decode(char8_or_char const (&cstring)[size_]) {
     url_encode_decode(cstring + 0, cstring + size_ - 1);
 }
 
 template<size_t size1_, size_t size2_>
-void url_encode_test(char const (&plain)[size1_], char const (&encoded)[size2_]) {
+void url_encode_test(char8_or_char const (&plain)[size1_], char8_or_char const (&encoded)[size2_]) {
     auto e = url_encode_range_from(plain + 0, plain + size1_ - 1);
     ___water_test(url_encode_decode_equal(e.begin(), e.end(), encoded + 0, encoded + size2_ - 1));
 }
 
 inline void url_encode_decode_all() {
     url_encode_test(
-        "1234567890+!\"#$%&/()=?`^~*'-:;,._<>qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM",
-        "1234567890%2B%21%22%23%24%25%26%2F%28%29%3D%3F%60%5E%7E%2A%27-%3A%3B%2C._%3C%3EqwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+        u8"1234567890+!\"#$%&/()=?`^~*'-:;,._<>qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM",
+        u8"1234567890%2B%21%22%23%24%25%26%2F%28%29%3D%3F%60%5E%7E%2A%27-%3A%3B%2C._%3C%3EqwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
     );
     // visual c++ 15.7.5 thinks the 4 emojis below are 34 bytes instead of 17? why?
     url_encode_test(
         //u8"👁🤪🦁🐍",
-        "\xF0\x9F\x91\x81\xF0\x9F\xA4\xAA\xF0\x9F\xA6\x81\xF0\x9F\x90\x8D",
+        u8"\xF0\x9F\x91\x81\xF0\x9F\xA4\xAA\xF0\x9F\xA6\x81\xF0\x9F\x90\x8D",
         u8"%F0%9F%91%81%F0%9F%A4%AA%F0%9F%A6%81%F0%9F%90%8D"
     );
     

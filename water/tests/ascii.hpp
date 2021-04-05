@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,9 +8,10 @@
 #include <water/test.hpp>
 #include <water/ascii_lower_upper.hpp>
 #include <water/ascii_lowercase_iterator.hpp>
+#include <water/char8.hpp>
 namespace water { namespace tests {
 
-char constexpr
+char8_or_char constexpr
     ascii_lowercase_string[] = u8"§1234567890+´°!\"#$%&\\()=?`qwertyuiop^asdfghjkl'<zxcvbnm,.-^*>_",
     ascii_uppercase_string[] = u8"§1234567890+´°!\"#$%&\\()=?`QWERTYUIOP^ASDFGHJKL'<ZXCVBNM,.-^*>_";
 
@@ -50,31 +51,31 @@ inline void ascii_all() {
         lower,
         ascii_lowercase_iterator_from(upper),
         size,
-        [](char a, char b) { return a == b; }
+        [](char8_or_char a, char8_or_char b) { return a == b; }
     );
     ascii_test_equal(
         lower,
         upper,
         size,
-        [](char a, char b) { return ascii_to_upper(a) == ascii_to_upper(b); }
+        [](char8_or_char a, char8_or_char b) { return ascii_to_upper(a) == ascii_to_upper(b); }
     );
     ascii_test_equal(
         lower,
         upper,
         size,
-        [](char a, char b) { return ascii_to_lower(a) == ascii_to_lower(b); }
+        [](char8_or_char a, char8_or_char b) { return ascii_to_lower(a) == ascii_to_lower(b); }
     );
     ascii_test_equal(
         lower,
         upper,
         size,
-        [](char a, char b) { return a == (ascii_is_lower(a) ? ascii_to_lower(b) : b); }
+        [](char8_or_char a, char8_or_char b) { return a == (ascii_is_lower(a) ? ascii_to_lower(b) : b); }
     );
     ascii_test_equal(
         lower,
         upper,
         size,
-        [](char a, char b) { return (ascii_is_upper(b) ? ascii_to_upper(a) : a) == b; }
+        [](char8_or_char a, char8_or_char b) { return (ascii_is_upper(b) ? ascii_to_upper(a) : a) == b; }
     );
     
     ascii_test_equal(

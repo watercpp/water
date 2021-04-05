@@ -1,10 +1,11 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_TYPES_IS_CHAR_HPP
 #define WATER_TYPES_IS_CHAR_HPP
 #include <water/types/result.hpp>
+#include <water/types/char8.hpp>
 namespace water { namespace types {
 namespace _ {
 
@@ -17,6 +18,7 @@ namespace _ {
     template<> struct do_is_char<wchar_t> : true_result {};
     template<> struct do_is_char<char16_t> : true_result {};
     template<> struct do_is_char<char32_t> : true_result {};
+    template<> struct do_is_char<char8_or_not> : true_result {};
     
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,7 +7,7 @@
 #include <water/json/bits.hpp>
 namespace water { namespace json {
 
-inline long read_hex(char8_t *begin, char8_t* end) {
+inline long read_hex(uchar_t *begin, uchar_t* end) {
     // return -1 or 0...0xffff
     if(end - begin < 4)
         return -1;
@@ -30,11 +30,11 @@ inline long read_hex(char8_t *begin, char8_t* end) {
 }
 
 
-inline char8_t* read_string(char8_t*& from, char8_t* end) {
+inline uchar_t* read_string(uchar_t*& from, uchar_t* end) {
     // return the new end, 0 if error
     // overwrites begin...end
     // if error from should point to where the error was, anything before that can be destroyed
-    char8_t *to = from;
+    uchar_t *to = from;
     while(from != end && 0x20 <= *from && *from != '"') {
         if(*from == '\\') {
             if(++from == end)

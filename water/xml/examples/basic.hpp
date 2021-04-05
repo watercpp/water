@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -20,7 +20,7 @@ required data or contained any unrecognized data. And not use vectors like this.
 
 */
 
-char constexpr text[] = u8R"###(<?xml version="1.1" encoding="UTF-8"?>
+char constexpr text[] = R"###(<?xml version="1.1" encoding="UTF-8"?>
 
     <locations>
         <location latitude="90" longitude="0">

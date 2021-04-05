@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,7 @@
 #include <water/ministr/tests/bits.hpp>
 #include <water/trace.hpp>
 #include <water/int.hpp>
+#include <water/char8.hpp>
 namespace water { namespace ministr { namespace tests {
 
 struct test_trace {
@@ -149,6 +150,15 @@ struct test {
         test_exponent_min_max<float, -100, 100>(o1 << base<2>, "float");
         test_exponent_min_max<double, -100, 100>(o1 << base<2> << uppercase, "dobule");
         test_exponent_min_max<long double, -100, 100>(o1 << base<2> << lowercase, "long dobule");
+        
+        char8_or_char constexpr const8[] = u8"hello!";
+        char8_or_char mutable8[] = u8"world!";
+        o1 << "char8 cosnt array     " << const8 << '\n';
+        o1 << "char8 cosnt pointer   " << static_cast<char8_or_char const*>(const8) << '\n';
+        o1 << "char8 cosnt char      " << const8[0] << '\n';
+        o1 << "char8 mutable array   " << mutable8 << '\n';
+        o1 << "char8 mutable pointer " << static_cast<char8_or_char*>(mutable8) << '\n';
+        o1 << "char8 mutable char    " << mutable8[0] << '\n';
     }
 };
 

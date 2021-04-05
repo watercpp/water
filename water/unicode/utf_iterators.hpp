@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,7 +27,7 @@ class utf_iterator_with_end
 
 public:
     using iterator_category = forward_iterator_tag;
-    using value_type = typename types::ifel<to_ == 8, char8_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
+    using value_type = typename types::ifel<to_ == 8, uchar_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
     using reference = value_type const&;
     using pointer = value_type const*;
     using difference_type = ptrdiff_t;
@@ -35,7 +35,7 @@ public:
 private:
     constexpr static unsigned size_ = to_ == 8 ? 4 : to_ == 16 ? 2 : 1;
     using select_ = typename
-        types::ifel<to_ == 8, char8_t,
+        types::ifel<to_ == 8, uchar_t,
         types::ifel<to_ == 16, char16_t,
         types::ifel<to_ == 32, char32_t
     > > >::result;
@@ -89,13 +89,13 @@ public:
     }
 
 private:
-    void next(char8_t*) {
+    void next(uchar_t*) {
         myat = 4;
         char32_t f;
         if(!utf_decode_verify_and_move<from_, verify_>(f, myfrom, myend))
             myfrom = myend;
         else if(f <= 0x7f)
-            my[myat = 3] = static_cast<char8_t>(f);
+            my[myat = 3] = static_cast<uchar_t>(f);
         else if(f <= 0x7ff)
             utf8_pack(my[myat = 2], my[3], f);
         else if(f <= 0xffff)
@@ -149,7 +149,7 @@ class utf_iterator_with_size
 
 public:
     using iterator_category = forward_iterator_tag;
-    using value_type = typename types::ifel<to_ == 8, char8_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
+    using value_type = typename types::ifel<to_ == 8, uchar_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
     using reference = value_type const&;
     using pointer = value_type const*;
     using difference_type = ptrdiff_t;
@@ -157,7 +157,7 @@ public:
 private:
     constexpr static unsigned size_ = to_ == 8 ? 4 : to_ == 16 ? 2 : 1;
     using select_ = typename
-        types::ifel<to_ == 8, char8_t,
+        types::ifel<to_ == 8, uchar_t,
         types::ifel<to_ == 16, char16_t,
         types::ifel<to_ == 32, char32_t
     > > >::result;
@@ -212,13 +212,13 @@ public:
     }
 
 private:
-    void next(char8_t*) {
+    void next(uchar_t*) {
         myat = 4;
         char32_t f;
         if(!utf_decode_verify_and_move<from_, verify_>(f, myfrom, mysize))
             mysize = 0;
         else if(f <= 0x7f)
-            my[myat = 3] = static_cast<char8_t>(f);
+            my[myat = 3] = static_cast<uchar_t>(f);
         else if(f <= 0x7ff)
             utf8_pack(my[myat = 2], my[3], f);
         else if(f <= 0xffff)

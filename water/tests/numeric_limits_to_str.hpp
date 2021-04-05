@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -10,6 +10,7 @@
 #include <water/str/str.hpp>
 #include <water/str/type_name.hpp>
 #include <water/str/bytes.hpp>
+#include <water/char8.hpp>
 namespace water { namespace tests {
 
 /*
@@ -114,6 +115,7 @@ void numeric_limits_to_str(str::out<o_>& o) {
     numeric_limits_to_str(o, typename make_<char16_t>::result{});
     numeric_limits_to_str(o, typename make_<char32_t>::result{});
     numeric_limits_to_str(o, typename make_<wchar_t>::result{});
+    numeric_limits_to_str(o, typename make_<char8_or_not>::result{});
     numeric_limits_to_str(o, typename make_<void*>::result{});
     numeric_limits_to_str(o, typename make_<numeric_limits_to_str_t>::result{});
 }

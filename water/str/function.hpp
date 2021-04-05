@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -25,11 +25,12 @@ namespace _ {
     
     // this works on visual c++, see tests::function_type_detect for methods that did not work
 
-    template<typename f_> void     function_test(...);
-    template<typename f_> char     function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))* = 0);
-    template<typename f_> char16_t function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))* = 0);
-    template<typename f_> char32_t function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))* = 0);
-    template<typename f_> wchar_t  function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))* = 0);
+    template<typename f_> void         function_test(...);
+    template<typename f_> char         function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))* = 0);
+    template<typename f_> char16_t     function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))* = 0);
+    template<typename f_> char32_t     function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))* = 0);
+    template<typename f_> wchar_t      function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))* = 0);
+    template<typename f_> char8_or_not function_test(f_ *f, decltype((*f)(static_cast<char8_or_not const*>(0), static_cast<char8_or_not const*>(0)))* = 0);
 
     template<typename function_, typename char_ = decltype(function_test<typename types::no_reference<function_>::result>(0))>
     struct function_char : types::type_plain<char_>

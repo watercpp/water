@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,6 +8,7 @@
 #include <water/numeric_limits.hpp>
 #include <water/no_numeric_limits.hpp>
 #include <water/cmath.hpp> // isnan
+#include <water/char8.hpp>
 namespace water { namespace tests {
 
 /*
@@ -111,6 +112,7 @@ inline void no_numeric_limits_vs_std() {
     no_numeric_limits_vs_std_type<char16_t>();
     no_numeric_limits_vs_std_type<char32_t>();
     no_numeric_limits_vs_std_type<wchar_t>();
+    no_numeric_limits_vs_std_type<char8_or_not>();
     no_numeric_limits_vs_std_type<no_numeric_limits_vs_std_t>();
 }
 

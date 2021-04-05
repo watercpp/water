@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,8 +27,8 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
             if(s)
                 write_string<to_reference>(
                     to,
-                    static_cast<char8_t const*>(static_cast<void const*>(s.begin())),
-                    static_cast<char8_t const*>(static_cast<void const*>(s.end())),
+                    static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
+                    static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
                     escape_all
                 );
             to('"');
@@ -52,8 +52,8 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
                 if(s)
                     write_string<to_reference>(
                         to,
-                        static_cast<char8_t const*>(static_cast<void const*>(s.begin())),
-                        static_cast<char8_t const*>(static_cast<void const*>(s.end())),
+                        static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
+                        static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
                         escape_all
                     );
                 to('"');

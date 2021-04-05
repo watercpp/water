@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,10 +6,11 @@
 #define WATER_MINISTR_TESTS_UTF_HPP
 #include <water/ministr/tests/bits.hpp>
 #include <water/ministr/utf.hpp>
+#include <water/char8.hpp>
 #include <water/trace.hpp>
 namespace water { namespace ministr { namespace tests {
 
-char constexpr
+char8_or_char constexpr
     utf8_korean[] = u8"작은 문자열",
     utf8_arabic[] = u8"سلسلة صغيرة";
 

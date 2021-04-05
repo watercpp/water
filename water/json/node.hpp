@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -249,7 +249,7 @@ public:
         while(i != e) {
             if((*i)->name_size == size) {
                 iterator_ b = begin;
-                char8_t const
+                uchar_t const
                     *n = (*i)->name,
                     *ne = n + size;
                 while(n != ne && *n == string_compare_cast(*b)) {
@@ -484,7 +484,7 @@ public:
         // - if memory allocation failed, nothing is changed, returns a default constructed
         //
         if(my) {
-            char8_t *to = 0;
+            uchar_t *to = 0;
             typename types::no_reference<decltype(my->size)>::result to_size = 0;
             if(my->type == type_::string) {
                 to = my->string;
@@ -591,12 +591,12 @@ private:
     }
 
     template<typename size_, typename iterator_>
-    bool copy(char8_t*& to, size_& to_size, iterator_ from, size_t from_size) {
-        if(to_size < from_size && (to = static_cast<char8_t*>(mym->allocate(from_size, 1))) == 0)
+    bool copy(uchar_t*& to, size_& to_size, iterator_ from, size_t from_size) {
+        if(to_size < from_size && (to = static_cast<uchar_t*>(mym->allocate(from_size, 1))) == 0)
             return false;
-        char8_t *t = to, *e = to + from_size;
+        uchar_t *t = to, *e = to + from_size;
         while(t != e) {
-            *t++ = static_cast<char8_t>(*from);
+            *t++ = static_cast<uchar_t>(*from);
             ++from;
         }
         ___water_debug(bool clipped = ) string_size_clip(to_size, to, e);

@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,7 +13,7 @@ Examples of how to read booleans, numbers and strings from nodes and how to dete
 
 */
 
-char constexpr text[] = u8R"###({
+char constexpr text[] = R"###({
     "null": null,
     "bool_false": false,
     "bool_true": true,
