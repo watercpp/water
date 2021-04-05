@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2020 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -78,7 +78,7 @@ public:
         return my;
     }
 
-    memory& allocate_and_keep_blocks(unsigned a) const noexcept {
+    memory& allocate_and_keep_blocks(unsigned a) noexcept {
         // setting this to 0 will disable allocation of new blocks, and will keep all current blocks
         mykeep = a;
         return *this;

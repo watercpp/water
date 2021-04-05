@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2020 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -48,7 +48,7 @@ public:
         return static_cast<size_t>(mysize);
     }
 
-    void size(size_t a) const {
+    void size(size_t a) {
         ___water_assert(a <= capacity());
         mysize = static_cast<int>(a);
     }
