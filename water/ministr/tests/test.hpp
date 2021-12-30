@@ -150,6 +150,10 @@ struct test {
         test_exponent_min_max<float, -100, 100>(o1 << base<2>, "float");
         test_exponent_min_max<double, -100, 100>(o1 << base<2> << uppercase, "dobule");
         test_exponent_min_max<long double, -100, 100>(o1 << base<2> << lowercase, "long dobule");
+
+        void* pointer = &o1;
+        out<test_trace>{} << "pointer " << pointer;
+        out<test_trace>{} << "pointer const " << static_cast<void const*>(&o1);
         
         char8_or_char constexpr const8[] = u8"hello!";
         char8_or_char mutable8[] = u8"world!";

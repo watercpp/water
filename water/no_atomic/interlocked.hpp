@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2021 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -177,8 +177,9 @@ struct cast {
 
 template<typename from_>
 struct cast<void*, from_ const*, false> {
-    static constexpr void* do_it(from_ a) {
-        return const_cast<from_*>(a)
+    static constexpr void* do_it(from_ const* a) {
+        // for atomic<type const*> with InterlockedCompareExchangePointer, not for writing to const
+        return const_cast<from_*>(a);
     }
 };
 
