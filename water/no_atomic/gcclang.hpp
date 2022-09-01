@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -122,11 +122,11 @@ public:
     }
 
     type_ fetch_add(ptrdiff_ a, gcclang_order o = gcclang_order_seq_cst) noexcept {
-        return __atomic_fetch_add(&my, a * static_cast<ptrdiff_t>(sizeof(type_)), o);
+        return __atomic_fetch_add(&my, a * static_cast<ptrdiff_t>(sizeof(typename types::no_pointer<type_>::result)), o);
     }
 
     type_ fetch_sub(ptrdiff_ a, gcclang_order o = gcclang_order_seq_cst) noexcept {
-        return __atomic_fetch_sub(&my, a * static_cast<ptrdiff_t>(sizeof(type_)), o);
+        return __atomic_fetch_sub(&my, a * static_cast<ptrdiff_t>(sizeof(typename types::no_pointer<type_>::result)), o);
     }
 
     operator type_() const {
@@ -159,7 +159,7 @@ public:
     }
 
     type_ operator-=(int_ a) {
-        return fetch_sub(a) + a;
+        return fetch_sub(a) - a;
     }
 
     type_ operator&=(int_ a) {

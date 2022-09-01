@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -18,7 +18,7 @@ The _Interlocked* functions built into visual c++
 
 */
 
-#if defined(_M_ARM) || defined(_M_ARM64) || defined(WATER_NO_ATOMIC_INTERLOCKED_ARM)
+#if defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC) || defined(WATER_NO_ATOMIC_INTERLOCKED_ARM)
     #define WATER_NO_ATOMIC_INTERLOCKED(function, arguments, order) \
         (order == interlocked_order_relaxed ? function ## _nf arguments : \
         order == interlocked_order_acquire ? function ## _acq arguments : \
@@ -27,6 +27,42 @@ The _Interlocked* functions built into visual c++
 #else
     #define WATER_NO_ATOMIC_INTERLOCKED(function, arguments, order) \
         (function arguments)
+#endif
+
+#if defined(_M_IX86) || defined(WATER_NO_ATOMIC_INTERLOCKED_X86)
+
+// make the missing 64-bit functions using _InterlockedCompareExchange64 for x86
+
+template<typename function_>
+long long interlocked64_function(long long *a, function_&& function) {
+    long long r = *a, v;
+    do {
+        v = r;
+        r = _InterlockedCompareExchange64(a, function(v), v);
+    } while(r != v);
+    return r;
+}
+
+inline long long _InterlockedExchange64(long long *a, long long v) {
+    return interlocked64_function(a, [v](long long) { return v; });
+}
+
+inline long long _InterlockedExchangeAdd64(long long *a, long long v) {
+    return interlocked64_function(a, [v](long long a) { return a + v; });
+}
+
+inline long long _InterlockedAnd64(long long *a, long long v) {
+    return interlocked64_function(a, [v](long long a) { return a & v; });
+}
+
+inline long long _InterlockedOr64(long long *a, long long v) {
+    return interlocked64_function(a, [v](long long a) { return a | v; });
+}
+
+inline long long _InterlockedXor64(long long *a, long long v) {
+    return interlocked64_function(a, [v](long long a) { return a ^ v; });
+}
+
 #endif
 
 template<typename type_>
@@ -330,7 +366,7 @@ public:
     }
 
     type_ operator-=(int_ a) {
-        return fetch_sub(a) + a;
+        return fetch_sub(a) - a;
     }
 
     type_ operator&=(int_ a) {
