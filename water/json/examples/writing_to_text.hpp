@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,7 +14,7 @@ Writing json::node tree as JSON text is done with the json::write function.
 
 json::write_size can be used to determine how many characters json::write will write.
 
-write (and write_size) has an optional bool argument "esacpe_all". When true, all characters
+write (and write_size) has an optional bool argument "escape". When json::escape::all, all characters
 that can be escaped are escaped, the JSON text will only contain ASCII characrers.
 
 */
@@ -42,14 +42,13 @@ inline bool basic() {
 
 
 // Here write_size is used to reserve memory in the vector before writing.
-// And the escape_all argument is used
+// And the escape argument is used
 
 inline bool escape_all_and_measure_size() {
     json::memory<> memory;
     auto nodes = read_to_memory(memory)(text, text_size).nodes();
-    bool escape_all = true;
     
-    size_t size = write_size(nodes, escape_all);
+    size_t size = write_size(nodes, json::escape::all);
     
     vector<char> destination;
     destination.reserve(size);
@@ -59,7 +58,7 @@ inline bool escape_all_and_measure_size() {
             destination.insert(destination.end(), begin, end);
         },
         nodes,
-        escape_all
+        json::escape::all
     );
     
     return size_written == size && destination.size() == size;

@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,6 +6,11 @@
 #define WATER_JSON_WRITE_STRING_HPP
 #include <water/json/node.hpp>
 namespace water { namespace json {
+
+enum class escape {
+    minimal,
+    all
+};
 
 template<typename to_>
 void write_hex(to_& to, char16_t u) {
@@ -23,7 +28,7 @@ void write_hex(to_& to, char16_t u) {
 }
 
 template<typename to_>
-void write_string(to_ to, uchar_t const* begin, uchar_t const* end, bool escape_all) {
+void write_string(to_ to, uchar_t const* begin, uchar_t const* end, json::escape escape) {
     // does not write the surrounding quotes
     auto part = begin;
     char32_t last = 0;
@@ -32,15 +37,15 @@ void write_string(to_ to, uchar_t const* begin, uchar_t const* end, bool escape_
         unsigned n = unicode::utf8_decode_and_move(u, begin, end);
         ___water_assert(n && "bad utf8");
         if(!n) return;
-        bool escape =
+        bool do_escape =
             u < 0x20 ||
             u == '"' ||
             u == '\\' ||
             u == 0x2028 || u == 0x2029 || // unicode whitespace, javascript needs these escaped because they are seen as linebreaks
             (last == '<' && u == '/'); // avoid </ if this is inside html <script>
-        if(!escape && escape_all)
-            escape = u >= 0x80 || u == '/';
-        if(escape) {
+        if(!do_escape && escape == json::escape::all)
+            do_escape = u >= 0x80 || u == '/';
+        if(do_escape) {
             last = 0;
             auto part_end = begin - n;
             if(part != part_end)

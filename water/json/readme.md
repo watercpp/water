@@ -62,19 +62,18 @@ It is possible to find out the size `write` will write using the `write_size` fu
     size_t size = write_size(nodes);
     output.reserve(size);
     
-    bool escape_all = true; // see below
     write(
         [&output] (char const* begin, char const* end) {
             output.insert(output.end(), begin, end);
         },
         nodes,
-        escape_all
+        escape::all // see below
     );
 
 
 #### Writing UTF-8 or ASCII
 
-The `write` function has a third argument: A bool `escapae_all`. It is false by default, meaning it will escape only what it must, resulting in UTF-8 output. If true, it will escape all special characters resulting in ASCII output. (It will always escape </ and 0x2028 and 0x2029, the JSON is always safe to use inside HTML or JavaScript)
+The `write` function has a third argument, it can be `json::escape::all` or `json::escape::minimal`. It is `minimal` by default, meaning it will escape only what it must, resulting in UTF-8 output. If `all`, it will escape all special characters resulting in ASCII output. (It will always escape </ and 0x2028 and 0x2029, the JSON is always safe to use inside HTML or JavaScript)
 
 
 ## json::indent

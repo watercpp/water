@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -130,7 +130,7 @@ inline int main(int argc, char const*const* argv) {
                 overflow += read.numbers_did_overflow();
             
                 write1.clear();
-                json::write([&write1](char const* b, char const* e) { write1.insert(write1.end(), b, e); }, read.nodes(), false);
+                json::write([&write1](char const* b, char const* e) { write1.insert(write1.end(), b, e); }, read.nodes(), json::escape::minimal);
                 if(quiet)
                     out << "escape minimal size: " << write1.size() << "\n";
                 else
@@ -144,7 +144,7 @@ inline int main(int argc, char const*const* argv) {
                 }
                 else {
                     write3.clear();
-                    json::write([&write3](char const* b, char const* e) { write3.insert(write3.end(), b, e); }, reread.nodes(), false);
+                    json::write([&write3](char const* b, char const* e) { write3.insert(write3.end(), b, e); }, reread.nodes(), json::escape::minimal);
                     if(write1 != write3) {
                         ++different;
                         if(quiet)
@@ -155,7 +155,7 @@ inline int main(int argc, char const*const* argv) {
                 }
             
                 write1.clear();
-                json::write([&write1](char const* b, char const* e) { write1.insert(write1.end(), b, e); }, read.nodes(), true);
+                json::write([&write1](char const* b, char const* e) { write1.insert(write1.end(), b, e); }, read.nodes(), json::escape::all);
                 if(quiet)
                     out << "escape all size:" << write1.size() << "\n";
                 else
@@ -168,7 +168,7 @@ inline int main(int argc, char const*const* argv) {
                 }
                 else {
                     write3.clear();
-                    json::write([&write3](char const* b, char const* e) { write3.insert(write3.end(), b, e); }, reread.nodes(), true);
+                    json::write([&write3](char const* b, char const* e) { write3.insert(write3.end(), b, e); }, reread.nodes(), json::escape::all);
                     if(write1 != write3) {
                         ++different;
                         if(quiet)

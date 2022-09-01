@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -10,7 +10,7 @@
 namespace water { namespace json {
 
 template<typename to_>
-void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
+void write_unbuffered(to_&& to, node<> nodes, json::escape escape = json::escape::minimal) {
     // to(char)
     // to(char const*, char const*)
     //
@@ -29,7 +29,7 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
                     to,
                     static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
                     static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
-                    escape_all
+                    escape
                 );
             to('"');
             to(':');
@@ -54,7 +54,7 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
                         to,
                         static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
                         static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
-                        escape_all
+                        escape
                     );
                 to('"');
                 break;
@@ -69,7 +69,7 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
                 to(c, c + (b ? 4 : 5));
                 break;
             }
-            default: {
+            case type::null: {
                 char const *c = "null";
                 to(c, c + 4);
             }
@@ -92,7 +92,7 @@ void write_unbuffered(to_&& to, node<> nodes, bool escape_all = false) {
 unsigned constexpr write_buffer_size = 1024;
 
 template<typename to_>
-size_t write(to_&& to, node<> nodes, bool escape_all = false) {
+size_t write(to_&& to, node<> nodes, json::escape escape = json::escape::minimal) {
     // to(char const* begin, char const* end)
     //
     // returns the number of characters written
@@ -136,22 +136,23 @@ size_t write(to_&& to, node<> nodes, bool escape_all = false) {
                 return;
             (*to)(b, e2);
             size += static_cast<size_t>(e2 - b);
-            at = 0;
+            // this-> below avoids an error in visual c++ 2022
+            this->at = 0;
             while(e1 != e2)
-                buffer[at++] = *e2++;
+                this->buffer[this->at++] = *e2++;
         }
     } b;
     b.to = &to;
     b.at = 0;
     b.size = 0;
-    write_unbuffered(b, nodes, escape_all);
+    write_unbuffered(b, nodes, escape);
     b.flush();
     ___water_assert(b.at == 0);
     return b.size;
 }
 
 template<typename memory_>
-size_t write_size(node<memory_> nodes, bool escape_all = false) {
+size_t write_size(node<memory_> nodes, json::escape escape = json::escape::minimal) {
     // return how many bytes write will write
     //
     // (memory_ is dummy to not compile this when not used)
@@ -160,7 +161,7 @@ size_t write_size(node<memory_> nodes, bool escape_all = false) {
         void operator()(char) { ++size; }
         void operator()(char const* b, char const* e) { size += static_cast<size_t>(e - b); }
     } to;
-    write_unbuffered(to, nodes, escape_all);
+    write_unbuffered(to, nodes, escape);
     return to.size;
 }
 
