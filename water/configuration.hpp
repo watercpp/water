@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -95,11 +95,14 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 
     #if \
     defined(__aarch64__) || \
-    defined(__arm64__)
+    defined(__arm64__) || \
+    defined(_M_ARM64) || \
+    defined(_M_ARM64EC)
         #define WATER_CPU_ARM 64
 
     #elif \
-    defined(__arm__)
+    defined(__arm__) || \
+    defined(_M_ARM)
         #define WATER_CPU_ARM 32
 
     #elif \
@@ -130,28 +133,6 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
     defined(_X86_) || \
     defined(__INTEL__)
         #define WATER_CPU_X86 32
-    
-    #endif
-#endif
-
-// WATER_ENDIAN_*
-
-#if \
-!defined(WATER_ENDIAN_BIG) && \
-!defined(WATER_ENDIAN_LITTLE)
-    
-    #if \
-    defined(__BIG_ENDIAN__) || \
-    defined(_BIG_ENDIAN) || \
-    (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        #define WATER_ENDIAN_BIG
-    
-    #elif \
-    defined(__LITTLE_ENDIAN__) || \
-    defined(_LITTLE_ENDIAN) || \
-    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
-    defined(WATER_CPU_X86)
-        #define WATER_ENDIAN_LITTLE
     
     #endif
 #endif
@@ -194,6 +175,29 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
     defined(WATER_SYSTEM_LINUX) || \
     defined(WATER_SYSTEM_APPLE)
         #define WATER_SYSTEM_POSIX
+    #endif
+#endif
+
+// WATER_ENDIAN_*
+
+#if \
+!defined(WATER_ENDIAN_BIG) && \
+!defined(WATER_ENDIAN_LITTLE)
+
+    #if \
+        defined(__BIG_ENDIAN__) || \
+        defined(_BIG_ENDIAN) || \
+        (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            #define WATER_ENDIAN_BIG
+
+    #elif \
+        defined(__LITTLE_ENDIAN__) || \
+        defined(_LITTLE_ENDIAN) || \
+        (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
+        defined(WATER_CPU_X86) || \
+        defined(WATER_SYSTEM_WINDOWS)
+            #define WATER_ENDIAN_LITTLE
+
     #endif
 #endif
 
