@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -277,17 +277,17 @@ utf_iterator_with_size<to_, iterator_> utf_iterator_from(iterator_ begin, size_t
 
 template<unsigned to_, typename char_>
 begin_end<utf_iterator_with_end<to_, char_ const*> > utf_range_from_cstring(char_ const* cstring) {
-    return {utf_iterator_from_cstring<to_>(cstring), {}};
+    return {utf_iterator_from_cstring<to_>(cstring), utf_iterator_with_end<to_, char_ const*>{}};
 }
 
 template<unsigned to_, typename iterator_>
 begin_end<utf_iterator_with_end<to_, iterator_> > utf_range_from(iterator_ begin, iterator_ end) {
-    return {utf_iterator_from<to_>(begin, end), {}} ;
+    return {utf_iterator_from<to_>(begin, end), utf_iterator_with_end<to_, iterator_>{}} ;
 }
 
 template<unsigned to_, typename iterator_>
 begin_end<utf_iterator_with_size<to_, iterator_> > utf_range_from(iterator_ begin, size_t size) {
-    return {utf_iterator_from<to_>(begin, size), {}};
+    return {utf_iterator_from<to_>(begin, size), utf_iterator_with_size<to_, iterator_>{}};
 }
 
 }}

@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,41 +13,8 @@
 #include <water/unicode/utf.hpp>
 #include <water/cmath.hpp>
 #include <water/char8.hpp>
+#include <water/begin_end.hpp>
 namespace water { namespace numbers {
-
-template<typename iterator_>
-class begin_end
-{
-    iterator_
-        mybegin {},
-        myend {};
-
-public:
-    begin_end() = default;
-
-    begin_end(iterator_ begin, iterator_ end) :
-        mybegin{begin},
-        myend{end}
-    {}
-
-    begin_end(iterator_ begin, size_t size) :
-        mybegin{begin},
-        myend{begin + size}
-    {}
-
-    iterator_ begin() const {
-        return mybegin;
-    }
-
-    iterator_ end() const {
-        return myend;
-    }
-
-    explicit operator bool() const {
-        return mybegin != myend;
-    }
-};
-
 
 struct nothing {};
 

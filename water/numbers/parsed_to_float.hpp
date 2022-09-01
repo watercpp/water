@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -173,8 +173,8 @@ private:
         if(isfinite_strict(p) && (p >= numeric_limits<float_>::min() || p <= -numeric_limits<float_>::min()))
             my *= p;
         else {
-            my *= pow(b, e / 2);
-            my *= pow(b, e - (e / 2));
+            my *= static_cast<float_>(pow(b, e / 2));
+            my *= static_cast<float_>(pow(b, e - (e / 2)));
         }
     }
     

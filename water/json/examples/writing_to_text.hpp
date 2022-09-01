@@ -62,7 +62,7 @@ inline bool escape_all_and_measure_size() {
         escape_all
     );
     
-    return size_written = size && destination.size() == size;
+    return size_written == size && destination.size() == size;
 }
 
 

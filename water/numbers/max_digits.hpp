@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -92,10 +92,12 @@ namespace _ {
         ((log2_lookup<l_>::result * (0x10000ul - m_) + log2_lookup<l_ + 1>::result * m_ + 0x8000ul) >> 16)
     > {};
     
+    constexpr unsigned zero_if_less_than(unsigned a, unsigned b) { return a < b ? 0 : a; }
+    
     template<
         typename a_,
-        unsigned radix_ = (numeric_limits<a_>::radix >= 2) ? numeric_limits<a_>::radix : 0,
-        unsigned digits_ = (numeric_limits<a_>::digits >= 1) ? numeric_limits<a_>::digits : 0,
+        unsigned radix_ = zero_if_less_than(numeric_limits<a_>::radix, 2), // using x >= 2 ? x : 0 triggered a gcc warning :(
+        unsigned digits_ = zero_if_less_than(numeric_limits<a_>::digits, 1),
         char select_ =
             (types::is_int<a_>::result || types::is_bool<a_>::result) ? 'i' :
             (!radix_ || !digits_) ? 0 :

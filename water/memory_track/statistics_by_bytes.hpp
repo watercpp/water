@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -20,7 +20,7 @@ public:
     using value_type = statistics_for_bytes;
     
     static size_t constexpr bytes_max_default =
-        static_cast<size_t>(1024 * 1024 * 1024) ?
+        static_cast<size_t>(1024 * 1024 * 1024) > 0 ?
         static_cast<size_t>(1024 * 1024 * 1024) :
         static_cast<size_t>(-1);
 

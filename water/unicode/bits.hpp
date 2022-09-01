@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,6 +8,7 @@
 #include <water/types/types.hpp>
 #include <water/iterator.hpp>
 #include <water/char8.hpp>
+#include <water/begin_end.hpp>
 namespace water { namespace unicode {
 
 using size_t = decltype(sizeof(0));
@@ -45,41 +46,6 @@ inline uchar_t cast(char a) { return static_cast<uchar_t>(a); }
 inline uchar_t cast(signed char a) { return static_cast<uchar_t>(a); }
 inline uchar_t cast(char8_or_not a) { return static_cast<uchar_t>(a); } // the normal utf-8 type for this namespace is still unsigned char
 
-
-template<typename iterator_>
-class begin_end
-{
-public:
-    using iterator = iterator_;
-
-private:
-    iterator
-        mybegin,
-        myend;
-
-public:
-    begin_end() :
-        mybegin{},
-        myend{}
-    {}
-    
-    begin_end(iterator begin, iterator end) :
-        mybegin{begin},
-        myend{end}
-    {}
-    
-    explicit operator bool() const {
-        return mybegin != myend;
-    }
-    
-    iterator begin() const {
-        return mybegin;
-    }
-    
-    iterator end() const {
-        return myend;
-    }
-};
 
 }}
 #endif

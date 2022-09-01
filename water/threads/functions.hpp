@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -64,7 +64,7 @@ class move_unlock
     mutex_ *my = 0;
 
 public:
-    move_unlock() noexcept = default;
+    constexpr move_unlock() noexcept = default;
 
     explicit move_unlock(mutex_* a) noexcept :
         my(a)
@@ -127,7 +127,7 @@ class move_read_unlock
     mutex_ *my = 0;
 
 public:
-    move_read_unlock() noexcept = default;
+    constexpr move_read_unlock() noexcept = default;
 
     explicit move_read_unlock(mutex_* a) noexcept :
         my(a)

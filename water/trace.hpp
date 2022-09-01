@@ -1,10 +1,12 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
+#include <water/water.hpp>
+// water.hpp included outside the header guard macro, otherwise a program that inlcudes only
+// this file with WATER_DEBUG defined will fail in macros.hpp that is included from water.hpp
 #ifndef WATER_TRACE_HPP
 #define WATER_TRACE_HPP
-#include <water/water.hpp>
 #include <water/ministr/out.hpp>
 #ifndef WATER_TRACE
     #if defined(WATER_SYSTEM_WINDOWS) && !defined(WATER_COMPILER_GCC)

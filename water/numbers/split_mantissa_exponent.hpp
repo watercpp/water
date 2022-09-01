@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -43,7 +43,7 @@ struct split_mantissa_exponent
             if(p > 0 && (numeric_limits<float_>::is_iec559 || numeric_limits<float_>::has_denorm > 0) && f < numeric_limits<float_>::min())
                 do ++p; while((f *= static_cast<float_>(10.)) < numeric_limits<float_>::min() && --limit);
             if(limit)
-                mantissa = f / pow(static_cast<float_>(10.), p);
+                mantissa = f / static_cast<float_>(pow(static_cast<float_>(10.), p));
             else
                 mantissa = 0;
         }

@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Johan Paulsson
+// Copyright 2018-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -52,9 +52,12 @@ inline void url_encode_decode_all() {
         u8"1234567890%2B%21%22%23%24%25%26%2F%28%29%3D%3F%60%5E%7E%2A%27-%3A%3B%2C._%3C%3EqwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
     );
     // visual c++ 15.7.5 thinks the 4 emojis below are 34 bytes instead of 17? why?
+    // visual c++ 17.4 preview seems to not handle \xFF inside u8 string literlas :( 
+    char8_or_char const emoji[] = {0xF0, 0x9F, 0x91, 0x81, 0xF0, 0x9F, 0xA4, 0xAA, 0xF0, 0x9F, 0xA6, 0x81, 0xF0, 0x9F, 0x90, 0x8D, 0};
     url_encode_test(
         //u8"👁🤪🦁🐍",
-        u8"\xF0\x9F\x91\x81\xF0\x9F\xA4\xAA\xF0\x9F\xA6\x81\xF0\x9F\x90\x8D",
+        //u8"\xF0\x9F\x91\x81\xF0\x9F\xA4\xAA\xF0\x9F\xA6\x81\xF0\x9F\x90\x8D",
+        emoji,
         u8"%F0%9F%91%81%F0%9F%A4%AA%F0%9F%A6%81%F0%9F%90%8D"
     );
     
