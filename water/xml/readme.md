@@ -102,6 +102,14 @@ The resulting XML from mutalbe_node is `<hello>world</hello>`, the first_value w
 
 Look at the class in node.hpp and the example code in the examples folder for more.
 
+
+## xml::iterator
+
+The xml::iterator is a forward iterator that iterates over and returns xml::node values. Using it could be easier than working with the xml::node functions directly.
+
+Look at the `examples/iterators.hpp` example to see how it can be used.
+
+
 ## xml::encoding
 
 If the source document is not in UTF-8, UTF-16 or UTF-32 it should be possible to detect
