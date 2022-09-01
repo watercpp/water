@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -36,11 +36,11 @@ struct vector_test {
     
         //modify
         {
-            modify_one{vector<int, allocator_type>(5, 0, a)};
+            modify_one<>{vector<int, allocator_type>(5, 0, a)};
             value_complex_count c;
-            modify_one{vector<value_complex, allocator_type>(5, value_complex(c), a)};
+            modify_one<false>{vector<value_complex, allocator_type>(5, value_complex(c), a)};
             ___water_test(c.count == 0);
-            modify_one{vector<value_simple, allocator_type>(5, value_simple{}, a)};
+            modify_one<>{vector<value_simple, allocator_type>(5, value_simple{}, a)};
         }
     
         //more

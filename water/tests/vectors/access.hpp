@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,8 +15,11 @@ struct access_one {
         {
             vector_& v = a;
             typename vector_::value_type *p;
+            typename vector_::value_type const *cp;
             typename vector_::iterator ib, ie;
             typename vector_::reverse_iterator rb, re;
+            typename vector_::const_iterator cb, ce;
+            typename vector_::const_reverse_iterator crb, cre;
             p = &v[2 % v.size()];
             p = &v.at(3 % v.size());
             p = &v.front();
@@ -29,15 +32,27 @@ struct access_one {
                 p = &*ib;
                 ++ib;
             }
+            cb = v.cbegin();
+            ce = v.cend();
+            while(cb != ce) {
+                cp = &*cb;
+                ++cb;
+            }
             rb = v.rbegin();
             re = v.rend();
             while(rb != re) {
                 p = &*rb;
                 ++rb;
             }
+            crb = v.crbegin();
+            cre = v.crend();
+            while(crb != cre) {
+                cp = &*crb;
+                ++crb;
+            }
             ___water_test(!v.empty());
-            p = v.data();
-            ___water_test(p == &v.front() && p == &v[0] && p == &v.begin()[0]);
+            cp = p = v.data();
+            ___water_test(p == &v.front() && p == &v[0] && cp == &v.begin()[0]);
         }
         {
             vector_ const& v = a;

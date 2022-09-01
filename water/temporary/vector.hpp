@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -309,6 +309,10 @@ public:
     const_iterator begin() const noexcept {
         return mybegin;
     }
+    
+    const_iterator cbegin() const noexcept {
+        return mybegin;
+    }
 
     size_type capacity() const noexcept {
         return static_cast<size_type>(mystop - mybegin);
@@ -332,7 +336,7 @@ public:
     }
 
     template<typename ...arguments_>
-    iterator emplace(iterator at, arguments_&& ...arguments) {
+    iterator emplace(const_iterator at, arguments_&& ...arguments) {
         if(at == myend)
             return emplace_back(static_cast<arguments_&&>(arguments)...);
         return insert(at, value_type{static_cast<arguments_&&>(arguments)...});
@@ -358,13 +362,17 @@ public:
     const_iterator end() const noexcept {
         return myend;
     }
+    
+    const_iterator cend() const noexcept {
+        return myend;
+    }
 
-    iterator erase(iterator at) {
+    iterator erase(const_iterator at) {
         // see the other erase
         return erase(at, at + 1);
     }
 
-    iterator erase(iterator begin, iterator end) {
+    iterator erase(const_iterator begin, const_iterator end) {
         // if end != this->end() this can throw if the value_type copy assignment operator can.
         // if it throws this can be in a half finished state, but as long as the value whose copy
         // assign threw is valid, all values are valid
@@ -372,8 +380,11 @@ public:
         // returns begin
         //
         ___water_assert(this->begin() <= begin && begin <= end && end <= this->end());
-        tool::erase(begin, end, myend);
-        return begin;
+        auto
+            b = const_cast<iterator>(begin),
+            e = const_cast<iterator>(end);
+        tool::erase(b, e, myend);
+        return b;
     }
 
     reference front() noexcept {
@@ -386,42 +397,44 @@ public:
         return *mybegin;
     }
 
-    iterator insert(iterator at, value_type&& value) {
+    iterator insert(const_iterator at, value_type&& value) {
         ___water_assert(this->begin() <= at && at <= this->end());
         if(at == myend)
             return push_back(static_cast<value_type&&>(value));
+        auto a = const_cast<iterator>(at);
         if(size() < capacity() || grow(size() + 1))
-            return tool::insert_move(at, myend, static_cast<value_type&&>(value));
+            return tool::insert_move(a, myend, static_cast<value_type&&>(value));
         vector v(myallocator, mysizer);
         if(!v.allocate(v.mysizer(size() + 1)))
             return 0;
-        at = tool::insert_move_copy(v.myend, mybegin, at, myend, static_cast<value_type&&>(value));
+        a = tool::insert_move_copy(v.myend, mybegin, a, myend, static_cast<value_type&&>(value));
         swap(v);
-        return at;
+        return a;
     }
 
-    iterator insert(iterator at, value_type const& value) {
+    iterator insert(const_iterator at, value_type const& value) {
         // see the other insert
         return at == myend ? push_back(value) : insert(at, static_cast<size_type>(1), value);
     }
 
-    iterator insert(iterator at, size_type count, value_type const& value) {
+    iterator insert(const_iterator at, size_type count, value_type const& value) {
         // see the other insert
         ___water_assert(this->begin() <= at && at <= this->end());
+        auto a = const_cast<iterator>(at);
         if(count) {
             if(size() + count <= capacity() || grow(size() + count))
-                return tool::insert_value(at, myend, value, count);
+                return tool::insert_value(a, myend, value, count);
             vector v(myallocator, mysizer);
             if(!v.allocate(v.mysizer(size() + count)))
                 return 0;
-            at = tool::insert_value_copy(v.myend, mybegin, at, myend, value, count);
+            a = tool::insert_value_copy(v.myend, mybegin, a, myend, value, count);
             swap(v);
         }
-        return at;
+        return a;
     }
 
     template<typename input_iterator_>
-    iterator insert(iterator at, input_iterator_ begin, input_iterator_ end) {
+    iterator insert(const_iterator at, input_iterator_ begin, input_iterator_ end) {
         // if input_iterator_ is not an iterator (pointer or class-type) this has the same effect as
         //
         //   insert(at, static_cast<size_type>(begin), static_cast<value_type>(end));
@@ -433,11 +446,11 @@ public:
             types::ifel_type<types::is_class_struct_union<input_iterator_>, input_iterator_tag*,
             void*
         > > >::result select_;
-        return insert_do(at, begin, end, static_cast<select_>(0));
+        return insert_do(const_cast<iterator>(at), begin, end, static_cast<select_>(0));
     }
 
     template<typename input_iterator_>
-    typename types::ifel_type_not<types::is_int<input_iterator_>, iterator>::result insert(iterator at, input_iterator_ begin, size_type count) {
+    typename types::ifel_type_not<types::is_int<input_iterator_>, iterator>::result insert(const_iterator at, input_iterator_ begin, size_type count) {
         // insert count items from begin before at in this
         //
         // return
@@ -465,16 +478,17 @@ public:
         //   usable after it's assignemnt operator threw
         //
         ___water_assert(this->begin() <= at && at <= this->end());
+        auto a = const_cast<iterator>(at);
         if(count) {
             if(size() + count <= capacity() || grow(size() + count))
-                return tool::insert(at, myend, begin, count);
+                return tool::insert(a, myend, begin, count);
             vector v(myallocator, mysizer);
             if(!v.allocate(v.mysizer(size() + count)))
                 return 0;
-            at = tool::insert_copy(v.myend, mybegin, at, myend, begin, count);
+            a = tool::insert_copy(v.myend, mybegin, a, myend, begin, count);
             swap(v);
         }
-        return at;
+        return a;
     }
 
     size_type max_size() const noexcept {
@@ -515,6 +529,10 @@ public:
     const_reverse_iterator rbegin() const noexcept {
         return const_reverse_iterator(myend ? myend - 1 : myend);
     }
+    
+    const_reverse_iterator crbegin() const noexcept {
+        return rbegin();
+    }
 
     reverse_iterator rend() noexcept {
         return reverse_iterator(mybegin ? mybegin - 1 : mybegin);
@@ -522,6 +540,10 @@ public:
 
     const_reverse_iterator rend() const noexcept {
         return const_reverse_iterator(mybegin ? mybegin - 1 : mybegin);
+    }
+    
+    const_reverse_iterator crend() const noexcept {
+        return rend();
     }
 
     size_type reserve(size_type count) {
@@ -547,7 +569,7 @@ public:
         return capacity();
     }
 
-    iterator resize(size_type count, value_type const& value = value_type()) {
+    iterator resize(size_type count, value_type const& value) {
         // same effect as
         //
         //   if(count > this->size())
@@ -566,6 +588,21 @@ public:
         size_type s = size();
         if(count > s)
             return insert(myend, count - s, value) ? myend : 0; // can throw/fail
+        if(count < s) {
+            tool::destruct(mybegin + count, myend);
+            myend = mybegin + count;
+        }
+        return myend;
+    }
+    
+    iterator resize(size_type count) {
+        // same as the other resize except it will default-construct new elements at the end
+        size_type s = size();
+        if(count > s) {
+            if(!reserve(count))
+                return 0;
+            tool::construct(myend, count - s);
+        }
         if(count < s) {
             tool::destruct(mybegin + count, myend);
             myend = mybegin + count;

@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,7 @@
 #include <water/water.hpp>
 #include <water/numeric_limits.hpp>
 #include <water/types/types.hpp>
+#include <water/type_traits.hpp>
 #include <water/new_here.hpp>
 #ifdef WATER_NO_CHEADERS
     #include <string.h>
@@ -219,6 +220,15 @@ struct vectool
         // copy f because it might be in this
         assign(vb, ve, _::vectools::referator<value_>(f), fs);
     }
+    
+    static void construct(value_*& v, size_t s) {
+        // default construct
+        value_ *e = v + s;
+        while(v != e) {
+            new(here(v)) value_{}; // can throw
+            ++v;
+        }
+    }
 
     template<typename input_iterator_>
     static void construct(value_*& v, input_iterator_ f, size_t fs) {
@@ -389,6 +399,10 @@ struct vectool<value_, destruct_, true>
         vb += fs;
         if(vb < ve) destruct(vb, ve);
         ve = vb;
+    }
+    
+    static void construct(value_*& v, size_t s) {
+        no_memcpy::construct(v, s);
     }
 
     static void construct(value_*& v, value_ const* f, size_t fs) noexcept {
