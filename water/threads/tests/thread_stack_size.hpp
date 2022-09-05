@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,7 +22,7 @@ public:
             unsigned at = 0;
             while(at != count) {
                 size_t s = 512 * 1024 * (at + 1);
-                bool run_ok = run(*this, mythreads[at], run_options().stack_size(s));
+                bool run_ok = run(*this, mythreads[at], run_options{}.stack_size(s));
                 ___water_test(run_ok);
                 if(run_ok) ++at;
                 else --count;

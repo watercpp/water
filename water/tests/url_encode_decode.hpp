@@ -52,18 +52,21 @@ inline void url_encode_decode_all() {
         u8"1234567890%2B%21%22%23%24%25%26%2F%28%29%3D%3F%60%5E%7E%2A%27-%3A%3B%2C._%3C%3EqwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
     );
     // visual c++ 15.7.5 thinks the 4 emojis below are 34 bytes instead of 17? why?
-    // visual c++ 17.4 preview seems to not handle \xFF inside u8 string literlas :( 
-    char8_or_char const emoji[] = {0xF0, 0x9F, 0x91, 0x81, 0xF0, 0x9F, 0xA4, 0xAA, 0xF0, 0x9F, 0xA6, 0x81, 0xF0, 0x9F, 0x90, 0x8D, 0};
+    // visual c++ 17.4 preview seems to not handle \xFF inside u8 string literlas :(
+    unsigned char const emoji_bytes[] = {0xF0, 0x9F, 0x91, 0x81, 0xF0, 0x9F, 0xA4, 0xAA, 0xF0, 0x9F, 0xA6, 0x81, 0xF0, 0x9F, 0x90, 0x8D, 0};
+    char8_or_char emoji[sizeof(emoji_bytes)] {}; // cannot initalize char with 0xF0 without cast if its signed, copy is more readable?
+    auto s = sizeof(emoji_bytes);
+    while(s--) emoji[s] = static_cast<char8_or_char>(emoji_bytes[s]);
     url_encode_test(
         //u8"👁🤪🦁🐍",
         //u8"\xF0\x9F\x91\x81\xF0\x9F\xA4\xAA\xF0\x9F\xA6\x81\xF0\x9F\x90\x8D",
         emoji,
         u8"%F0%9F%91%81%F0%9F%A4%AA%F0%9F%A6%81%F0%9F%90%8D"
     );
-    
+
     unsigned char all_bytes[256];
     for(auto& a : all_bytes) a = static_cast<unsigned char>(&a - all_bytes);
-    
+
     url_encode_decode(all_bytes + 0, all_bytes + 3);
     url_encode_decode(all_bytes + 0, all_bytes + sizeof(all_bytes));
     url_encode_decode(reverse_iterator_from(all_bytes + sizeof(all_bytes)) - 1, reverse_iterator_from(all_bytes) - 1);

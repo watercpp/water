@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -73,7 +73,7 @@ inline pause pause_wait() noexcept {
     #ifdef WATER_THREADS_PAUSE_WAIT
     return WATER_THREADS_PAUSE_WAIT;
     #else
-    return pause().spin(0).yield(100).sleep(0.001);
+    return pause{}.spin(0).yield(100).sleep(0.001);
     #endif
 }
 
