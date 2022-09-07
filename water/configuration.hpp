@@ -26,16 +26,7 @@ Define if exceptions are turned off
 WATER_COMPILER_CLANG
 WATER_COMPILER_GCC
 WATER_COMPILER_MICROSOFT
-Defined if one of these compilers are detected
-
-WATER_CPU_ARM
-WATER_CPU_POWERPC
-WATER_CPU_X86
-Defined to the number of bits (32 or 64)
-
-WATER_ENDIAN_BIG
-WATER_ENDIAN_LITTLE
-Almost never used.
+Defined if one of these compilers are detected.
 
 WATER_SYSTEM_APPLE
 WATER_SYSTEM_LINUX (defined for android)
@@ -82,58 +73,10 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
         #if !defined(WATER_NO_EXCEPTIONS) && !defined(_CPPUNWIND)
             #define WATER_NO_EXCEPTIONS
         #endif
+    
+    // The intel compilers will be detected as one of the three above depending on the
+    // compiler version and operating system. This is fine.
         
-    #endif
-#endif
-
-// WATER_CPU_*
-
-#if \
-!defined(WATER_CPU_ARM) && \
-!defined(WATER_CPU_POWERPC) && \
-!defined(WATER_CPU_X86)
-
-    #if \
-    defined(__aarch64__) || \
-    defined(__arm64__) || \
-    defined(_M_ARM64) || \
-    defined(_M_ARM64EC)
-        #define WATER_CPU_ARM 64
-
-    #elif \
-    defined(__arm__) || \
-    defined(_M_ARM)
-        #define WATER_CPU_ARM 32
-
-    #elif \
-    defined(__powerpc__) || \
-    defined(__POWERPC__) || \
-    defined(__ppc__) || \
-    defined(__PPC__) || \
-    defined(powerc)
-        #if \
-        defined(__ppc64__) || \
-        defined(__LP64__)
-            #define WATER_CPU_POWERPC 64
-        #else
-            #define WATER_CPU_POWERPC 32
-        #endif
-    
-    #elif \
-    defined(__amd64__) || \
-    defined(__x86_64__) || \
-    defined(_M_AMD64) || \
-    defined(_M_X64)
-        #define WATER_CPU_X86 64
-    
-    #elif \
-    defined(__i386__) || \
-    defined(__i386) || \
-    defined(_M_IX86) || \
-    defined(_X86_) || \
-    defined(__INTEL__)
-        #define WATER_CPU_X86 32
-    
     #endif
 #endif
 
@@ -175,29 +118,6 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
     defined(WATER_SYSTEM_LINUX) || \
     defined(WATER_SYSTEM_APPLE)
         #define WATER_SYSTEM_POSIX
-    #endif
-#endif
-
-// WATER_ENDIAN_*
-
-#if \
-!defined(WATER_ENDIAN_BIG) && \
-!defined(WATER_ENDIAN_LITTLE)
-
-    #if \
-        defined(__BIG_ENDIAN__) || \
-        defined(_BIG_ENDIAN) || \
-        (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            #define WATER_ENDIAN_BIG
-
-    #elif \
-        defined(__LITTLE_ENDIAN__) || \
-        defined(_LITTLE_ENDIAN) || \
-        (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) || \
-        defined(WATER_CPU_X86) || \
-        defined(WATER_SYSTEM_WINDOWS)
-            #define WATER_ENDIAN_LITTLE
-
     #endif
 #endif
 

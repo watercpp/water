@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2022 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,13 +22,13 @@ defined(WATER_COMPILER_MICROSOFT)
     // vc8 has no inline asm for x86 64-bit, int3 would work on 32-bit only
 
 #elif \
-defined(WATER_CPU_X86) && \
-defined(WATER_COMPILER_GCC)
+defined(WATER_COMPILER_GCC) && \
+(defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
     #define WATER_BREAKPOINT asm("int3")
 
 #elif \
-defined(WATER_CPU_X86) && \
-defined(WATER_COMPILER_CLANG)
+defined(WATER_COMPILER_CLANG) && \
+(defined(__i386__) || defined(__amd64__) || defined(__x86_64__))
     #define WATER_BREAKPOINT __asm__("int $3")
 
 #elif \
