@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -11,74 +11,69 @@ namespace water { namespace str {
 
 For functions that take begin,end as char pointers. This will convert any input that is not using a buffer
 
-struct function_ {
-    void operator()(char const* begin, char const* end)
-};
+function(char_type const* begin, char_type const* end);
 
 The begin,end range is *not* 0 terminated
 
 out_function([](char16_t const* b, char16_t const *e) { ... }) << "hello";
 
+char_ template is usually detected from the function_ type
+
 */
 
 namespace _ {
     
-    // this works on visual c++, see tests::function_type_detect for methods that did not work
+    template<typename f_> char         function_test(...); // default to char
+    template<typename f_> char         function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))*, int);
+    template<typename f_> char16_t     function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))*, ...);
+    template<typename f_> char32_t     function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))*, ...);
+    template<typename f_> wchar_t      function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))*, ...);
+    template<typename f_> char8_or_not function_test(f_ *f, decltype((*f)(static_cast<char8_or_not const*>(0), static_cast<char8_or_not const*>(0)))*, ...);
 
-    template<typename f_> void         function_test(...);
-    template<typename f_> char         function_test(f_ *f, decltype((*f)(static_cast<char const*>(0), static_cast<char const*>(0)))* = 0);
-    template<typename f_> char16_t     function_test(f_ *f, decltype((*f)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))* = 0);
-    template<typename f_> char32_t     function_test(f_ *f, decltype((*f)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))* = 0);
-    template<typename f_> wchar_t      function_test(f_ *f, decltype((*f)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))* = 0);
-    template<typename f_> char8_or_not function_test(f_ *f, decltype((*f)(static_cast<char8_or_not const*>(0), static_cast<char8_or_not const*>(0)))* = 0);
+    template<
+        typename function_,
+        typename char_ = decltype(function_test<typename types::no_pointer<types::no_const<types::no_reference<function_>>>::result>(0, 0, 0))
+    >
+    struct function_char :
+        types::type_plain<char_>
+    {};
 
-    template<typename function_, typename char_ = decltype(function_test<typename types::no_reference<function_>::result>(0))>
-    struct function_char : types::type_plain<char_>
-    {};
-    
-    template<typename function_>
-    struct function_char<function_, void>
-    {};
+    template<typename function_, typename char_>
+    void function_call(function_& function, char_ const* begin, char_ const* end) {
+        function(begin, end);
+    }
+
+    template<typename function_, typename char_>
+    void function_call(function_*& function, char_ const* begin, char_ const* end) {
+        (*function)(begin, end);
+    }
 
 }
 
 template<typename function_, typename char_ = typename _::function_char<function_>::result>
 class function
 {
+    using function_plain_ = typename types::no_const<types::no_reference<function_>>::result;
+
 public:
     using char_type = char_;
-    using function_type = function_;
+    using function_type = typename types::ifel_type<
+        types::is_function<function_plain_>,
+        function_plain_*,
+        function_plain_
+    >::result;
 
 private:
-    function_type my;
+    function_type my {};
 
 public:
-    function() : // constructors not default because visual c++ 2015
-        my{}
-    {}
 
-    function(function const& a) :
-        my{a.my}
-    {}
-
-    function(function&& a) :
-        my{static_cast<function_type&&>(a.my)}
-    {}
+    constexpr function() = default;
 
     template<typename ...arguments_, typename not_copy_constructor<function, arguments_...>::result = 0>
-    function(arguments_&&... a) :
+    constexpr function(arguments_&&... a) :
         my{static_cast<arguments_&&>(a)...}
     {}
-
-    function& operator=(function const& a) {
-        my = a.my;
-        return *this;
-    }
-
-    function& operator=(function&& a) {
-        my = static_cast<function_type&&>(a.my);
-        return *this;
-    }
 
     void swap(function& a) {
         swap_from_swap(my, a.my);
@@ -86,7 +81,7 @@ public:
 
     void operator()(char_type const* begin, char_type const* end) {
         if(begin != end)
-            my(begin, end);
+            _::function_call(my, begin, end);
     }
 
     void operator()(char_type* begin, char_type* end) {
@@ -121,12 +116,12 @@ void swap(function<function_, char_>& a, function<function_, char_>& b) {
 }
 
 template<typename function_>
-out<function<function_>> out_function(function_&& f, settings s = {}) {
+out<function<function_>> to_function(function_&& f, settings s = {}) {
     return out<function<function_>>(s, static_cast<function_&&>(f));
 }
 
 template<typename char_, typename function_>
-out<function<function_, char_>> out_function(function_&& f, settings s = {}) {
+out<function<function_, char_>> to_function(function_&& f, settings s = {}) {
     return out<function<function_, char_>>(s, static_cast<function_&&>(f));
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,6 +8,6 @@
 #include <water/str/begin_end.hpp>
 #include <water/str/buffer.hpp>
 #include <water/str/buffer_lines.hpp>
-#include <water/str/container.hpp>
 #include <water/str/function.hpp>
+#include <water/str/insert_at_end.hpp>
 #endif

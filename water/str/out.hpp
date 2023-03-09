@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -159,19 +159,8 @@ private:
     str::settings mysettings;
 
 public:
-    out() : // constructors not default because visual c++ 2015
-        write_{}, // this is also needed
+    constexpr out() :
         mysettings{_::default_settings<write_>::from(*this)} // base is constructed
-    {}
-
-    out(out const& a) :
-        write_{static_cast<write_ const&>(a)},
-        mysettings{a.mysettings}
-    {}
-
-    out(out&& a):
-        write_{static_cast<write_&&>(a)},
-        mysettings{static_cast<str::settings&&>(a.mysettings)}
     {}
 
     template<typename ...arguments_, typename not_copy_constructor<out, arguments_...>::result = 0>
@@ -185,18 +174,6 @@ public:
         write_{static_cast<arguments_&&>(a)...},
         mysettings{s}
     {}
-
-    out& operator=(out const& a) {
-        static_cast<write_&>(*this) = static_cast<write_ const&>(a);
-        mysettings = a.mysettings;
-        return *this;
-    }
-
-    out& operator=(out&& a) {
-        static_cast<write_&>(*this) = static_cast<write_&&>(a);
-        mysettings = a.mysettings;
-        return *this;
-    }
 
     str::settings& settings() {
         return mysettings;

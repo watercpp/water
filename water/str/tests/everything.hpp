@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,25 +13,10 @@ test that all operations compile and run.
 
 does not care if they produce the correct output
 
-everything_container + everything_function + everything_function_type have constructors because
-of a super-strange error on icc 17. without it this generated a "too many initializer values" error
-for the str base classes:
-
-class base {
-    everything_container my;
-public:
-    base(base const& b) :
-        my{b.my} // too many initializer values
-    {}
-};
-
 */
 
 template<typename char_>
 struct everything_container {
-    everything_container() {}
-    everything_container(everything_container const&) {}
-    everything_container& operator=(everything_container const&) { return *this; }
     using value_type = char_;
     everything_container* end() { return this; }
     template<typename iterator_>
@@ -39,18 +24,12 @@ struct everything_container {
 };
 
 struct everything_function {
-    everything_function() {}
-    everything_function(everything_function const&) {}
-    everything_function& operator=(everything_function const&) { return *this; }
     template<typename iterator_>
     void operator()(iterator_, iterator_) {}
 };
 
 template<typename char_>
 struct everything_function_type {
-    everything_function_type() {}
-    everything_function_type(everything_function_type const&) {}
-    everything_function_type& operator=(everything_function_type const&) { return *this; }
     void operator()(char_ const*, char_ const*) {}
 };
 
@@ -204,10 +183,11 @@ void everything_type() {
     everything(out<begin_end<everything_iterator<char_>>>{everything_iterator<char_>{}, everything_iterator<char_>{}});
     everything(out<buffer_lines<everything_function, char_, 128>>{s});
     everything(out<buffer<everything_function, char_, 128>>{settings{}});
-    everything(out<container<everything_container<char_>>>{});
+    char_ array[123];
+    everything(to_begin_end(array));
     everything(out<function<everything_function_type<char_>>>{});
     everything(out<function<everything_function, char_>>{});
-    everything_except_copy(out_function([](char_ const*, char_ const*){}));
+    everything_except_copy(to_function([](char_ const*, char_ const*){}));
 }
 
 inline void everything_all() {

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -30,12 +30,13 @@ This will not add newlines by itself or cut off long lines, see buffer.hpp
 
 */
 
-struct write_to_stdout {
-    void operator()(char const* cstring, char const*) const { // always 0-terminated cstring from buffer_lines
+struct write_to_stdout
+{
+    void operator()(char const* a) const {
         #ifdef WATER_NO_CHEADERS
-        fputs(cstring, stdout);
+        fputs(a, stdout);
         #else
-        std::fputs(cstring, stdout); // stdout is a macro
+        std::fputs(a, stdout); // stdout is a macro
         #endif
     }
 };

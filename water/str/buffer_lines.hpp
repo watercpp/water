@@ -1,69 +1,71 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_STR_BUFFER_LINES_HPP
 #define WATER_STR_BUFFER_LINES_HPP
-#include <water/str/out.hpp>
+#include <water/str/buffer.hpp>
+#include <water/later.hpp>
 namespace water { namespace str {
 
 /*
 
-Buffer text and write 1 or more lines at a time to function_
+Buffer text and write one or more lines at a time to function_. Similar to str::buffer.
 
-struct function_ {
-    void operator()(char_ const *begin, char_ const *end) {
-        fputs(begin, stdout);
-    }
-};
+function_ is something that can be called in one of these ways:
 
-*end == 0 always. end[-1] is linefeed always. its a non-empty cstring.
+function(char_type const *begin, char_type const *end) noexcept;
+function(char_type const *zero_terminated) noexcept;
+
+The function is never called with an empty string. For the begin end variant *end == 0 always.
+
+char_ template is usually detected from the function_ type can can be left as void.
 
 Important: buffer_size_ - 2 is the maximum line length. Longer lines will be truncated.
 
-The destrucor will flush(), that will call function_. If it throws bad things happen.
-If you always flush() so the destructor does not have to, the function_ can throw and it wont hurt.
+The buffer is written to the function when the buffer is full, when flush() is called (for example
+via str::el) or when this is destroyed (so the function should not throw exceptions).
 
-flush() will add a newline if the buffer does not end with one:
+A linebreak is added when the buffer is written to the function, if the buffer does not already end
+with a linebreak:
 
     using my_out = str::out<str::buffer_lines<my_function>>;
     
-    my_out{} << "hello"; // newline added here
-    my_out{} << "world"; // newline added here
+    my_out{} << "hello"; // linebreak added here
+    my_out{} << "world\n"; // no linebreak added
+    my_out{} << 123; // linebreak added
 
-    // output:
-    // hello
-    // world
+    output:
+
+    hello
+    world
+    213 
 
 */
 
-template<typename function_, typename char_ = char, unsigned buffer_size_ = 0>
+template<typename function_, typename char_ = void, unsigned buffer_size_ = 0>
 class buffer_lines
 {
     static_assert(!buffer_size_ || buffer_size_ > 8, "");
 
 public:
-    using function_type = function_;
-    using char_type = char_;
+    using function_type = typename types::ifel_type<types::is_function<function_>, function_*, function_>::result;
+    using char_type = typename _::buffer_function_char<function_type, char_>::result;
     static unsigned constexpr buffer_size = buffer_size_ ? buffer_size_ : 512;
 
 private:
-    function_type myfunction;
+    function_type myfunction {};
     char_type my[buffer_size];
     unsigned
-        mysize,
-        myline; // if not 0 my[myline - 1] is '\n'
+        mysize = 0,
+        myline = 0; // if not 0 my[myline - 1] is '\n'
 
 public:
-    buffer_lines() : // constructors not default because visual c++ 2015
-        myfunction{},
-        mysize{0},
-        myline{0}
-    {}
+
+    buffer_lines() = default;
 
     buffer_lines(buffer_lines const& a) :
-        myfunction{a.myfunction},
-        myline{a.myline}
+        myfunction{a.myfunction}
     {
         copy(a);
     }
@@ -109,17 +111,8 @@ public:
     }
 
     void flush() {
-        if(mysize) {
-            unsigned s = mysize; // if function throws, set mysize to 0 first
-            myline = mysize = 0;
-            if(my[s - 1] != static_cast<char_type>(u'\n')) {
-                auto end = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(my + 0, my + s);
-                s = static_cast<unsigned>(end - my);
-                my[s++] = static_cast<char_type>(u'\n');
-            }
-            my[s] = 0;
-            myfunction(my + 0, my + s); // could throw
-        }
+        if(mysize)
+            flush(false);
     }
 
     template<typename iterator_>
@@ -129,34 +122,50 @@ public:
             if(!c)
                 return;
             ++begin;
-            if(mysize == buffer_size - 2) {
-                if(c == static_cast<char_type>(u'\n')) {
-                    flush();
-                    return;
-                }
-                if(!myline) // discard until newline or flush()
-                    return;
-                // flush old lines to make room
-                unsigned
-                    s = mysize,
-                    l = myline;
-                myline = mysize = 0; // if exception
-                auto keep = my[l];
-                my[l] = 0;
-                myfunction(my + 0, my + l); // could throw
-                my[l] = keep;
-                // move
-                while(l != s) my[mysize++] = my[l++];
+            if(mysize != buffer_size - 2) {
+                my[mysize++] = c;
+                if(c == static_cast<char_type>(u'\n'))
+                    myline = mysize;
             }
-            my[mysize++] = c;
-            if(c == static_cast<char_type>(u'\n'))
-                myline = mysize;
+            else if(c == static_cast<char_type>(u'\n'))
+                flush(true);
+            else if(myline) {
+                // flush old lines to make room. if the function throws discard what was written like flush() does
+                auto l = my[myline];
+                my[myline] = 0;
+                auto after = water::later(
+                    [this, l, c] {
+                        my[myline] = l;
+                        auto s = mysize;
+                        mysize = 0;
+                        while(myline != s)
+                            my[mysize++] = my[myline++];
+                        myline = 0;
+                        my[mysize++] = c;
+                    }
+                );
+                _::buffer_function_call(myfunction, my + 0, my + myline); // could throw
+            }
         }
     }
 
 private:
+
+    void flush(bool add_line_break) {
+        unsigned s = mysize; // if function throws, set mysize to 0 first
+        myline = mysize = 0;
+        if(add_line_break || my[s - 1] != static_cast<char_type>(u'\n')) {
+            auto end = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(my + 0, my + s);
+            s = static_cast<unsigned>(end - my);
+            my[s++] = static_cast<char_type>(u'\n');
+        }
+        my[s] = 0;
+        _::buffer_function_call(myfunction, my + 0, my + s); // could throw
+    }
+
     void copy(buffer_lines const& a) {
         mysize = 0;
+        myline = a.myline;
         while(mysize != a.mysize) {
             my[mysize] = a.my[mysize];
             ++mysize;
