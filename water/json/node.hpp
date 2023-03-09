@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -223,13 +223,9 @@ public:
         return at(static_cast<size_t>(a));
     }
 
-    node operator[](char const*const& cstring) const {
-        return nodes().find(cstring);
-    }
-
-    template<size_t size_>
-    node operator[](char const (&cstring)[size_]) const {
-        return nodes().find(cstring);
+    template<typename char_, size_t size_>
+    node operator[](char_ const (&a)[size_]) const {
+        return nodes().find(a);
     }
 
     template<typename range_>
@@ -276,14 +272,9 @@ public:
         return find(name.begin(), json::range_size(name));
     }
 
-    node find(char const*const& cstring) const {
-        if(!my) return *this;
-        return find(cstring, clength(cstring));
-    }
-
-    template<size_t size_>
-    node find(char const (&cstring)[size_]) const {
-        return find(cstring, size_ - 1);
+    template<typename char_, size_t size_>
+    node find(char_ const (&name)[size_]) const {
+        return find(name, size_ - (name[size_ - 1] ? 0 : 1));
     }
 
 public:
@@ -465,14 +456,9 @@ public:
         return *this;
     }
 
-    node_if_mutable name(char const*const& cstring) {
-        if(my) name(cstring, clength(cstring));
-        return *this;
-    }
-
-    template<size_t size_>
-    node_if_mutable name(char const (&cstring)[size_]) {
-        return name(cstring, size_ - 1);
+    template<typename char_, size_t size_>
+    node_if_mutable name(char_ const (&a)[size_]) {
+        return name(a, size_ - (a[size_ - 1] ? 0 : 1));
     }
 
     template<typename iterator_>
@@ -514,14 +500,9 @@ public:
         return *this;
     }
 
-    node_if_mutable string(char const*const& cstring) {
-        if(my) string(cstring, clength(cstring));
-        return *this;
-    }
-
-    template<size_t size_>
-    node_if_mutable string(char const (&cstring)[size_]) {
-        return string(cstring, size_ - 1);
+    template<typename char_, size_t size_>
+    node_if_mutable string(char_ const (&a)[size_]) {
+        return string(a, size_ - (a[size_ - 1] ? 0 : 1));
     }
 
 private:
@@ -582,12 +563,6 @@ private:
             my->nodes = 0;
             my->size = 0;
         }
-    }
-
-    size_t clength(char const* b) const {
-        auto e = b;
-        if(e) while(*e) ++e;
-        return static_cast<size_t>(e - b);
     }
 
     template<typename size_, typename iterator_>

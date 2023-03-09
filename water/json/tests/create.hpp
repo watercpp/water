@@ -1,10 +1,11 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_JSON_TESTS_CREATE_HPP
 #define WATER_JSON_TESTS_CREATE_HPP
 #include <water/json/tests/bits.hpp>
+#include <water/cstring.hpp>
 namespace water { namespace json { namespace tests {
 
 /*
@@ -29,7 +30,7 @@ inline void create() {
     
     char const *s = "string";
     root.push_back().string("hello");
-    root.push_back().string(static_cast<char const*>("world"));
+    root.push_back().string(cstring("world"));
     root.push_back().string(s, s + 6);
     root.push_back().string(s, 6);
     root.push_back().string(string<char const*>(s, 6));
@@ -40,19 +41,19 @@ inline void create() {
     auto object = root.push_back().object(10);
     ___water_test(object.capacity() == 10);
     object.push_back().name("hello").string("world");
-    object.push_back().name(static_cast<char const*>("world")).number(1);
+    object.push_back().name(cstring("world")).number(1);
     object.push_back().name(s, s + 6).boolean(true);
     object.push_back().name(s, 6).object(0);
     object.push_back().name(string<char const*>(s, 6)).array(0);
     
     ___water_test(object.nodes().find("hello"));
-    ___water_test(object.nodes().find(static_cast<char const*>("world")));
+    ___water_test(object.nodes().find(cstring("world")));
     ___water_test(object.nodes().find(s, s + 6));
     ___water_test(object.nodes().find(s, 6));
     ___water_test(object.nodes().find(string<char const*>(s, 6)));
     
     ___water_test(object["hello"]);
-    ___water_test(object[s]);
+    ___water_test(object[cstring(s)]);
     ___water_test(object[string<char const*>(s, 6)]);
     
     // add an array
