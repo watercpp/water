@@ -41,7 +41,9 @@ private:
     > > >::result;
 
 private:
-    iterator_ myfrom, myend;
+    iterator_
+        myfrom {},
+        myend {};
     value_type my[size_ + 1] {};
     value_type myat = size_;
 
@@ -163,7 +165,7 @@ private:
     > > >::result;
 
 private:
-    iterator_ myfrom;
+    iterator_ myfrom {};
     size_t mysize = 0;
     value_type my[size_ + 1] {};
     value_type myat = size_;

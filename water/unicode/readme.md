@@ -32,7 +32,7 @@ Tools for converting between UTF-8, UTF-16 and UTF-32. The most useful are:
 ### Verifying that text is valid UTF, and getting the length it would have converted to other UTF encodings:
 
     // 8 means text is UTF-8, use 16 or 32 for UTF-16 or UTF-32
-    water::unicode::utf_length<8> verify(text.begin(), text.begin());
+    water::unicode::utf_length<8> verify(text.begin(), text.end());
     if(!verify)
         trace() << "not valid utf-8!";
     else {

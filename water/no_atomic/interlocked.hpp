@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,7 +26,7 @@ The _Interlocked* functions built into visual c++
         function arguments)
 #else
     #define WATER_NO_ATOMIC_INTERLOCKED(function, arguments, order) \
-        (function arguments)
+        unused(order), (function arguments)
 #endif
 
 #if defined(_M_IX86) || defined(WATER_NO_ATOMIC_INTERLOCKED_X86)
@@ -78,6 +78,8 @@ enum interlocked_order {
     interlocked_order_acq_rel,
     interlocked_order_seq_cst = interlocked_order_acq_rel
 };
+
+constexpr void unused(interlocked_order) {}
 
 inline char interlocked_compare_exchange(char *a, char exchange, char compare, interlocked_order o) {
     return WATER_NO_ATOMIC_INTERLOCKED(_InterlockedCompareExchange8, (a, exchange, compare), o);

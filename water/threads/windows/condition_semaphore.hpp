@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -39,7 +39,7 @@ public:
     condition_semaphore& operator=(condition_semaphore const&) = delete;
 
     ~condition_semaphore() {
-        my.load(memory_order_acquire); // barrier
+        static_cast<void>(my.load(memory_order_acquire)); // barrier
         if(mysemaphore)
             CloseHandle(mysemaphore);
     }

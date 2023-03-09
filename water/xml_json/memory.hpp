@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -45,7 +45,8 @@ public:
         myblocksize{a.myblocksize},
         my{a.my},
         myerror{a.myerror},
-        myauto{a.myauto}
+        myauto{a.myauto},
+        myundo{a.myundo}
     {
         a.my = 0;
     }
@@ -72,6 +73,7 @@ public:
         swap_from_swap(my, a.my);
         swap_from_swap(myerror, a.myerror);
         swap_from_swap(myauto, a.myauto);
+        swap_from_swap(myundo, a.myundo);
     }
 
     size_t block_size() const {

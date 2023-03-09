@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -1355,15 +1355,15 @@ utf_from_utf_return<to_iterator_> utf_from_utf_verify(
 template<typename iterator_>
 iterator_ utf8_adjust_end(iterator_ begin, iterator_ end) {
     auto e = end;
-    unsigned s = 0;
+    size_t s = 0;
     while(e != begin) {
         --e;
         ++s;
         auto n = utf8_first_of(*e);
         if(n)
-            return n > s ? e : end;
+            return n > s ? e : e + n;
     }
-    return end;
+    return begin;
 }
 
 template<typename iterator_>

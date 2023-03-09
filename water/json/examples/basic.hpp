@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -148,14 +148,14 @@ inline vector<char> write_as_json_text(vector<location> const& locations) {
         wildlife.push_back().name("giant_squid").boolean(from.giant_squid());
     }
     
-    vector<char> text;
+    vector<char> result;
     write(
-        [&text](char const* begin, char const* end) {
-            text.insert(text.end(), begin, end);
+        [&result](char const* begin, char const* end) {
+            result.insert(result.end(), begin, end);
         },
         root
     );
-    return text;
+    return result;
 }
 
 
