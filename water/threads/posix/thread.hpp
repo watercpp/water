@@ -277,8 +277,13 @@ inline bool qos(qos_t a) noexcept {
     if(&pthread_set_qos_class_self_np == NULL || !a)
         return 0;
     auto e = pthread_set_qos_class_self_np(static_cast<qos_class_t>(static_cast<unsigned>(a) - 1), 0);
-    ___water_assert(!e && "pthread_set_qos_class_self_np failed");
-    return e == 0;
+    if(!e)
+        return true;
+    // if thread priority has been set with pthread_setschedparam, this will fail with EPERM
+    ___water_debug(e = errno;)
+    ___water_assert((e != EPERM) && "pthread_set_qos_class_self_np failed, probably because the thread priority was set");
+    ___water_assert((e == EPERM) && "pthread_set_qos_class_self_np failed");
+    return false;
 }
 
 #else
