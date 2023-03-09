@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -9,13 +9,23 @@ namespace water { namespace numbers {
 
 /*
 
-locale, empty class with all constexpr data
-this is not localized at all.
+locale, empty class with all constexpr data.
 
-it mixes lower and uppercase, digits are uppercase but bases are lowercase. 0xCAFE
+This is the default locale, used when a specific localized locale is not provided.
+
+It mixes lower and uppercase, intended to make the output as easy to read as possible.
+Hexadecimal digits are uppercase but bases are lowercase. 0xCAFE1234
+Exponents are uppercase for base 10, lowercase for others 1.23E45 -0x1.CAFEp123
+NaN, infinity, true, false
+
 
 locale_lowercase is all lowercase
-locale_uppercase has uppercase bases
+- 1.23e45 0x1.cafep123
+- nan is lowercase
+
+locale_uppercase has uppercase bases and exponents
+- 1.23E45 0x1.CAFEP123
+- NaN, infinity, true, false are still mixed case
 
 */
 
@@ -63,6 +73,11 @@ namespace _ { namespace locales {
     locale_const_exponent<char8_or_char> constexpr exponents_uppercase[] {
         {10, {u8"E", 1}},
         {2, {u8"P", 1}}
+    };
+    
+    locale_const_exponent<char8_or_char> constexpr exponents_mixedcase[] {
+        {10, {u8"E", 1}},
+        {2, {u8"p", 1}}
     };
 
     locale_const_string<char8_or_char> constexpr trues[] {
@@ -117,7 +132,7 @@ struct locale
     }
 
     begin_end<locale_const_exponent<char8_or_char> const*> exponents() const {
-        return {_::locales::exponents_uppercase, _::locales::exponents_uppercase + sizeof(_::locales::exponents_uppercase) / sizeof(_::locales::exponents_uppercase[0])};
+        return {_::locales::exponents_mixedcase, _::locales::exponents_mixedcase + sizeof(_::locales::exponents_mixedcase) / sizeof(_::locales::exponents_mixedcase[0])};
     }
 
     begin_end<locale_const_string<char8_or_char> const*> trues() const {
@@ -146,7 +161,7 @@ struct locale_lowercase : locale
     begin_end<locale_const_base<char8_or_char> const*> bases() const {
         return {_::locales::bases_uppercase, _::locales::bases_uppercase + sizeof(_::locales::bases_uppercase) / sizeof(_::locales::bases_uppercase[0])};
     }
-
+    
     begin_end<locale_const_exponent<char8_or_char> const*> exponents() const {
         return {_::locales::exponents_lowercase, _::locales::exponents_lowercase + sizeof(_::locales::exponents_lowercase) / sizeof(_::locales::exponents_lowercase[0])};
     }
@@ -156,6 +171,10 @@ struct locale_uppercase : locale
 {
     begin_end<locale_const_base<char8_or_char> const*> bases() const {
         return {_::locales::bases_uppercase, _::locales::bases_uppercase + sizeof(_::locales::bases_uppercase) / sizeof(_::locales::bases_uppercase[0])};
+    }
+    
+    begin_end<locale_const_exponent<char8_or_char> const*> exponents() const {
+        return {_::locales::exponents_uppercase, _::locales::exponents_uppercase + sizeof(_::locales::exponents_uppercase) / sizeof(_::locales::exponents_uppercase[0])};
     }
 };
 
