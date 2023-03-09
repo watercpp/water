@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -53,13 +53,13 @@ inline bool dont_join(join_t a) noexcept {
 }
 
 inline bool join(join_t a) noexcept {
-    ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread();)
+    ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread();)
     int e = pthread_join(a.thread, 0);
     if(!e) {
-        ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " joined!";)
+        ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " joined!";)
         return true;
     }
-    ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " failed! error=" << e;)
+    ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " failed! error=" << e;)
     return false;
 }
 
@@ -377,9 +377,9 @@ public:
 
 template<typename call_>
 void* thread(void* pointer) {
-    ___water_debug(trace() << "water::threads thread=" << thread() << " begin";)
+    ___water_debug(trace << "water::threads thread=" << thread() << " begin";)
     call_()(static_cast<typename call_::pointer>(pointer));
-    ___water_debug(trace() << "water::threads thread=" << thread() << " end";)
+    ___water_debug(trace << "water::threads thread=" << thread() << " end";)
     return 0;
 }
 
@@ -391,7 +391,7 @@ bool run(typename call_::pointer p, thread_t& t, pthread_attr_t const* a) noexce
     // when pthread_attr_t is 0, the default attr is used. the default detach state is joinable
     int e = pthread_create(&t, a, &thread<call_>, run_pointer(p));
     if(!e) {
-        ___water_debug(trace() << "water::threads::run() started thread=" << t;)
+        ___water_debug(trace << "water::threads::run() started thread=" << t;)
         return true;
     }
     ___water_assert(!e && "thread start failed");

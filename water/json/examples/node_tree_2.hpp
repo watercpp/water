@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,7 @@
 #define WATER_JSON_EXAMPLES_NODE_TREE_2_HPP
 #include <water/json/json.hpp>
 #include <water/vector.hpp>
-#include <water/ministr/out.hpp>
+#include <water/xtr/base.hpp>
 namespace water { namespace json { namespace examples { namespace node_tree_2 {
 
 
@@ -154,8 +154,8 @@ inline void line_from_node(vector<char>& to, node<> from) {
         while(--d)
             path = path.in();
         if(path.in().type() == type::array) {
-            // its in an array, use the integer position in the array as path. ministr to convert integer to string
-            auto at = cstring(ministr::out<>{} << path.at_position());
+            // its in an array, use the integer position in the array as path. xtr to convert integer to string
+            auto at = xtr::no << path.at_position() << xtr::string;
             to.insert(to.end(), at.begin(), at.end());
         }
         else

@@ -1,4 +1,4 @@
-// Copyright 2018-2021 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,6 @@
 #define WATER_JSON_EXAMPLES_NODE_TREE_1_HPP
 #include <water/json/json.hpp>
 #include <water/vector.hpp>
-#include <water/ministr/out.hpp>
 namespace water { namespace json { namespace examples { namespace node_tree_1 {
 
 

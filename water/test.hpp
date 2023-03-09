@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,7 +13,7 @@ If something is false, this will outupt file, line, function and something then 
 Define WATER_TEST_FAILED or ___water_test yourself if there is a better way.
 
 
-All compilers seem to have "assignment within conditional expression" warnings. On all compiler this can be avided with:
+All compilers seem to have "assignment within conditional expression" warnings. On all compilers this can be avided with:
 
     if(static_cast<bool>(__VA_ARGS__) == true)
 
@@ -29,7 +29,7 @@ The Intel C++ older compiler based on EDG and not LLVM is detected as WATER_COMP
 
 #ifndef WATER_TEST_FAILED
     #include <water/trace.hpp>
-    #define WATER_TEST_FAILED(file, line, function, code) ::water::trace() << "___water_test failed " << file << ':' << line << ' ' << function << ' ' << code; ___water_breakpoint();
+    #define WATER_TEST_FAILED(file, line, function, code) ::water::trace << "___water_test failed " << file << ':' << line << ' ' << function << ' ' << code; ___water_breakpoint();
 #endif
 
 #ifdef ___water_test

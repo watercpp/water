@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -28,7 +28,7 @@ Like temporary::memory but collects temporary::statistics
 temporary::allocator is specialized for this. It is enough to replace temporary::memory with temporary::memory_track
 
 template
-- out_ should be void, a str::out or ministr::out. Unless it is void the destructor will default
+- out_ should be void, a str::out or xtr::to_something. Unless it is void the destructor will default
 construct out_ and write statistics to it
 
 Use name() to give this a name

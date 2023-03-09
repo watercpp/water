@@ -1,11 +1,11 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_THREADS_STATISTICS_DATA_HPP
 #define WATER_THREADS_STATISTICS_DATA_HPP
 #include <water/threads/statistics/name.hpp>
-#include <water/ministr/out.hpp>
+#include <water/xtr/base.hpp>
 namespace water { namespace threads { namespace statistics {
 
 /*
@@ -78,8 +78,8 @@ public:
         myname.assign(cstring);
     }
 
-    ministr::out<name_assign> name_ministr() noexcept {
-        return ministr::out<name_assign>(myname);
+    xtr::to_buffered<name_assign> name_xtr() noexcept {
+        return xtr::to_buffered<name_assign>(myname);
     }
 
     void wait_add(bool good) noexcept {
@@ -115,9 +115,9 @@ public:
     }
 };
 
-inline ministr::out<name_assign> name_if(data *a) noexcept {
-    if(a) return ministr::out<name_assign>(a->name());
-    return ministr::out<name_assign>();
+inline xtr::to_buffered<name_assign> name_if(data *a) noexcept {
+    if(a) return xtr::to_buffered<name_assign>(a->name());
+    return xtr::to_buffered<name_assign>();
 }
 
 inline void name_if(data *a, char const* cstring) noexcept {

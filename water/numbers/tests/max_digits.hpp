@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,7 +15,7 @@ test max_digits compiletime implementation vs runtime implementation here
 */
 
 template<typename out_>
-void max_digits_make_log2_lookup(out_&& o, unsigned bits = 16, unsigned size = 32) {
+void max_digits_make_log2_lookup(out_ o, unsigned bits = 16, unsigned size = 32) {
     o << "log2 lookup bits=" << bits << ", size=" << size << '\n';
     unsigned long one = 1ul << bits;
     unsigned i = 1;
@@ -197,7 +197,7 @@ void max_digits_test() {
 }
 
 inline void max_digits_all() {
-    //max_digits_make_log2_lookup(trace());
+    //max_digits_make_log2_lookup(trace);
     max_digits_test_log2();
     max_digits_binary();
     max_digits_test<64, 4096>();

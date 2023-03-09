@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -369,7 +369,7 @@ public:
         if(!mycallback.free_error(static_cast<cookie_type const*>(c), pointer, bytes, tag, error))
             return;
         lock = {}; // unlock before trace/assert, dont deadlock if they use this
-        ___water_debug(trace() << "water::memory_track free error pointer=" << pointer << " bytes=" << bytes << " tag=" << tag.name() << " error=" << error;)
+        ___water_debug(trace << "water::memory_track free error pointer=" << pointer << " bytes=" << bytes << " tag=" << tag.name() << " error=" << error;)
         ___water_assert(!assert_enabled || !error);
     }
 };

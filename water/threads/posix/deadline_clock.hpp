@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -74,7 +74,7 @@ inline bool is_monotonic<clockid::monotonic_maybe>() noexcept {
             _::clockid_monotonoic<>::is = 1;
         else
             _::clockid_monotonoic<>::is = 2;
-        ___water_debug(trace() << "water::threads CLOCK_MONOTONIC exists=" << (_::clockid_monotonoic<>::is == 1));
+        ___water_debug(trace << "water::threads CLOCK_MONOTONIC exists=" << (_::clockid_monotonoic<>::is == 1));
     }
     return _::clockid_monotonoic<>::is == 1;
 }

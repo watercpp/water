@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -163,7 +163,7 @@ inline void locale_words_all() {
             ___water_test(xs);
             ___water_test(ws == xs);
             ___water_test(xe < (x + sizeof(x)) && !*xe);
-            //trace() << x;
+            //trace << x;
             
             read<double> r(s);
             char *re = r(x, x + sizeof(x), locale);
@@ -173,7 +173,7 @@ inline void locale_words_all() {
             ___water_test(ru == rs);
             ___water_test(ru == xs);
             
-            //trace() << "  wrote " << a << '\n' << "  read  " << static_cast<double>(r);
+            //trace << "  wrote " << a << '\n' << "  read  " << static_cast<double>(r);
             
             while(xe != x) *--xe = 0;
         }

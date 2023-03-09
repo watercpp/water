@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -89,7 +89,7 @@ inline double mach_time_resolution() noexcept {
             // should not hurt if another thread writes the same data at the same time
             a->resolution = r;
             a->set.store(1);
-            ___water_debug(trace()
+            ___water_debug(trace
                 << "water::threads::mach_time_resolution()\n"
                 << "  numer .... " << i.numer << '\n'
                 << "  denom .... " << i.denom << '\n'

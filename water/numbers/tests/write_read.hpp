@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -34,7 +34,7 @@ inline void write_read_0(char *x, char *xe) {
 
 template<typename float_>
 void write_read_float(settings s) {
-    //trace() << "\nfloat " << sizeof(float_);
+    //trace << "\nfloat " << sizeof(float_);
     char x[10 * 1024] = {};
     float_ const floats[] = {
         0,
@@ -95,7 +95,7 @@ void write_read_float(settings s) {
         size_t ws = w.template size<char>();
         char *xe = w(x, sizeof(x) - 1);
         ___water_test(!*xe);
-        //trace() << x;
+        //trace << x;
         size_t xs = static_cast<size_t>(xe - x);
         read<float_> r(s);
         char const* re = r(static_cast<char const*>(x), static_cast<char const*>(xe));
@@ -118,7 +118,7 @@ void write_read_float(settings s) {
 
 template<typename int_>
 void write_read_signed(settings s) {
-    //trace() << "\nsigned " << sizeof(int_);
+    //trace << "\nsigned " << sizeof(int_);
     char x[10 * 1024] = {};
     int
         cafe = 0xcafe, // avoid warning "static_cast truncation of constant value" in static cast below
@@ -146,7 +146,7 @@ void write_read_signed(settings s) {
         char *xe = w(x, sizeof(x) - 1);
         ___water_test(!*xe);
         *xe = 0;
-        //trace() << x;
+        //trace << x;
         size_t xs = static_cast<size_t>(xe - x);
         read<int_> r(s);
         char const* re = r(static_cast<char const*>(x), static_cast<char const*>(xe));
@@ -164,7 +164,7 @@ void write_read_signed(settings s) {
 
 template<typename int_>
 void write_read_unsigned(settings s) {
-    //trace() << "\nunsigned " << sizeof(int_);
+    //trace << "\nunsigned " << sizeof(int_);
     char x[10 * 1024] = {};
     unsigned
         cafe = 0xcafe, // avoid warning "static_cast truncation of constant value" in static cast below
@@ -187,7 +187,7 @@ void write_read_unsigned(settings s) {
         char *xe = w(x, sizeof(x) -1);
         ___water_test(!*xe);
         *xe = 0;
-        //trace() << x;
+        //trace << x;
         size_t xs = static_cast<size_t>(xe - x);
         read<int_> r(s);
         char const* re = r(static_cast<char const*>(x), static_cast<char const*>(xe));
@@ -204,7 +204,7 @@ void write_read_unsigned(settings s) {
 }
 
 inline void write_read_bool(settings s) {
-    //trace() << "\nbool " << sizeof(bool);
+    //trace << "\nbool " << sizeof(bool);
     char x[10 * 1024] = {};
     bool const bools[] = {
         false,
@@ -216,7 +216,7 @@ inline void write_read_bool(settings s) {
         char *xe = w(x, sizeof(x) - 1);
         ___water_test(!*xe);
         *xe = 0;
-        //trace() << x;
+        //trace << x;
         size_t xs = static_cast<size_t>(xe - x);
         read<bool> r(s);
         char const* re = r(static_cast<char const*>(x), static_cast<char const*>(xe));

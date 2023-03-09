@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -47,13 +47,13 @@ inline bool dont_join(join_t a) noexcept {
 }
 
 inline bool join(join_t a) noexcept {
-    ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread();)
+    ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread();)
     if(!handle_wait(a.handle)) {
-        ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " joined!";)
+        ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " joined!";)
         CloseHandle(a.handle);
         return true;
     }
-    ___water_debug(trace() << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " failed!";)
+    ___water_debug(trace << "water::threads::join thread=" << thread(a) << " from thread=" << thread() << " failed!";)
     return false;
 }
 
@@ -245,9 +245,9 @@ dword_t WATER_WINDOWS_CALLTYPE
 unsigned __stdcall
 #endif
 thread(void* pointer) {
-    ___water_debug(trace() << "water::threads thread=" << GetCurrentThreadId() << " begin";)
+    ___water_debug(trace << "water::threads thread=" << GetCurrentThreadId() << " begin";)
     call_()(static_cast<typename call_::pointer>(pointer));
-    ___water_debug(trace() << "water::threads thread=" << GetCurrentThreadId() << " end";)
+    ___water_debug(trace << "water::threads thread=" << GetCurrentThreadId() << " end";)
     return 0; // never return STILL_ACTIVE, 259
 }
 
@@ -270,7 +270,7 @@ void* run(dword_t& id, typename call_::pointer pointer, security_attributes_t *s
         #endif
         if(r) {
             id = id2;
-            ___water_debug(trace() << "water::threads::run() started thread=" << id;)
+            ___water_debug(trace << "water::threads::run() started thread=" << id;)
             // if priority was not 0, the threads was created suspended. there is
             // no nice way to kill a suspended thread, and if something fails now
             // it is horrible

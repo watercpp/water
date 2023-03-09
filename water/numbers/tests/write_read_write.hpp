@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -54,7 +54,7 @@ public:
         ___water_test(as);
         ___water_test(ws1 == as);
         ___water_test(ae < (a + sizeof(a)) && !*ae);
-        //trace() << a;
+        //trace << a;
 
         read<type_> r(s);
         char *re = r(a, a + sizeof(a));

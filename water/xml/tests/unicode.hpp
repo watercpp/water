@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,7 @@
 #define WATER_XML_TESTS_UNICODE_HPP
 #include <water/xml/tests/bits.hpp>
 #include <water/str/str.hpp>
-#include <water/ministr/out.hpp>
+#include <water/xtr/base.hpp>
 #include <water/vector.hpp>
 namespace water { namespace xml { namespace tests {
 
@@ -65,7 +65,7 @@ node<char16_t, memory_> unicode_generate(memory_& m) {
             u = hi ? 0 : 0x100;
         if(hi) {
             plane = root.push_back().name("plane");
-            plane.attributes(plane.create().name("number").value(cstring(ministr::out<>() << static_cast<unsigned long>(hi >> 16))));
+            plane.attributes(plane.create().name("number").value(xtr::no << static_cast<unsigned long>(hi >> 16) << xtr::string));
         }
         do {
             if(!hi) {
@@ -80,8 +80,8 @@ node<char16_t, memory_> unicode_generate(memory_& m) {
             }
             if((u & 0xff) == 0xff || u == 0xfffd || (!hi && u == 0xfdcf)) { // fdd0-fdef are non-characters
                 n = plane.push_back().name("codepoints").first_value(chars, c);
-                n.attributes_or_add("first").value(cstring(ministr::out<>() << ministr::base<16> << static_cast<unsigned long>((hi | u) & 0xffff00)));
-                n.attributes_or_add("last").value(cstring(ministr::out<>() << ministr::base<16> << static_cast<unsigned long>(hi | u)));
+                n.attributes_or_add("first").value(xtr::no << xtr::base<16> << static_cast<unsigned long>((hi | u) & 0xffff00) << xtr::string);
+                n.attributes_or_add("last").value(xtr::no << xtr::base<16> << static_cast<unsigned long>(hi | u) << xtr::string);
                 c = chars;
                 if(!hi && u == 0xfdcf)
                     u = 0xfdef;

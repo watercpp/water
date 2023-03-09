@@ -91,11 +91,12 @@ inline void create() {
     char const expect[] = "[false,null,true,123,-1.23e-45,\"hello\",\"world\",\"string\",\"string\",\"string\",{\"hello\":\"world\",\"world\":1,\"string\":true,\"string\":{},\"string\":[]},[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19],[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],{\"name1\":\"value1\",\"name2\":\"value2\"},[1,2,3]]";
     ___water_test(string_from(w, w + ws) == string_from(expect, sizeof(expect) - 1));
     
-    /*trace() << ministr::size<1024> << string_from(w, ws);
+    /*trace << xtr::size<1024> << string_from(w, ws);
     
     vector<char> x;
     indent([&x](char a){ x.push_back(a); })(w, w + ws);
-    trace() << ministr::size<10000> << x;*/
+    x.push_back(0);
+    trace(x.begin());*/
 }
 
 }}}

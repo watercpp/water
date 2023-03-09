@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -168,7 +168,7 @@ namespace _ { namespace statistic {
 
 template<typename out_>
 void out(out_& o, statistics const& a) {
-    // str::out or ministr::out
+    // str::out or xtr::to_something
     if(a.name[0])
         o << "water::temporary::statistics " << a.name << '\n';
     else

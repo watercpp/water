@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -73,7 +73,7 @@ All of the macros can be overridden by defining them before water/macros.hpp is 
             //   void somefunction()
             //
             // do not rewrite this to use array-template arguments instead of char-pointers, compile-times will be long.
-            trace() << ministr::size<2048> << what << "\n  " << file << ':' << line << "\n  " << function;
+            trace << xtr::size<2048> << what << "\n  " << file << ':' << line << "\n  " << function;
         }
     }
     #endif

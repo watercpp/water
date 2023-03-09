@@ -17,7 +17,7 @@ Test program:
     #include <water/trace.hpp>
     
     int main(int argc, char **argv) {
-        water::trace() << "Hello world " << 1234 << '!';
+        water::trace << "Hello world " << 1234 << '!';
         return 0;
     }
 
@@ -32,15 +32,13 @@ Tests are next to the header files in a folder called tests.
 
 # Dependencies and Portability
 
-The code should compile on any compiler with support for the 2011 C++ standard.
+The code should compile on any compiler supporting at least the 2014 C++ standard.
 
 Water depends on the standard C library, and it uses the standard C++ library if it exists. You can configure it to work without the C++ standard library, exceptions, or RTTI.
 
 A few parts depend on operating system specific functionality. These should work on Android, iOS, Linux, macOS, Windows and any posix compatible operating system.
 
 In theory it should build on any system, even where bytes are not 8 bits. In reality it is being used for projects on Android, iOS, macOS and Windows and tested on Linux. It is being compiled with recent versions of Clang, GCC, Intel C++ and Visual C++.
-
-There are a few configuration macros described in `water/configuration.hpp`.
 
 
 # Components
@@ -55,9 +53,9 @@ Number-to-string and string-to-number conversion with unicode support and advanc
 
 String formatting using << operators like iostreams but with unicode support. Uses water::numbers for number formatting. Creating your own destination where the string is written is a lot simpler than with iostreams. Automatically converts input from UTF-8, UTF-16, UTF-32 to whatever UTF the destination requires. Namespace in `water/str`.
 
-### water::ministr
+### water::xtr
 
-Similar to water::str but implemented with minimal dependencies using expression templates to generate the string on the stack. The library itself uses it when WATER_DEBUG is defined to write output to the debugger, see water::trace. Namespace in `water/ministr`, water::trace in `water/trace.hpp`.
+Similar to water::str but implemented with minimal dependencies using expression templates to generate the string on the stack. The library itself uses it when WATER_DEBUG is defined to write output to the debugger, see water::trace. Namespace in `water/xtr`, water::trace in `water/trace.hpp`.
 
 ### water::threads
 

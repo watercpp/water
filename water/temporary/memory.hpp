@@ -1,4 +1,4 @@
-// Copyright 2017-2020 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -46,14 +46,14 @@ public:
 
     ~memory() noexcept {
         #ifdef WATER_DEBUG
-        trace() << "water::temporary::memory destructor " << this << '\n';
+        trace << "water::temporary::memory destructor " << this << '\n';
         unsigned n = 0;
         if(block *b = my)
             do {
                 ++n;
-                trace() << "  block bytes " << b->capacity() << '\n';
+                trace << "  block bytes " << b->capacity() << '\n';
             } while((b = b->next) != my);
-        trace() << "  " << n << " blocks\n";
+        trace << "  " << n << " blocks\n";
         #endif
         free_all_blocks();
     }
