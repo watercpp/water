@@ -1396,14 +1396,6 @@ public:
     operator char const*() const {
         return my;
     }
-    
-    explicit operator bool() const {
-        return mysize != 0;
-    }
-    
-    char const& operator[](size_t a) const {
-        return my[a];
-    }
 
     iterator begin() const {
         return my;
