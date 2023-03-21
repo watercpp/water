@@ -138,6 +138,11 @@ inline void integers() {
         "+00000101 +00000005 +0000000f"
     ));
     
+    ___water_test(equal(
+        no << binary << 1 << ' ' << octal << 1 << ' ' << decimal << 1 << ' ' << hex << 1,
+        "0b1 0o1 1 0x1"
+    ));
+    
 }
 
 }}}

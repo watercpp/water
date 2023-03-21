@@ -196,15 +196,23 @@ Most of these are exactly the same as the `water::numbers::settings` functions.
       << settings{}
       << number(123.45, settings{}.base(16)) // a number with settings for formatting just that number
       << base(2)
+      << binary // same as base(2)
+      << octal // same as base(8)
+      << decimal // same as base(10)
+      << hex // same as base(16)
       << base_prefix_suffix(false)
+      << show_base // same as base_prefix_suffix(true)
+      << hide_base // same as base_prefix_suffix(false)
       << bool_text(false)
       << digts(3)
-      << exponent
       << fraction_digits(4)
       << group(true)
+      << exponent
       << no_exponent
       << no_exponent_min_max(-5, 5)
       << plus(true)
+      << show_plus // same as plus(true)
+      << hide_plus // same as plus(false)
       << precision(5)
       << scientific(true)
       << trailing_zeros(true);

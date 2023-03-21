@@ -650,6 +650,11 @@ public:
     void operator()(out<write_>& o) const { o.settings().base(my); }
 };
 
+constexpr base binary{2};
+constexpr base octal{8};
+constexpr base decimal{10};
+constexpr base hex{16};
+
 class base_prefix_suffix : public callback<base_prefix_suffix> {
     bool my;
 public:
@@ -657,6 +662,9 @@ public:
     template<typename write_>
     void operator()(out<write_>& o) const { o.settings().base_prefix_suffix(my); }
 };
+
+constexpr base_prefix_suffix show_base{true};
+constexpr base_prefix_suffix hide_base{false};
 
 class bool_text : public callback<bool_text> {
     bool my;
@@ -716,6 +724,9 @@ public:
     template<typename write_>
     void operator()(out<write_>& o) const { o.settings().plus(my); }
 };
+
+constexpr plus show_plus{true};
+constexpr plus hide_plus{false};
 
 class precision : public callback<precision> {
     unsigned my;

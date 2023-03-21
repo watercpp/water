@@ -123,7 +123,13 @@ void everything_except_copy(out<o_>& o) {
         << number(1, settings())
         << string(everything_char32 + 1, everything_char32 + 3)
         << base(2)
+        << binary
+        << octal
+        << decimal
+        << hex
         << base_prefix_suffix(true)
+        << show_base
+        << hide_base
         << bool_text(true)
         << digits(1)
         << exponent
@@ -132,6 +138,8 @@ void everything_except_copy(out<o_>& o) {
         << no_exponent
         << no_exponent_min_max(-10, 10)
         << plus(true)
+        << show_plus
+        << hide_base
         << precision(1)
         << scientific(true)
         << trailing_zeros(true)

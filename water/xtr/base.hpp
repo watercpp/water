@@ -1177,6 +1177,11 @@ struct base_set;
 template<unsigned base_>
 base_set<base_>* base() { return 0; }
 
+constexpr base_set<2>*  (*binary)() = 0;
+constexpr base_set<8>*  (*octal)() = 0;
+constexpr base_set<10>* (*decimal)() = 0;
+constexpr base_set<16>* (*hex)() = 0;
+
 template<typename p_, typename w_>
 auto operator<<(expression<p_, w_>&& x, base_set<2>* (*)()) -> expression<expression<p_, w_>, set_number_format<number_format_base<2, typename expression<p_, w_>::number_format>>> {
     return {x};

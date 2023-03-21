@@ -205,6 +205,10 @@ These are similar to `water::str`, but fewer, and they are all compile time cons
     
     expression<>{}
         << base<16> // 2 8 10 16 works
+        << binary // same as base<2>
+        << octal // same as base<8>
+        << decimal // same as base<10>
+        << hex // same as base<16>
         << digits<2> // 001 instead of 1, 234 instead of 1234. For floats this is the number of significant digits its rounded to
         << no_exponent_min_max<-10, 10> // when floating-point numbers use exponent form or not
         << exponent // always use floating-point exponent form
