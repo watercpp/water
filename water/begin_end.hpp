@@ -74,5 +74,43 @@ begin_end<type_*> begin_end_from(type_ (&array)[size_]) {
 }
 
 
+
+namespace _ {
+
+    template<typename a_, typename b_>
+    bool size_is_different(begin_end<a_> const& a, begin_end<b_> const& b, decltype(static_cast<size_t>(a.end() - a.begin()) == static_cast<size_t>(b.end() - b.begin()))) {
+        return a.size() != b.size();
+    }
+    
+    template<typename a_, typename b_>
+    constexpr bool size_is_different(begin_end<a_> const&, begin_end<b_> const&, ...) {
+        return false;
+    }
+    
+}
+
+
+template<typename a_, typename b_>
+auto operator==(begin_end<a_> const& a, begin_end<b_> const& b) -> decltype(static_cast<bool>(*a.begin() == *b.begin())) {
+    if(_::size_is_different(a, b, 0))
+        return false;
+    auto ai = a.begin();
+    auto bi = b.begin();
+    while(ai != a.end() && bi != b.end()) {
+        if(!(*ai == *bi))
+            return false;
+        ++ai;
+        ++bi;
+    }
+    return true;
+}
+
+template<typename a_, typename b_>
+auto operator!=(begin_end<a_> const& a, begin_end<b_> const& b) -> decltype(static_cast<bool>(*a.begin() == *b.begin())) {
+    return !(a == b);
+}
+
+
+
 }
 #endif
