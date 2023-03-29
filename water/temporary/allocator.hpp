@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,6 +26,14 @@ public:
     allocator(memory_type& a) noexcept :
         my(&a)
     {}
+    
+    bool operator==(allocator const& a) const noexcept {
+        return my == a.my;
+    }
+    
+    bool operator!=(allocator const& a) const noexcept {
+        return my != a.my;
+    }
 
 public:
 

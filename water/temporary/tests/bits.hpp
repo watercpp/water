@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -67,7 +67,7 @@ public:
         ___water_test(c.size == size);
         dead(pointer, size + sizeof(cookie));
         --myallocations;
-        my.free(pointer, size);
+        my.free(pointer, size + sizeof(cookie));
     }
 };
 

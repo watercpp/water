@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,6 +12,7 @@
 #include <water/allocator.hpp>
 #include <water/vectool.hpp>
 #include <water/swap.hpp>
+#include <water/initializer_list.hpp>
 namespace water {
 
 /*
@@ -26,7 +27,6 @@ template
 
 Differences from std::vector:
 - at(size_type i) does not throw if i >= size()
-- no std::initializer_list constructors
 - get_allocator() does not exist, this has allocator() instead
 - reserve(max_size() + 1) does not throw
 - max_size() always returns size_type_max / sizeof(value_type)
@@ -36,7 +36,25 @@ Differences from std::vector:
 The allocator_ and sizer_ template arguments are totally different.
 This can be used with nothrow allocators, see below.
 
-This has constructor, assign and insert functions for begin-size ranges, std::vector does not:
+Constructor, assignment, assign(), insert() for arrays. std::vector does not have this:
+
+    int array[] {1, 2, 3};
+    vector<int> v{a};
+    v = a;
+    v.insert(v.end(), a);
+    
+    vector<char> c{"hello"};
+
+Constructor, assignment, assign(), insert() for any type with begin() and end() functions,
+std::vector does not have that:
+
+    std::deque<short> d{}; // has begin() and end(), value converts to int
+    
+    vector<int> v{d};
+    v = d;
+    v.insert(v.end(), d);
+
+Constructor, assign and insert functions for begin-size ranges, std::vector does not have it:
 
     input_iterator begin;
     size_t size;
@@ -54,15 +72,20 @@ Exceptions
 - when insert()-ing at the end this will always be unchanged if something throws
 - if something throws from anything other than assign() erase() or insert() this is unchanged
 
-The allocator_ must have:
+The allocator_ should look like this:
 
-  struct allocator {
-    template<typename type_> type_* allocate(size_t count);
-    template<typename type_> void   free (void* pointer, size_t count);
+    struct allocator {
+        // must have:
+        template<typename type_> type_* allocate(size_t count);
+        template<typename type_> void   free (void* pointer, size_t count) noexcept;
+        
+        // optional:
+        bool operator==(allocator const&) const noexcept;
     };
 
 swap(allocator&, allocator&) and move constructor must work and never ever throw or fail.
-
+If allocator == allocator works, copy assignment can avoid allocation when the vectors allocators
+compare equal.
 
 The allocator can fail by throwing or returning 0. To make it possible to see return-0-failures
 functions in this also returns 0. For example push_back() returns an iterator (a pointer) that can
@@ -76,8 +99,8 @@ larger array than it currently needs.
 
 The sizer_ template argument is used to decide how much memory to allocate:
 
-  struct sizer {
-    size_t operator()(size_t current_capacity, size_t need_capacity);
+    struct sizer {
+        size_t operator()(size_t current_capacity, size_t need_capacity);
     };
 
 The sizer function is called when the vector needs to grow
@@ -88,6 +111,8 @@ The sizer function is called when the vector needs to grow
 swap(sizer&, sizer&) and move constructor must work and never ever throw or fail.
 
 */
+
+
 
 #ifdef WATER_VECTOR_SIZER
     
@@ -111,6 +136,30 @@ struct vector_sizer
 
 #endif
 
+
+
+template<typename allocator_, typename = void>
+struct vector_can_compare_allocators :
+    types::false_result
+{};
+
+template<typename allocator_>
+struct vector_can_compare_allocators<allocator_, types::to_void<decltype(types::make<allocator_ const&>() == types::make<allocator_ const&>())>> :
+    types::true_result
+{};
+
+template<typename allocator_>
+auto vector_allocators_are_equal(allocator_ const& a, allocator_ const& b) -> typename types::ifel_type<vector_can_compare_allocators<allocator_>, bool>::result {
+    return a == b;
+}
+
+template<typename allocator_>
+auto vector_allocators_are_equal(allocator_ const&, allocator_ const&) -> typename types::ifel_type_not<vector_can_compare_allocators<allocator_>, bool>::result {
+    return false;
+}
+
+
+
 template<typename value_, typename allocator_ = void, typename sizer_ = void>
 class vector
 {
@@ -133,6 +182,8 @@ public:
 
 private:
     typedef vectool<value_type> tool;
+
+private:
     value_type
         *mybegin = 0,
         *myend = 0,
@@ -141,14 +192,15 @@ private:
     sizer_type mysizer{};
 
 public:
-    vector() = default;
 
-    explicit vector(allocator_type const& a, sizer_type const& s = sizer_type()) :
+    constexpr vector() = default;
+
+    constexpr explicit vector(allocator_type const& a, sizer_type const& s = sizer_type{}) :
         myallocator(a),
         mysizer(s)
     {}
 
-    explicit vector(sizer_type const& s, allocator_type const& a = allocator_type()) :
+    constexpr explicit vector(sizer_type const& s, allocator_type const& a = allocator_type{}) :
         myallocator(a),
         mysizer(s)
     {}
@@ -171,29 +223,66 @@ public:
     {
         a.mystop = a.myend = a.mybegin = 0;
     }
+    
+    vector(initializer_list<value_type> const& l, allocator_type const& a = allocator_type{}) :
+        myallocator(a)
+    {
+        assign(l.begin(), l.end());
+    }
 
-    explicit vector(size_type count, value_type const& value = value_type(), allocator_type const& a = allocator_type()) :
+    explicit vector(size_type count, allocator_type const& a = allocator_type{}) :
+        myallocator(a)
+    {
+        resize(count);
+    }
+    
+    vector(size_type count, value_type const& value, allocator_type const& a = allocator_type{}) :
         myallocator(a)
     {
         assign(count, value);
     }
 
-    template<typename input_iterator_>
-    vector(input_iterator_ begin, input_iterator_ end, allocator_type const& a = allocator_type()) :
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type{*++types::make<input_iterator_&>()})
+    >
+    vector(input_iterator_ begin, input_iterator_ end, allocator_type const& a = allocator_type{}) :
         myallocator(a)
     {
         assign(begin, end);
     }
 
-    template<typename input_iterator_>
-    vector(
-        input_iterator_ begin,
-        size_type count,
-        typename types::ifel_type_not<types::is_int<input_iterator_>, allocator_type>::result const& a = allocator_type()
-    ) :
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type(*++types::make<input_iterator_&>()))
+    >
+    vector(input_iterator_ begin, size_type count, allocator_type const& a = allocator_type{}) :
         myallocator(a)
     {
         assign(begin, count);
+    }
+    
+    template<
+        typename range_,
+        typename = decltype(types::make<range_&&>().begin() != types::make<range_&&>().end()),
+        typename = decltype(value_type(*types::make<range_&&>().begin())),
+        typename = typename types::ifel_type_not<types::equal<vector, types::no_const<types::no_reference<range_>>>, void>::result
+    >
+    vector(range_&& r, allocator_type const& a = allocator_type{}) :
+        myallocator(a)
+    {
+        assign(r.begin(), r.end());
+    }
+    
+    template<
+        typename type_,
+        size_t size_,
+        typename = decltype(value_type(types::make<type_ const&>()))
+    >
+    vector(type_ const (&array)[size_], allocator_type const& a = allocator_type{}) :
+        myallocator(a)
+    {
+        assign(array, size_);
     }
 
     ~vector() noexcept {
@@ -204,13 +293,48 @@ public:
     }
 
     vector& operator=(vector const& a) {
-        if(&a != this)
-            assign(a.begin(), a.end());
+        // if the allocators compare equal, assign. otherwise copy
+        if(&a != this) {
+            if(vector_allocators_are_equal(myallocator, a.myallocator)) {
+                mysizer = a.mysizer;
+                assign(a.begin(), a.end());
+            }
+            else {
+                vector s{a};
+                swap(s);
+            }
+        }
         return *this;
     }
 
     vector& operator=(vector&& a) noexcept {
         swap(a);
+        return *this;
+    }
+    
+    vector& operator=(initializer_list<value_type> const& a) {
+        assign(a.begin(), a.end());
+        return *this;
+    }
+    
+    template<
+        typename range_,
+        typename = decltype(types::make<range_&&>().begin() != types::make<range_&&>().end()),
+        typename = decltype(value_type(*types::make<range_&&>().begin())),
+        typename = typename types::ifel_type_not<types::equal<vector, types::no_const<types::no_reference<range_>>>, void>::result
+    >
+    vector& operator=(range_&& a) {
+        assign(a.begin(), a.end());
+        return *this;
+    }
+    
+    template<
+        typename type_,
+        size_t size_,
+        typename = decltype(value_type(types::make<type_ const&>()))
+    >
+    vector& operator=(type_ const (&a)[size_]) {
+        assign(a, size_);
         return *this;
     }
 
@@ -251,24 +375,25 @@ public:
         return mybegin;
     }
 
-    template<typename input_iterator_>
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type(*++types::make<input_iterator_&>()))
+    >
     iterator assign(input_iterator_ begin, input_iterator_ end) {
-        // if input_iterator_ is not an iterator (pointer or class-type) this has the same effect as
-        //
-        //   assign(static_cast<size_type>(begin), static_cast<value_type>(end));
-        //
         // see the other assign
         typedef typename
             types::ifel_type<is_random_access_iterator<input_iterator_>, random_access_iterator_tag*,
             types::ifel_type<is_forward_iterator<input_iterator_>, forward_iterator_tag*,
-            types::ifel_type<types::is_class_struct_union<input_iterator_>, input_iterator_tag*,
-            void*
-        > > >::result select_;
+            input_iterator_tag*
+        > >::result select_;
         return assign_do(begin, end, static_cast<select_>(0));
     }
 
-    template<typename input_iterator_>
-    typename types::ifel_type_not<types::is_int<input_iterator_>, iterator>::result assign(input_iterator_ begin, size_type count) {
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type(*++types::make<input_iterator_&>()))
+    >
+    iterator assign(input_iterator_ begin, size_type count) {
         // replace the content of this
         //
         // return
@@ -304,6 +429,31 @@ public:
             swap(v);
         }
         return mybegin;
+    }
+    
+    iterator assign(initializer_list<value_type> const& a) {
+        // see the other assign
+        return assign(a.begin(), a.end());
+    }
+    
+    template<
+        typename range_,
+        typename = decltype(types::make<range_&&>().begin() != types::make<range_&&>().end()),
+        typename = decltype(value_type(*types::make<range_&&>().begin()))
+    >
+    iterator assign(range_&& a) {
+        // see the other assign
+        return assign(a.begin(), a.end());
+    }
+    
+    template<
+        typename type_,
+        size_t size_,
+        typename = decltype(value_type(types::make<type_ const&>()))
+    >
+    iterator assign(type_ const (&a)[size_]) {
+        // see the other assign
+        return assign(a, size_);
     }
 
     reference at(size_type a) noexcept {
@@ -454,24 +604,25 @@ public:
         return a;
     }
 
-    template<typename input_iterator_>
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type(*++types::make<input_iterator_&>()))
+    >
     iterator insert(const_iterator at, input_iterator_ begin, input_iterator_ end) {
-        // if input_iterator_ is not an iterator (pointer or class-type)  this has the same effect as
-        //
-        //   insert(at, static_cast<size_type>(begin), static_cast<value_type>(end));
-        //
         // see the other insert
         typedef typename
             types::ifel_type<is_random_access_iterator<input_iterator_>, random_access_iterator_tag*,
             types::ifel_type<is_forward_iterator<input_iterator_>, forward_iterator_tag*,
-            types::ifel_type<types::is_class_struct_union<input_iterator_>, input_iterator_tag*,
-            void*
-        > > >::result select_;
+            input_iterator_tag*
+        > >::result select_;
         return insert_do(const_cast<iterator>(at), begin, end, static_cast<select_>(0));
     }
 
-    template<typename input_iterator_>
-    typename types::ifel_type_not<types::is_int<input_iterator_>, iterator>::result insert(const_iterator at, input_iterator_ begin, size_type count) {
+    template<
+        typename input_iterator_,
+        typename = decltype(value_type(*++types::make<input_iterator_&>()))
+    >
+    iterator insert(const_iterator at, input_iterator_ begin, size_type count) {
         // insert count items from begin before at in this
         //
         // return
@@ -509,6 +660,31 @@ public:
             swap(v);
         }
         return a;
+    }
+    
+    iterator insert(const_iterator at, initializer_list<value_type> const& a) {
+        // see the other insert
+        return insert(at, a.begin(), a.end());
+    }
+    
+    template<
+        typename range_,
+        typename = decltype(types::make<range_&&>().begin() != types::make<range_&&>().end()),
+        typename = decltype(value_type(*types::make<range_&&>().begin()))
+    >
+    iterator insert(const_iterator at, range_&& a) {
+        // see the other insert
+        return insert(at, a.begin(), a.end());
+    }
+    
+    template<
+        typename type_,
+        size_t size_,
+        typename = decltype(value_type(types::make<type_ const&>()))
+    >
+    iterator insert(const_iterator at, type_ const (&a)[size_]) {
+        // see the other insert
+        return insert(at, a, size_);
     }
 
     size_type max_size() const noexcept {
@@ -675,6 +851,7 @@ public:
     }
 
 private:
+
     iterator push_back_do() {
         // grow by 1, returns end or 0 if it failed
         if(myend != mystop)
@@ -731,11 +908,6 @@ private:
         return i ? mybegin : 0;
     }
 
-    template<typename other_>
-    iterator assign_do(other_& count, other_& value, void*) {
-        return assign(static_cast<size_type>(count), static_cast<value_type>(value));
-    }
-
     template<typename iterator_>
     iterator insert_do(iterator at, iterator_ begin, iterator_ end, random_access_iterator_tag*) {
         ___water_assert(begin <= end);
@@ -762,12 +934,9 @@ private:
         }
         return at ? mybegin + x : 0;
     }
-
-    template<typename other_>
-    iterator insert_do(iterator at, other_& count, other_& value, void*) {
-        return insert(at, static_cast<size_type>(count), static_cast<value_type>(value));
-    }
 };
+
+
 
 template<typename v_, typename a_, typename s_>
 void swap(vector<v_, a_, s_>& a, vector<v_, a_, s_>& b) noexcept {
@@ -803,6 +972,8 @@ template<typename v_, typename a_, typename s_>
 bool operator>=(vector<v_, a_, s_> const& a, vector<v_, a_, s_> const& b) {
     return !(a < b);
 }
+
+
 
 }
 #endif

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -153,22 +153,22 @@ template<typename iterator_> using random_access_proxied = random_access<iterato
 template<typename iterator_> using random_access_proxied_const = random_access<iterator_, true, true>;
 
 template<typename iterator_>
-random_access<iterator_> random_access_from(iterator_ const& a) {
+random_access<iterator_> random_access_from(iterator_ a) {
     return random_access<iterator_>{a};
 }
 
 template<typename iterator_>
-random_access_const<iterator_> random_access_const_from(iterator_ const& a) {
+random_access_const<iterator_> random_access_const_from(iterator_ a) {
     return random_access_const<iterator_>{a};
 }
 
 template<typename iterator_>
-random_access_proxied<iterator_> random_access_proxied_from(iterator_ const& a) {
+random_access_proxied<iterator_> random_access_proxied_from(iterator_ a) {
     return random_access_proxied<iterator_>{a};
 }
 
 template<typename iterator_>
-random_access_proxied_const<iterator_> random_access_proxied_const_from(iterator_ const& a) {
+random_access_proxied_const<iterator_> random_access_proxied_const_from(iterator_ a) {
     return random_access_proxied_const<iterator_>{a};
 }
 

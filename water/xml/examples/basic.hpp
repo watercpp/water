@@ -138,7 +138,8 @@ double number_from_text(text_ const& from) {
 
 inline vector<char> text_from_number(double from) {
     numbers::write<double> write{from};
-    vector<char> to{write.template size<char>()};
+    vector<char> to;
+    to.resize(write.template size<char>());
     write(to.begin(), to.end());
     return to;
 }

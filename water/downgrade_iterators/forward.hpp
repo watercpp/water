@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -84,22 +84,22 @@ template<typename iterator_> using forward_proxied = forward<iterator_, false, t
 template<typename iterator_> using forward_proxied_const = forward<iterator_, true, true>;
 
 template<typename iterator_>
-forward<iterator_> forward_from(iterator_ const& a) {
+forward<iterator_> forward_from(iterator_ a) {
     return forward<iterator_>{a};
 }
 
 template<typename iterator_>
-forward_const<iterator_> forward_const_from(iterator_ const& a) {
+forward_const<iterator_> forward_const_from(iterator_ a) {
     return forward_const<iterator_>{a};
 }
 
 template<typename iterator_>
-forward_proxied<iterator_> forward_proxied_from(iterator_ const& a) {
+forward_proxied<iterator_> forward_proxied_from(iterator_ a) {
     return forward_proxied<iterator_>{a};
 }
 
 template<typename iterator_>
-forward_proxied_const<iterator_> forward_proxied_const_from(iterator_ const& a) {
+forward_proxied_const<iterator_> forward_proxied_const_from(iterator_ a) {
     return forward_proxied_const<iterator_>{a};
 }
 

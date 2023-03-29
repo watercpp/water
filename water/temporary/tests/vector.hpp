@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,19 +15,27 @@ struct vector_test {
         allocator_type a = allocator_for(memory);
     
         using namespace water::tests::vectors;
+        
+        construct_one<vector<int, allocator_type>>(0, a);
+        construct_one<vector<size_t, allocator_type>>(0, a);
+        construct_one<vector<double, allocator_type>>(0., a);
+        value_complex_count c;
+        construct_one<vector<value_complex, allocator_type>, false>(value_complex(c), a);
+        ___water_test(c.count == 0);
+        construct_one<vector<value_simple, allocator_type>>({}, a);
     
         //access
         {
             {
-                vector<int, allocator_type> v(5, 0, a);
+                vector<int, allocator_type> v(5, a);
                 access_one{v};
             }
-            value_complex_count c;
+            value_complex_count c2;
             {
-                vector<value_complex, allocator_type> v(5, value_complex(c), a);
+                vector<value_complex, allocator_type> v(5, value_complex(c2), a);
                 access_one{v};
             }
-            ___water_test(c.count == 0);
+            ___water_test(c2.count == 0);
             {
                 vector<value_simple, allocator_type> v(5, value_simple{}, a);
                 access_one{v};
@@ -36,10 +44,13 @@ struct vector_test {
     
         //modify
         {
-            modify_one<>{vector<int, allocator_type>(5, 0, a)};
-            value_complex_count c;
-            modify_one<false>{vector<value_complex, allocator_type>(5, value_complex(c), a)};
-            ___water_test(c.count == 0);
+            modify_one<>{vector<int, allocator_type>(5, a)};
+            modify_one<>{vector<size_t, allocator_type>(5, a)};
+            modify_one<>{vector<double, allocator_type>(5, a)};
+            
+            value_complex_count c2;
+            modify_one<false>{vector<value_complex, allocator_type>(5, value_complex(c2), a)};
+            ___water_test(c2.count == 0);
             modify_one<>{vector<value_simple, allocator_type>(5, value_simple{}, a)};
         }
     

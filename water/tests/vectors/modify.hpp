@@ -1,10 +1,11 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_TESTS_VECTORS_MODIFY_HPP
 #define WATER_TESTS_VECTORS_MODIFY_HPP
 #include <water/tests/vectors/bits.hpp>
+#include <water/begin_end.hpp>
 namespace water { namespace tests { namespace vectors {
 
 // modifying functions
@@ -150,6 +151,30 @@ struct modify_one {
         resize_if_default_constructor(b, static_cast<typename types::ifel<default_constructor_, long, short>::result*>(0));
         
         swap(a, b);
+        
+        // initializer list
+        b.assign({v, v});
+        b.insert(b.end() - b.size() / 2, {v, v});
+        ___water_test(b.size() == 4);
+        
+        // array
+        typename vector_::value_type array[] = {v, v, v};
+        b.assign(array);
+        b.insert(b.end() - b.size() / 2, array);
+        ___water_test(b.size() == 6);
+        
+        // ranges
+        b.assign(begin_end_from(array));
+        b.insert(b.end() - b.size() / 2, begin_end_from(array));
+        ___water_test(b.size() == 6);
+        auto r1 = begin_end_from(downgrade_iterators::input_from(a.cbegin()), downgrade_iterators::input_from(a.cend()));
+        b.assign(r1);
+        b.insert(b.end() - b.size() / 2, r1);
+        ___water_test(b.size() == a.size() * 2);
+        auto r2 = begin_end_from(downgrade_iterators::forward_const_from(a.cbegin()), downgrade_iterators::forward_const_from(a.cend()));
+        b.assign(r2);
+        b.insert(b.end() - b.size() / 2, r2);
+        ___water_test(b.size() == a.size() * 2);
     }
     
 private:
@@ -167,7 +192,9 @@ private:
 
 struct modify {
     modify() {
-        modify_one<>{vector<int>(5)};
+        modify_one<>{vector<int>({0, 1, 2, 3, 4})};
+        modify_one<>{vector<size_t>({0, 1, 2, 3, 4})};
+        modify_one<>{vector<double>({0, 1, 2, 3, 4})};
         value_complex_count c;
         modify_one<false>{vector<value_complex>(5, value_complex(c))};
         ___water_test(c.count == 0);

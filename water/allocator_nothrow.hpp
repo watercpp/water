@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -43,6 +43,14 @@ struct allocator_nothrow
     template<typename type_>
     void free(void *pointer, size_t /*count*/ = 1) noexcept {
         ::operator delete(pointer, std::nothrow);
+    }
+    
+    constexpr bool operator==(allocator_nothrow const&) const noexcept {
+        return true;
+    }
+    
+    constexpr bool operator!=(allocator_nothrow const&) const noexcept {
+        return false;
     }
 };
 

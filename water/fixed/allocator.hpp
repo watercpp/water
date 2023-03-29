@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -49,6 +49,14 @@ public:
     template<typename type_>
     void free(void *pointer, size_t count = 1) noexcept {
         free(pointer, sizeof(type_) * count);
+    }
+    
+    bool operator==(allocator const& a) const noexcept {
+        return my == a.my;
+    }
+    
+    bool operator!=(allocator const& a) const noexcept {
+        return my != a.my;
     }
 
 private:

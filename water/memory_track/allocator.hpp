@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -37,6 +37,14 @@ public:
         mymemory(&memory),
         mytag(tag)
     {}
+    
+    bool operator==(allocator const& a) const noexcept {
+        return mymemory == a.mymemory && mytag == a.mytag;
+    }
+    
+    bool operator!=(allocator const& a) const noexcept {
+        return !(*this == a);
+    }
 
     tag_type const& tag() const noexcept {
         return mytag;

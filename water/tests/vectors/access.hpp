@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -87,7 +87,7 @@ struct access_one {
 struct access {
     access() {
         {
-            vector<int> v(5);
+            vector<int> v({0, 1, 2, 3, 4, 5});
             access_one{v};
         }
         value_complex_count c;

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -95,12 +95,12 @@ public:
 template<typename iterator_> using input_proxied = input<iterator_, true>;
 
 template<typename iterator_>
-input<iterator_> input_from(iterator_ const& a) {
+input<iterator_> input_from(iterator_ a) {
     return input<iterator_>{a};
 }
 
 template<typename iterator_>
-input_proxied<iterator_> input_proxied_from(iterator_ const& a) {
+input_proxied<iterator_> input_proxied_from(iterator_ a) {
     return input_proxied<iterator_>{a};
 }
 

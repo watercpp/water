@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -97,22 +97,22 @@ template<typename iterator_> using bidirectional_proxied = bidirectional<iterato
 template<typename iterator_> using bidirectional_proxied_const = bidirectional<iterator_, true, true>;
 
 template<typename iterator_>
-bidirectional<iterator_> bidirectional_from(iterator_ const& a) {
+bidirectional<iterator_> bidirectional_from(iterator_ a) {
     return bidirectional<iterator_>{a};
 }
 
 template<typename iterator_>
-bidirectional_const<iterator_> bidirectional_const_from(iterator_ const& a) {
+bidirectional_const<iterator_> bidirectional_const_from(iterator_ a) {
     return bidirectional_const<iterator_>{a};
 }
 
 template<typename iterator_>
-bidirectional_proxied<iterator_> bidirectional_proxied_from(iterator_ const& a) {
+bidirectional_proxied<iterator_> bidirectional_proxied_from(iterator_ a) {
     return bidirectional_proxied<iterator_>{a};
 }
 
 template<typename iterator_>
-bidirectional_proxied_const<iterator_> bidirectional_proxied_const_from(iterator_ const& a) {
+bidirectional_proxied_const<iterator_> bidirectional_proxied_const_from(iterator_ a) {
     return bidirectional_proxied_const<iterator_>{a};
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -107,7 +107,7 @@ public:
 };
 
 template<typename iterator_>
-output<iterator_> output_from(iterator_ const& a) {
+output<iterator_> output_from(iterator_ a) {
     return output<iterator_>{a};
 }
 
