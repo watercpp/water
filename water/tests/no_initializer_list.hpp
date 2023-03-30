@@ -7,6 +7,7 @@
 #include <water/test.hpp>
 #include <water/types/type.hpp>
 #include <water/initializer_list.hpp>
+#include <water/no_initializer_list.hpp>
 namespace water { namespace tests {
 
 /*
@@ -22,19 +23,23 @@ template<typename type_>
 class no_initializer_list_test_class
 {
 public:
-    no_initializer_list_test_class() = default;
-    no_initializer_list_test_class(no_initializer_list<type_> const&, initializer_list_test_argument const& = {}) {}
+    no_initializer_list_test_class(no_initializer_list<type_> = {}, initializer_list_test_argument const& = {}) {}
     no_initializer_list_test_class& operator=(no_initializer_list_test_class const&) = default;
-    no_initializer_list_test_class& operator=(no_initializer_list<type_> const&) { return *this; }
+    no_initializer_list_test_class& operator=(no_initializer_list_not_empty<type_>) { return *this; }
     void function(no_initializer_list<type_> const&) {}
 };
 
 using no_initializer_list_test_1 = types::list<
     decltype(no_initializer_list_test_class<int>{}),
     decltype(no_initializer_list_test_class<int>{{1}, initializer_list_test_argument{}}),
+    decltype(no_initializer_list_test_class<int>{{1, 2}, initializer_list_test_argument{}}),
     decltype(no_initializer_list_test_class<int>{{1, 2, 3}}),
+    decltype(types::make<no_initializer_list_test_class<int>&>() = {}),
+    decltype(types::make<no_initializer_list_test_class<int>&>() = {1}),
+    decltype(types::make<no_initializer_list_test_class<int>&>() = {1, 2}),
     decltype(types::make<no_initializer_list_test_class<int>&>() = {1, 2, 3}),
-    decltype(types::make<no_initializer_list_test_class<int>&>().function({1, 2, 3}))
+    decltype(types::make<no_initializer_list_test_class<int>&>().function({1, 2, 3})),
+    decltype(types::make<no_initializer_list_test_class<int>&>().function({}))
 >;
 
 
@@ -42,9 +47,10 @@ template<typename type_>
 class initializer_list_test_class
 {
 public:
-    initializer_list_test_class(initializer_list<type_> const&, initializer_list_test_argument const& = {}) {}
+    initializer_list_test_class() = default;
+    initializer_list_test_class(initializer_list<type_>, initializer_list_test_argument const& = {}) {}
     initializer_list_test_class& operator=(initializer_list_test_class const&) = default;
-    initializer_list_test_class& operator=(initializer_list<type_> const&) { return *this; }
+    initializer_list_test_class& operator=(initializer_list_std_or_not_empty<type_>) { return *this; }
     void function(initializer_list<type_> const&) {}
 };
 
@@ -56,6 +62,9 @@ using initializer_list_test_1 = types::list<
     #endif
     decltype(initializer_list_test_class<int>{{1}, initializer_list_test_argument{}}),
     decltype(initializer_list_test_class<int>{{1, 2, 3}}),
+    decltype(types::make<initializer_list_test_class<int>&>() = {}),
+    decltype(types::make<initializer_list_test_class<int>&>() = {1}),
+    decltype(types::make<initializer_list_test_class<int>&>() = {1, 2}),
     decltype(types::make<initializer_list_test_class<int>&>() = {1, 2, 3}),
     decltype(types::make<initializer_list_test_class<int>&>().function({1, 2, 3}))
 >;
@@ -99,6 +108,65 @@ static_assert(types::type_assert<types::equal<
 
 #endif
 
+
+
+class no_initializer_list_complicated
+{
+    bool myalive = true;
+
+public:
+
+    explicit no_initializer_list_complicated(initializer_list_test_argument const&)
+    {}
+
+    no_initializer_list_complicated(no_initializer_list_complicated const& a) :
+        myalive{a.myalive}
+    {}
+    
+    ~no_initializer_list_complicated() {
+        myalive = false;
+    }
+    
+    no_initializer_list_complicated& operator=(no_initializer_list_complicated const&) = delete;
+    
+    bool alive() const {
+        return myalive;
+    }
+};
+
+
+inline void no_initializer_list_test_complicated(no_initializer_list<no_initializer_list_complicated> list) {
+    for(auto &a : list) {
+        ___water_test(a.alive());
+    }
+}
+
+
+inline void no_initializer_list_test_basic(no_initializer_list<int> list) {
+    auto i = 0;
+    for(auto a : list) {
+        ___water_test(a == i);
+        ++i;
+    }
+} 
+
+
+inline void no_initializer_list_all() {
+    no_initializer_list_test_complicated({});
+    no_initializer_list_test_complicated({no_initializer_list_complicated{initializer_list_test_argument{}}});
+    no_initializer_list_complicated c{initializer_list_test_argument{}};
+    no_initializer_list_test_complicated({no_initializer_list_complicated{initializer_list_test_argument{}}, c,});
+    no_initializer_list_test_complicated({no_initializer_list_complicated{initializer_list_test_argument{}}, c, c});
+    no_initializer_list_test_complicated({no_initializer_list_complicated{initializer_list_test_argument{}}, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c, c});
+    
+    //auto const& list = no_initializer_list<no_initializer_list_complicated>{no_initializer_list_complicated{initializer_list_test_argument{}}, c, c};
+    //___water_test(!list.begin()->alive());
+    
+    no_initializer_list_test_basic({});
+    no_initializer_list_test_basic({0});
+    no_initializer_list_test_basic({0, 1});
+    no_initializer_list_test_basic({0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21});
+}
 
 
 }}

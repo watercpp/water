@@ -224,7 +224,7 @@ public:
         a.mystop = a.myend = a.mybegin = 0;
     }
     
-    vector(initializer_list<value_type> const& l, allocator_type const& a = allocator_type{}) :
+    vector(initializer_list<value_type> l, allocator_type const& a = allocator_type{}) :
         myallocator(a)
     {
         assign(l.begin(), l.end());
@@ -312,7 +312,7 @@ public:
         return *this;
     }
     
-    vector& operator=(initializer_list<value_type> const& a) {
+    vector& operator=(initializer_list_std_or_not_empty<value_type> a) {
         assign(a.begin(), a.end());
         return *this;
     }
@@ -431,7 +431,7 @@ public:
         return mybegin;
     }
     
-    iterator assign(initializer_list<value_type> const& a) {
+    iterator assign(initializer_list<value_type> a) {
         // see the other assign
         return assign(a.begin(), a.end());
     }
@@ -662,7 +662,7 @@ public:
         return a;
     }
     
-    iterator insert(const_iterator at, initializer_list<value_type> const& a) {
+    iterator insert(const_iterator at, initializer_list<value_type> a) {
         // see the other insert
         return insert(at, a.begin(), a.end());
     }
