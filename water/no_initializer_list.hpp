@@ -47,7 +47,7 @@ It must be used as an argument to a function and then only inside that function.
     int i = *a.begin(); // the lifetime of the temporary has ended
 
 
-This does not seem to work with the Intel "classic" compiler. But it works with Intels newer CLANG based compiler.
+This does not seem to work with the Intel "classic" compiler. But it works with Intels newer Clang based compiler.
 No one uses this + Intel classic compiler + no C++ standard library anyway?
 
 */

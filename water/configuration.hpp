@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -28,6 +28,7 @@ WATER_COMPILER_GCC
 WATER_COMPILER_MICROSOFT
 Defined if one of these compilers are detected.
 
+WATER_SYSTEM_ANDROID
 WATER_SYSTEM_APPLE
 WATER_SYSTEM_LINUX (defined for android)
 WATER_SYSTEM_WINDOWS
@@ -83,28 +84,27 @@ Define if run-time type information (typeid, dynamic_cast) is turned off. Almost
 // WATER_SYSTEM_*
 
 #if \
+!defined(WATER_SYSTEM_ANDROID) && \
 !defined(WATER_SYSTEM_APPLE) && \
 !defined(WATER_SYSTEM_LINUX) && \
 !defined(WATER_SYSTEM_WINDOWS)
     
-    #if \
-    defined(linux) || \
-    defined(__linux) || \
-    defined(__linux__)
+    #if defined(linux) || defined(__linux) || defined(__linux__)
         #define WATER_SYSTEM_LINUX
 
-    #elif \
-    defined(__APPLE__) || \
-    defined(macintosh) || \
-    defined(__MACOS__)
+    #elif defined(__APPLE__) || defined(macintosh) || defined(__MACOS__)
         #define WATER_SYSTEM_APPLE
 
-    #elif \
-    defined(_WIN32) || \
-    defined(_WIN64)
+    #elif defined(_WIN32) || defined(_WIN64)
         #define WATER_SYSTEM_WINDOWS
 
     #endif
+    
+    #if defined(__ANDROID__) || defined(ANDROID)
+        // WATER_SYSTEM_LINUX will also be defined
+        #define WATER_SYSTEM_ANDROID
+    #endif
+    
 #endif
 
 #if \

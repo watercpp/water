@@ -24,6 +24,7 @@ inline void create() {
     root.push_front().boolean(false);
     root.insert(123123).number(123);
     root.insert(root.size()).number(-1.23e-45);
+    root[4].number(number(-123, -47));
     root.push_back(root.pop_back());
     root.push_front(root.pop_front());
     root.insert(3, root.remove(3));

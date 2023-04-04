@@ -93,7 +93,7 @@ struct std_initializer_list_do<type_, list_ const> :
     std_initializer_list_do<type_, list_>
 {};
 
-template<typename type_, template<typename> typename list_>
+template<typename type_, template<typename> class list_>
 struct std_initializer_list_do<type_, list_<int>> {
     using result = list_<type_>;
 };
