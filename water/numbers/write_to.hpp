@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -314,14 +314,35 @@ size_t write_to(to_&& to, formatted_mantissa_exponent<float_> const& from, local
 
 
 
+
 namespace _ {
 
-    template<unsigned utf_, typename to_>
-    class write_buffered_to
+    template<typename to_> char          write_buffered_char(...); // default to char
+    template<typename to_> char          write_buffered_char(to_ *to, decltype((*to)(static_cast<char const*>(0), static_cast<char const*>(0)))*, int);
+    template<typename to_> unsigned char write_buffered_char(to_ *to, decltype((*to)(static_cast<unsigned char const*>(0), static_cast<unsigned char const*>(0)))*, ...);
+    template<typename to_> char16_t      write_buffered_char(to_ *to, decltype((*to)(static_cast<char16_t const*>(0), static_cast<char16_t const*>(0)))*, ...);
+    template<typename to_> char32_t      write_buffered_char(to_ *to, decltype((*to)(static_cast<char32_t const*>(0), static_cast<char32_t const*>(0)))*, ...);
+    template<typename to_> wchar_t       write_buffered_char(to_ *to, decltype((*to)(static_cast<wchar_t const*>(0), static_cast<wchar_t const*>(0)))*, ...);
+    template<typename to_> char8_or_not  write_buffered_char(to_ *to, decltype((*to)(static_cast<char8_or_not const*>(0), static_cast<char8_or_not const*>(0)))*, ...);
+
+    template<
+        unsigned utf_,
+        typename to_,
+        typename char_ = decltype(write_buffered_char<to_>(0, 0, 0))
+    >
+    struct write_buffered_to
     {
-        using char_ = typename types::ifel<utf_ == 8, char, types::ifel<utf_ == 16, char16_t, char32_t>>::result;
-        static unsigned constexpr size = 256;
-        char_ my[size];
+        using char_type = typename
+            types::ifel<utf_ == 0, char_,
+            types::ifel<utf_ == 8, char,
+            types::ifel<utf_ == 16, char16_t,
+            char32_t
+        >>>::result;
+            
+        static unsigned constexpr capacity = 256;
+    
+    private:
+        char_type my[capacity];
         unsigned mysize = 0;
         to_ *myto;
 
@@ -330,11 +351,12 @@ namespace _ {
             myto{&to}
         {}
 
-        void operator()(char_ const* c, unsigned s) {
-            if(mysize + s > size)
+        template<typename char2_>
+        void operator()(char2_ const* c, unsigned s) {
+            if(mysize + s > capacity)
                 flush();
-            while(s) { // s is 1 to 4, never larger than size
-                my[mysize++] = *c++;
+            while(s) { // s is 1 to 4, never larger than capacity
+                my[mysize++] = static_cast<char_type>(*c++);
                 --s;
             }
         }
@@ -350,17 +372,19 @@ namespace _ {
 
 template<unsigned utf_, typename to_, typename iterator_, typename locale_>
 size_t write_buffered(to_&& to, formatted<iterator_> const& from, locale_ const& locale, bool group = false) {
-    _::write_buffered_to<utf_, typename types::no_reference<to_>::result> t(to);
-    size_t r = write_to<utf_>(t, from, locale, group);
-    t.flush();
+    using buffer = _::write_buffered_to<utf_, typename types::no_reference<to_>::result>;
+    buffer b(to);
+    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>::result>(b, from, locale, group);
+    b.flush();
     return r;
 }
 
 template<unsigned utf_, typename to_, typename float_, typename locale_>
 size_t write_buffered(to_&& to, formatted_mantissa_exponent<float_> const& from, locale_ const& locale, bool group = false) {
-    _::write_buffered_to<utf_, typename types::no_reference<to_>::result> t(to);
-    size_t r = write_to<utf_>(t, from, locale, group);
-    t.flush();
+    using buffer = _::write_buffered_to<utf_, typename types::no_reference<to_>::result>;
+    buffer b(to);
+    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>::result>(b, from, locale, group);
+    b.flush();
     return r;
 }
 
@@ -375,6 +399,8 @@ template<unsigned utf_, typename float_, typename locale_>
 size_t write_size(formatted_mantissa_exponent<float_> const& from, locale_ const& locale, bool group = false) {
     return write_to<utf_>(_::write_nothing{}, from, locale, group);
 }
+
+
 
 }}
 #endif

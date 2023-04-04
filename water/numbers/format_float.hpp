@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,7 +26,27 @@ namespace water { namespace numbers {
 
 scientific will move point to make exponent a multiple of 3
 
+In base 10 the default precision will try to round the number to something that humans expect, so
+for example 12345 will not be written as 12344.9999999. This is usually 7 digits for float and 14
+for double and long double, but it depends on numeric_limits<type>::digits10.
+
+For base != 10, the default precision is to write all digits the type can represent.
+
 */
+
+
+template<typename float_>
+unsigned float_precision(unsigned base) {
+    static_assert(numeric_limits<double>::digits10 > 1, "never return 0");
+    if(base != 10)
+        return max_fraction_digits<float_>(base) + 1;
+    auto digits10 = static_cast<unsigned>(numeric_limits<float_>::digits10); // avoid visual c++ warning about constant if
+    if(digits10 < numeric_limits<double>::digits10 - 1)
+        return digits10 + 1;
+    return numeric_limits<double>::digits10 - 1;
+}
+
+
 
 class format_float
 {
@@ -39,6 +59,9 @@ public:
     static int constexpr
         no_exponent_min_min = -10000,
         no_exponent_max_max = 10000;
+        
+    template<typename float_>
+    using double_if_float = typename types::ifel_type<types::equal<float_, float>, double, float_>::result;
 
 private:
     unsigned mybase = 10;
@@ -155,8 +178,9 @@ public:
     }
 
     template<typename float_>
-    formatted_mantissa_exponent<float_> operator()(float_ f) const {
-        formatted<float_iterator<float_>> m;
+    formatted_mantissa_exponent<double_if_float<float_>> operator()(float_ f) const {
+        using double_ = double_if_float<float_>;
+        formatted<float_iterator<double_>> m;
         if(isinf_strict(f)) {
             m.infinity(true);
             f = signbit(f) ? -numeric_limits<float_>::max() : numeric_limits<float_>::max();
@@ -165,7 +189,7 @@ public:
             m.nan(true);
             f = signbit(f) ? -static_cast<float_>(0) : static_cast<float_>(0);
         }
-        split_mantissa_exponent<float_> x(f, mybase);
+        split_mantissa_exponent<double_> x(f, mybase);
         m.base(mybase);
         m.base_prefix_suffix(mybase != 10 && mybase_prefix_suffix);
         m.sign(x.minus ? -1 : myplus ? 1 : 0);
@@ -173,7 +197,7 @@ public:
         unsigned leading0 = 0;
         bool zero = x.mantissa == 0;
         bool exponent_form = true;
-        numbers::round_mantissa_exponent<float_> round;
+        numbers::round_mantissa_exponent<double_> round;
         if(!zero) {
             // after this if
             // - m.digits() is set or zero = true
@@ -223,7 +247,7 @@ public:
             }
             else {
                 // always round to myprecision
-                unsigned digits = myprecision ? myprecision : max_fraction_digits<float_>(mybase) + 1; // never 0
+                unsigned digits = myprecision ? myprecision : float_precision<float_>(mybase); // never 0
                 round(x.mantissa, x.exponent, mybase, digits);
                 m.digits(mytrailing0 ? digits : round.digits());
                 if(mybase == 10) {
@@ -253,7 +277,7 @@ public:
         }
         if(!zero) {
             // +-1.2345e+-123
-            m.begin(float_iterator<float_>(x.mantissa, mybase, leading0, round.digits(), round.up()));
+            m.begin(float_iterator<double_>(x.mantissa, mybase, leading0, round.digits(), round.up()));
             if(exponent_form && myscientific && mybase == 10 && (x.exponent % 3)) {
                 // scientific: reduce exponent and move point to the right.
                 int em = (x.exponent % 3);
@@ -284,7 +308,7 @@ public:
                 !mytrailing0 ? 1 :
                 myfraction_digits ? myprecision + 1 :
                 myprecision ? myprecision :
-                max_fraction_digits<float_>(mybase) + 1
+                float_precision<float_>(mybase)
             );
             if(m.digits() == 1)
                 m.point_at(0);
@@ -298,6 +322,8 @@ public:
         return {m, e};
     }
 };
+
+
 
 }}
 #endif

@@ -1,10 +1,10 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_NUMBERS_FLOAT_ITERATOR_HPP
 #define WATER_NUMBERS_FLOAT_ITERATOR_HPP
-#include <water/numbers/bits.hpp>
+#include <water/numbers/max_digits.hpp>
 namespace water { namespace numbers {
 
 /*
@@ -25,38 +25,44 @@ class float_iterator
 public:
     using iterator_category = forward_iterator_tag;
     using value_type = unsigned;
-    using pointer = value_type const*;
-    using reference = value_type const&;
+    using pointer = void;
+    using reference = value_type;
     using difference_type = ptrdiff_t;
 
 private:
+    using uint_ = unsigned long long;
+
+private:
     float_ my = 0;
+    uint_ mydigits = 0;
+    uint_ mydivide = 1;
     unsigned
         mybase = 10,
-        mydigit = 0,
+        mydigits_max = 0,
         myat = 0,
         my0 = 0,
         mylast = static_cast<unsigned>(-1);
     bool myround = false;
 
 public:
+
     float_iterator() = default;
 
     float_iterator(float_ a, unsigned base) :
         my(a),
         mybase(base)
     {
-        digit();
+        fill();
     }
 
-    float_iterator(float_ a, unsigned base, unsigned leading_zeros, unsigned digits, bool round_up) :
+    float_iterator(float_ a, unsigned base, unsigned leading_zeros, unsigned digits, bool round_last_digit_up) :
         my(a),
         mybase(base),
         my0(leading_zeros),
         mylast(digits && digits <= static_cast<unsigned>(-1) - leading_zeros ? leading_zeros + digits - 1 : static_cast<unsigned>(-1)),
-        myround(round_up)
+        myround(round_last_digit_up)
     {
-        if(!my0) digit();
+        if(!my0) fill();
     }
 
     explicit float_iterator(unsigned at) : // use this to make end
@@ -64,21 +70,24 @@ public:
     {}
 
     reference operator*() const {
-        return mydigit;
-    }
-
-    pointer operator->() const {
-        return &mydigit;
+        auto r = static_cast<unsigned>((mydigits / mydivide) % mybase);
+        if(myround && myat == mylast)
+            ++r;
+        return r;
     }
 
     float_iterator& operator++() {
-        mydigit = 0;
-        ++myat; // wrap around does not matter?
-        if(my0 <= myat && myat <= mylast) {
-            if(myat != my0)
-                my = fmod(my, static_cast<float_>(1)) * static_cast<float_>(mybase);
-            digit();
+        ++myat; // does not really matter if it wraps around
+        if(myat < my0)
+            ;
+        else if(myat > mylast) {
+            mydigits = 0;
+            mydivide = 1;
         }
+        else if(mydivide == 1)
+            fill();
+        else
+            mydivide /= mybase;
         return *this;
     }
 
@@ -97,15 +106,22 @@ public:
     }
 
 private:
-    void digit() {
-        if(my >= 1)
-            mydigit = static_cast<unsigned>(my);
-        if(myround && myat == mylast)
-            ++mydigit;
-        if(mydigit >= mybase)
-            mydigit = mybase - 1;
+
+    void fill() {
+        bool first = mydigits_max == 0; // my is 1.23 the first time, then 0.123
+        if(first)
+            mydigits_max = max_digits<float_>(mybase);
+        auto const divide_max = static_cast<uint_>(-1) / (mybase * mybase);
+        mydivide = 1;
+        unsigned d = mydigits_max;
+        while(d-- && mydivide < divide_max)
+            mydivide *= mybase;
+        my *= mydivide;
+        mydigits = static_cast<uint_>(my);
+        my -= mydigits;
+        if(!first)
+            mydivide /= mybase;
     }
-    
 };
 
 }}

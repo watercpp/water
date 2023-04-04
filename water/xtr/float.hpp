@@ -15,7 +15,6 @@ this needs
 - numeric_limits
 - numeric_limits<float_type>::radix is 2 or 10
 - math.h functions
-  - fmod
   - frexp
   - log10
   - pow
@@ -27,11 +26,99 @@ number_format::digits > 0 will round the mantissa to that many significant digit
 3 would round 1.234 to 1.23, or 9.876 to 9.88, or 9.999 to 10.
 It does not affect the exponent. And it does not write exactly that many digits.
 
+number_format::digits == 0 will round the mantissa to a default:
+
+Base 2, 8, 16 uses the maximum number of digits the float-type can represent in that base.
+
+Base 10, uses 7 for float and 14 for double and long double (usually, depending on numeric_limits<double>::digits10).
+This should result in somethig that humans expect, 12345 instead of 12344.99999.
+For debugging or for something that computers will convert back into floatingpoint, use digits<> to increase precision.
+
 Always assume exponent can use all digits of int and not that it is limited to max_exponent10 or
 min_exponent from numeric_limts. When there are no real long-double math functions strange things
 happen.
 
 */
+
+
+template<typename type_>
+constexpr unsigned float_digits2() {
+    static_assert(numeric_limits<type_>::radix == 2 || numeric_limits<type_>::radix == 10, "");
+    return numeric_limits<type_>::radix == 2 ?
+        static_cast<unsigned>(numeric_limits<type_>::digits) :
+        static_cast<unsigned>((static_cast<unsigned>(numeric_limits<type_>::digits) * 217706ul + 0xfffful) >> 16); // log(10) / log(2) * (1 << 16) => 3.32192809488 * 0x10000 => 217705.9
+}
+
+
+template<typename type_, unsigned base_>
+class float_digits
+{
+    using uint_ = unsigned long long;
+    
+    static unsigned constexpr
+        digits2 = float_digits2<type_>(),
+        max_digits = 
+            base_ == 2 ? digits2 :
+            base_ == 8 ? digits2 / 3 + (digits2 % 3 ? 1 : 0) :
+            base_ == 16 ? digits2 / 4 + (digits2 % 4 ? 1 : 0) :
+            numeric_limits<type_>::digits10 + 1;
+
+private:
+    type_ my = 0;
+    uint_ mydigits = 0;
+    uint_ mydivide = 1;
+
+public:
+    
+    explicit float_digits(type_ a) :
+        my{a}
+    {
+        fill(true);
+    }
+    
+    unsigned operator*() const {
+        return static_cast<unsigned>((mydigits / mydivide) % base_);
+    }
+    
+    float_digits& operator++() {
+        if(mydivide == 1)
+            fill(false);
+        else
+            mydivide /= base_;
+        return *this;
+    }
+
+private:
+    
+    void fill(bool first) {
+        // my is 1.23 the first time, then 0.123
+        auto constexpr divide_max = static_cast<uint_>(-1) / (base_ * base_);
+        mydivide = 1;
+        unsigned d = max_digits;
+        while(d-- && mydivide < divide_max)
+            mydivide *= base_;
+        my *= mydivide;
+        mydigits = static_cast<uint_>(my);
+        my -= mydigits;
+        if(!first)
+            mydivide /= base_;
+    }
+    
+};
+
+
+
+template<typename type_>
+struct float_to_double {
+    using result = type_;
+};
+
+template<>
+struct float_to_double<float> {
+    using result = double;
+};
+
+
 
 template<typename type_, typename number_format_ = number_format<>>
 class write_float
@@ -48,16 +135,15 @@ class write_float
     static constexpr unsigned largest(unsigned a, unsigned b) { return a >= b ? a : b; }
     
     static int constexpr
-        digits2 =
-            numeric_limits<type_>::radix == 2 ? numeric_limits<type_>::digits :
-            static_cast<int>((numeric_limits<type_>::digits * 217706ul + 0xfffful) >> 16), // log(10) / log(2) * (1 << 16) => 3.32192809488 * 0x10000 => 217705.9
+        digits2 = static_cast<int>(float_digits2<type_>()),
         
         mantissa_digits = // without sign or dot or base-prefix
             number_format_::digits > 0 ? number_format_::digits :
             number_format_::base == 2 ? digits2 :
             number_format_::base == 8 ? 1 + (digits2 - 1) / 3 + ((digits2 - 1) % 3 ? 1 : 0) : // 1.777 without dot
             number_format_::base == 16 ? 1 + (digits2 - 1) / 4 + ((digits2 - 1) % 4 ? 1 : 0) : // 1.fff without dot
-            numeric_limits<type_>::digits10 + 1,
+            numeric_limits<type_>::digits10 < numeric_limits<double>::digits10 - 1 ? numeric_limits<type_>::digits10 + 1 :
+            numeric_limits<double>::digits10 - 1,
             
         // if base 10 the no exponent form could be larger than the maximum exponent form
         // no_exponent_max is the number of digits
@@ -67,6 +153,8 @@ class write_float
             number_format_::no_exponent_max > mantissa_digits - number_format_::no_exponent_min ?
                 number_format_::no_exponent_max :
                 mantissa_digits - number_format_::no_exponent_min;
+    
+    using double_ = typename float_to_double<type_>::result;
 
 public:
     static constexpr unsigned
@@ -81,7 +169,7 @@ public:
         );
 
 private:
-    type_ my;
+    double_ my;
 
 public:
     write_float(type_ a) :
@@ -100,7 +188,7 @@ public:
         else if(isinf_strict(my))
             write(number_format_::uppercase ? u8"INFINITY" : u8"infinity", sizeof(u8"infinity") - 1);
         else {
-            type_ m = minus ? -my : my;
+            double_ m = minus ? -my : my;
             // mantissa + exponent
             bool
                 exponent = true,
@@ -118,9 +206,9 @@ public:
             else if(constant(base == 10)) {
                 e = static_cast<int>(log10(m));
                 int p = e;
-                if((numeric_limits<type_>::is_iec559 || numeric_limits<type_>::has_denorm > 0) && m < numeric_limits<type_>::min())
-                    do ++p; while((m *= static_cast<type_>(10)) < numeric_limits<type_>::min());
-                m /= pow(static_cast<type_>(10), static_cast<type_>(p));
+                if((numeric_limits<double_>::is_iec559 || numeric_limits<double_>::has_denorm > 0) && m < numeric_limits<double_>::min())
+                    do ++p; while((m *= static_cast<double_>(10)) < numeric_limits<double_>::min());
+                m /= pow(static_cast<double_>(10), static_cast<double_>(p));
                 digits = round(m, e, round_last_digit);
                 if(
                     (constant(number_format_::no_exponent_max) < 0 && 0 <= e && e < mantissa_digits) ||
@@ -140,7 +228,7 @@ public:
                 }
             }
             else {
-                m = frexp(m, &e) * static_cast<type_>(2); //returns 0.5 <= mantissa < 1
+                m = frexp(m, &e) * static_cast<double_>(2); //returns 0.5 <= mantissa < 1
                 --e;
                 digits = round(m, e, round_last_digit);
             }
@@ -155,14 +243,15 @@ public:
                     write(_::digits[!number_format_::lowercase][0]);
             }
             int at = 0;
+            float_digits<double_, base> i{m};
             do {
                 if(at == point_at)
                     write(static_cast<char>(u'.'));
-                unsigned d = static_cast<unsigned>(m);
+                unsigned d = *i;
                 if(++at == digits && round_last_digit)
                     ++d;
                 write(_::digits[!number_format_::lowercase][d & 0xf]);
-                m = fmod(m, static_cast<type_>(1.)) * base;
+                ++i;
             } while(at != digits);
             while(trailing_zeros--)
                 write(_::digits[!number_format_::lowercase][0]);
@@ -181,9 +270,9 @@ private:
         return a;
     }
 
-    static int round(type_& f, int& e, bool& round_last_digit) {
+    static int round(double_& f, int& e, bool& round_last_digit) {
         // things here could in theory oveflow int
-        type_ const power = base == 10 ? 10 : 2;
+        double_ const power = base == 10 ? 10 : 2;
         round_last_digit = false;
         if(f < 1) {
             f *= power;
@@ -193,15 +282,15 @@ private:
             f /= power;
             ++e;
         }
-        type_ ff = f;
+        float_digits<double_, base> i{f};
         unsigned
             at = 0,
-            nines = base != 10 || static_cast<unsigned>(ff) == 9 ? 1 : 0, // base != 10 always starts with 1
+            nines = base != 10 || *i == 9 ? 1 : 0, // base != 10 always starts with 1
             zeros = 0;
-        ff = fmod(ff, static_cast<type_>(1.)) * base;
+        ++i;
         while(++at != mantissa_digits) {
-            unsigned d = static_cast<unsigned>(ff);
-            ff = fmod(ff, static_cast<type_>(1.)) * base;
+            unsigned d = *i;
+            ++i;
             if(d == base - 1) {
                 ++nines;
                 zeros = 0;
@@ -215,7 +304,7 @@ private:
             }
         }
         // just after last digit
-        unsigned d = static_cast<unsigned>(ff);
+        unsigned d = *i;
         if(d < base / 2 + (base & 1))
             return static_cast<int>(mantissa_digits - zeros);
         if(nines != mantissa_digits) {

@@ -1,4 +1,4 @@
-// Copyright 2017-2020 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,6 +15,15 @@ namespace water { namespace numbers {
 /*
 
 read floatingpoint, integer or bool from text
+
+any_problem() is probably good to check after reading the number, and discard the result if it returns true
+
+inexact() is probably fine to ignore in most cases
+- for integers, it can be true if the read number had non-0 fraction digits like 123.45
+- for floating point it can be true if
+  - more significant digits than the type can represent was read
+  - the exponent was really small so the number became 0
+  - the exponent had non-0 fraction digits
 
 */
 
@@ -92,7 +101,8 @@ public:
     }
 
     bool any_problem() const {
-        return myerror || myinexact || myoverflow || myinfinity || mynan;
+        // inexact() is not seen as a problem
+        return myerror || myoverflow || myinfinity || mynan;
     }
 
 private:

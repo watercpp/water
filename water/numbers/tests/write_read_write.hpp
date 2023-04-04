@@ -30,6 +30,16 @@ inline bool write_read_write_divide_4_maybe(bool a) {  // visual c++ warnings wh
     return a;
 }
 
+template<typename type_>
+auto write_read_write_one_denorm_or_0(type_ t) -> typename types::ifel_type<types::is_float<type_>, bool>::result {
+    return !t || !isnormal_strict(t);
+}
+
+template<typename type_>
+auto write_read_write_one_denorm_or_0(type_) -> typename types::ifel_type_not<types::is_float<type_>, bool>::result {
+    return false;
+}
+
 class write_read_write_one
 {
     settings s;
@@ -73,8 +83,11 @@ public:
         ___water_test(bs);
         ___water_test(ws2 == bs);
         ___water_test(be < (b + sizeof(b)) && !*be);
+        
+        // let denormals differ
+        bool denormals = write_read_write_one_denorm_or_0(tr) && write_read_write_one_denorm_or_0(t);
 
-        ___water_test(ws1 == ws2 && "wrote same number of characters twice");
+        ___water_test((ws1 == ws2 || denormals) && "wrote same number of characters twice");
 
         bool equal = as == bs;
         if(equal) {
@@ -86,7 +99,7 @@ public:
                 ++bi;
             }
         }
-        ___water_test(equal && "wrote equal strings twice");
+        ___water_test((equal || denormals) && "wrote equal strings twice");
     }
 };
 

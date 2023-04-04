@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,6 +19,10 @@ numeric_limits lowest() is better than -max() ?
 template<typename float_>
 class parsed_to_float
 {
+    using double_ = typename types::ifel_type<types::equal<float_, float>, double, float_>::result;
+    
+private:
+
     float_ my = 0;
     bool
         myerror = false,
@@ -28,6 +32,7 @@ class parsed_to_float
         mynan = false;
 
 public:
+
     template<typename mantissa_, typename exponent_>
     parsed_to_float(mantissa_ const& mantissa, exponent_ const& exponent, unsigned exponent_power_of = 0) {
         using limits = numeric_limits<float_>;
@@ -41,9 +46,10 @@ public:
             myerror = true;
         else {
             // mantissa
+            double_ m = 0;
             unsigned long long
-                x = 0,
-                m = 1;
+                add = 0,
+                mul = 1;
             auto digits = mantissa.digits();
             auto
                 d = digits.begin(),
@@ -53,27 +59,28 @@ public:
             unsigned digits_used = static_cast<unsigned>(de - d); // crazy if overflows
             while(d != de) {
                 ___water_assert(*d < mantissa.base());
-                m *= mantissa.base();
-                x *= mantissa.base();
-                x += *d;
-                if(m > static_cast<unsigned long long>(-1) / mantissa.base()) {
-                    my *= m;
-                    my += x;
-                    x = 0;
-                    m = 1;
+                mul *= mantissa.base();
+                add *= mantissa.base();
+                add += *d;
+                if(mul > static_cast<unsigned long long>(-1) / mantissa.base()) {
+                    m *= mul;
+                    m += add;
+                    add = 0;
+                    mul = 1;
                 }
                 ++d;
             }
-            if(m != 1) {
-                my *= m;
-                my += x;
+            if(mul != 1) {
+                m *= mul;
+                m += add;
             }
-            if(my) {
+            if(m) {
                 // mantissa exponent, from decimal point
                 unsigned const me_max = static_cast<unsigned>(numeric_limits<int>::max());
                 if(me_max < mantissa.leading_zeros() || me_max < mantissa.point_at() || me_max - mantissa.leading_zeros() < digits_used)
                     myerror = true;
                 else {
+                    my = static_cast<float_>(m);
                     int me = static_cast<int>(mantissa.point_at()) - static_cast<int>(mantissa.leading_zeros() + digits_used);
                     // exponent
                     if(!exponent_power_of)
@@ -90,6 +97,7 @@ public:
                                 my = limits::has_infinity ? limits::infinity() : limits::max();
                                 myoverflow = true;
                             }
+                            me = 0;
                         }
                         else if(from.error())
                             myerror = true;
@@ -116,11 +124,13 @@ public:
                             me = 0;
                         }
                         if(me)
-                            pow_do(static_cast<float_>(mantissa.base()), me);
+                            pow_do(m, static_cast<double_>(mantissa.base()), me);
                         if(e)
-                            pow_do(static_cast<float_>(exponent_power_of), e);
-                        myoverflow = isinf_strict(my);
+                            pow_do(m, static_cast<double_>(exponent_power_of), e);
+                        if(e || me)
+                            my = static_cast<float_>(m);
                     }
+                    myoverflow = myoverflow || isinf_strict(my);
                 }
             }
             if(!myinexact && !myerror && !myoverflow)
@@ -167,14 +177,15 @@ public:
     }
 
 private:
-    void pow_do(float_ b, int e) {
+
+    void pow_do(double_& m, double_ b, int e) {
         // if e is very small or large, pow can become 0, subnormal or infinity
-        float_ p = pow(b, static_cast<float_>(e));
-        if(isfinite_strict(p) && (p >= numeric_limits<float_>::min() || p <= -numeric_limits<float_>::min()))
-            my *= p;
+        double_ p = pow(b, static_cast<double_>(e));
+        if(isfinite_strict(p) && (p >= numeric_limits<double_>::min() || p <= -numeric_limits<double_>::min()))
+            m *= p;
         else {
-            my *= static_cast<float_>(pow(b, e / 2));
-            my *= static_cast<float_>(pow(b, e - (e / 2)));
+            m *= static_cast<double_>(pow(b, e / 2));
+            m *= static_cast<double_>(pow(b, e - (e / 2)));
         }
     }
     

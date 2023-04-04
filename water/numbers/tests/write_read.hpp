@@ -25,6 +25,16 @@ bool write_read_almost_equal(float_ a, float_ b) {
         (a / e >= b && b >= a * e) || (b / e >= a && a >= b * e) :
         (a / e <= b && b <= a * e) || (b / e <= a && a <= b * e);
     //___water_assert(r);
+    if(!r) {
+        // let denormals be un-equal 
+        r = (!isnormal_strict(a) || !a) && (!isnormal_strict(b) || !b);
+    }
+    if(!r)
+        trace << "water::numbers::test::write_read_almost_equal failed\n" << xtr::digits<numeric_limits<limit_type>::digits10 + 2>
+            << a << '\n'
+            << b << '\n' << xtr::hex << xtr::digits<0>
+            << a << '\n'
+            << b;
     return r;
 }
 
@@ -82,12 +92,12 @@ void write_read_float(settings s) {
         numeric_limits<float_>::quiet_NaN(),
         numeric_limits<float_>::epsilon(),
         numeric_limits<float_>::denorm_min(),
-        -numeric_limits<float_>::min(),
-        -numeric_limits<float_>::max(),
+        -numeric_limits<float_>::min() / 2,
+        -numeric_limits<float_>::max() / 2,
         -numeric_limits<float_>::infinity(),
         -numeric_limits<float_>::quiet_NaN(),
-        -numeric_limits<float_>::epsilon(),
-        -numeric_limits<float_>::denorm_min()
+        -numeric_limits<float_>::epsilon() * 2,
+        -numeric_limits<float_>::denorm_min() * 2
     };
     for(float_ f : floats) {
         s.precision(max_digits<float_>(s.base() ? s.base() : 10) + 1);

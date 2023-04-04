@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -132,7 +132,6 @@ inline void parse_mantissa_exponent() {
         // test things that should not parse
     };
     parsed<32> mantissa, exponent;
-    unsigned dummy = 0;
     for(auto a : array) {
         auto from = parse_cstring(a.from);
         auto from_end = a.parse.mantissa_exponent(mantissa, exponent, from.begin(), from.end());
@@ -142,7 +141,6 @@ inline void parse_mantissa_exponent() {
         ___water_test(!a.size || (from_end - from.begin()) == a.size);
         ___water_test(parse_compare(mantissa, a.mantissa));
         ___water_test(parse_compare(exponent, a.exponent));
-        ++dummy; // to make breakpoint above stay in this scope
     }
 }
 
@@ -168,7 +166,6 @@ inline void parse_number() {
         {parse{}.group(true), "0b11111111 11111111 11111111 11111111", 2, "11111111111111111111111111111111"}
     };
     parsed<32> number;
-    unsigned dummy = 0;
     for(auto a : array) {
         auto from = parse_cstring(a.from);
         auto from_end = a.parse(number, from.begin(), from.end());
@@ -177,7 +174,6 @@ inline void parse_number() {
         ___water_test(!a.base || a.base == number.base());
         ___water_test(!a.size || (from_end - from.begin()) == a.size);
         ___water_test(parse_compare(number, a.number));
-        ++dummy; // to make breakpoint above stay in this scope
     }
 }
 

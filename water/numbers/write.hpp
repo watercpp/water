@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -109,9 +109,8 @@ public:
     
     template<typename function_, typename locale_>
     size_t buffered(function_&& function, locale_ const& locale) {
-        // function(char const* begin, unsigned size)
-        // where char can be char, char16_t, char32_t
-        static_assert(utf, "utf cannot be 0");
+        // function(char const* begin, char const* end)
+        // where char can be char, unsigned char, char8_t, char16_t, char32_t, wchar_t
         return myused = write_buffered<utf>(function, my, locale, mygroup);
     }
 
