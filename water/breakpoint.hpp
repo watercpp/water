@@ -35,7 +35,6 @@ With __builtin_debugtrap() and raise(SIGTRAP) it is not possible to continue fro
     // vc8 has no inline asm for x86 64-bit, int3 would work on 32-bit only
 
 #elif defined(WATER_BREAKPOINT_HAS_DEBUGTRAP) && !defined(WATER_SYSTEM_ANDROID)
-    #undef WATER_BREAKPOINT_HAS_DEBUGTRAP
     #define WATER_BREAKPOINT __builtin_debugtrap()
     // clang has this
 
@@ -72,5 +71,8 @@ With __builtin_debugtrap() and raise(SIGTRAP) it is not possible to continue fro
     #define WATER_BREAKPOINT assert(0)
 
 #endif
+
+
+#undef WATER_BREAKPOINT_HAS_DEBUGTRAP
 
 #endif

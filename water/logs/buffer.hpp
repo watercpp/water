@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,66 +12,11 @@
 #include <water/allocator.hpp>
 #include <water/unicode/utf.hpp>
 #include <water/atomic.hpp>
+#include <water/logs/output_to_trace.hpp>
+#include <water/logs/tag_with_nothing.hpp>
 namespace water { namespace logs {
 
-/*
-
-Buffering log
-
-Threads writing to the log use the almost lock free water::fixed::memory_atomic to allocate pieces
-and a totally lock free queue in this when adding those pieces to the buffer.
-
-The pieces are fixed size character arrays, one log message can be written to many pieces.
-
-Writing to this log should be relativley fast, and it should almost never block. The time writing
-can block is when fixed::memory_atomic needs to allocate a new block.
-
-A thread should call flush() from time to time to write the buffer to the output. This is assumed to
-be slow, otherwise using this buffer is pointless. One solution is to have a low priority background
-thread for this. Before and after the programs main(), when the background thread is not running,
-the main thread could call flush() directly after writing to the buffer or not use the buffer at all.
-
-The statistics can be used to figure out how much memory is needed, and how big the pieces should
-be for the fewest possible allocations and minimal memory use.
-
-This expects everything to be UTF-8.
-
-template
-- output_ see below
-- tag_ is passed through to the output. could be used to hold thread id, log level, message type
-- memory_statistics_ true to collect water::fixed::memory_atomic statistcs
-
-class output {
-public:
-    output() constexpr;
-    char* prefix(char* begin, char *end, tag_type tag);
-    void line(char const* begin, char const* end);
-    void start();
-    void stop();
-};
-
-The constructor must be constexpr.
-All functions except the constructor are called while a mutex is locked.
-Any function may throw.
-
-start()
-called when flush starts. this can be used for per-flush setup or to do one-time initialization of something
-
-char* prefix(char* begin, char* end, tag_type tag)
-write a line prefix to begin,end, return end of what was written
-
-line(char const* begin, char const* end)
-write a line to the output destination.
-begin < end always
-end[-1] == linebreak always
-end[0] == 0 always
-
-stop()
-called when flush is done, can be used to flush the output destination.
-called even if an exception is thown after start.
-not called when start() throws
-
-*/
+// Log buffer, see readme.md
 
 unsigned constexpr
     buffer_piece_size = 128,
@@ -112,18 +57,19 @@ namespace _ {
 
 }
 
-template<typename output_, typename tag_, bool memory_statistics_ = false>
+template<typename output_ = void, typename tag_ = void, bool memory_statistics_ = false>
 class buffer
 {
 public:
-    using output_type = output_;
-    using tag_type = tag_;
+    using output_type = typename types::if_not_void<output_, output_to_trace>::result;
+    using tag_type = typename types::if_not_void<tag_, tag_with_nothing>::result;
     using piece_type = logs::piece<tag_type>;
     using write_type = write_to_buffer<buffer<output_, tag_, memory_statistics_>>;
 
 private:
     fixed::memory_atomic<void, memory_statistics_> mymemory;
     atomic<piece_type*> mylist {};
+    atomic<ptrdiff_t> myconcurrent {};
 
 private:
     // below locked
@@ -132,8 +78,15 @@ private:
     buffer_statistics mystatistics{};
 
 public:
-    constexpr buffer(size_t piece_size = 0, size_t memory_block_size = 0) :
-        mymemory(sizeof(piece_type) + (piece_size ? piece_size : buffer_piece_size), memory_block_size)
+    constexpr explicit buffer(size_t piece_size = 0, size_t memory_block_size = 0, bool concurrent = true) :
+        mymemory{sizeof(piece_type) + (piece_size ? piece_size : buffer_piece_size), memory_block_size},
+        myconcurrent{concurrent ? 1 : 0}
+    {}
+    
+    constexpr explicit buffer(output_type const& o, size_t piece_size = 0, size_t memory_block_size = 0, bool concurrent = true) :
+        mymemory{sizeof(piece_type) + (piece_size ? piece_size : buffer_piece_size), memory_block_size},
+        myconcurrent{concurrent ? 1 : 0},
+        myoutput{o}
     {}
 
     buffer(buffer const&) = delete;
@@ -176,6 +129,14 @@ public:
     if_range<range_ const, bool> operator()(range_ const& a) {
         return (*this)(tag_type{}, a);
     }
+    
+    void concurrent(bool a) noexcept {
+        myconcurrent.fetch_add(a ? 1 : -1);
+    }
+    
+    bool concurrent() const noexcept {
+        return myconcurrent.load(memory_order_relaxed) != 0;
+    }
 
     piece_type* piece(tag_type const& tag, piece_type *list = 0) {
         void *a = mymemory.allocate();
@@ -204,6 +165,8 @@ public:
         first->first(true);
         piece_type *now = mylist.load(memory_order_relaxed);
         do first->list(now); while(!mylist.compare_exchange_weak(now, list));
+        if(!myconcurrent.load(memory_order_relaxed))
+            flush_if_not_flushing();
     }
 
     write_type write(tag_type const& tag = {}) {
@@ -227,7 +190,7 @@ public:
     }
 
     buffer_statistics statistics() {
-        auto unlock = lock_move(mylock);
+        auto lock = lock_move(mylock);
         return mystatistics;
     }
 

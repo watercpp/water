@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -10,22 +10,22 @@ namespace water { namespace logs {
 
 // like buffer but no destructor
 
-template<typename output_, typename tag_, bool memory_statistics_ = false>
+template<typename output_ = void, typename tag_ = void, bool memory_statistics_ = false>
 class buffer_forever
 {
     using buffer = logs::buffer<output_, tag_, memory_statistics_>;
 
 public:
-    using output_type = output_;
-    using tag_type = tag_;
-    using piece_type = logs::piece<tag_type>;
+    using output_type = typename buffer::output_type;
+    using tag_type = typename buffer::tag_type;
+    using piece_type = typename buffer::piece_type;
     using write_type = write_to_buffer<buffer_forever<output_, tag_, memory_statistics_>>;
 
 private:
     size_t
         mypiecesize,
         myblocksize;
-    threads::spin_once<> myonce;
+    threads::spin_once<> myonce; // this has no destructor, a mutex might have
     char mybuffer[sizeof(buffer)] {};
 
 public:
@@ -74,6 +74,14 @@ public:
     if_range<range_ const, bool> operator()(range_ const& a) {
         return (*this)(tag_type{}, a);
     }
+    
+    void concurrent(bool a) noexcept {
+        get()->concurrent(a);
+    }
+    
+    bool concurrent() noexcept {
+        return get()->concurrent();
+    }
 
     piece_type* piece(tag_type const& tag, piece_type *list = 0) {
         return get()->piece(tag, list);
@@ -113,7 +121,7 @@ private:
     struct once {
         buffer_forever *my;
         void operator()() {
-            new(here(my->mybuffer)) buffer(my->mypiecesize, my->myblocksize);
+            new(here(my->mybuffer)) buffer(my->mypiecesize, my->myblocksize, false);
         }
     };
     

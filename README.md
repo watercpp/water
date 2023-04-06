@@ -61,9 +61,9 @@ Similar to water::str but implemented with minimal dependencies using expression
 
 Portable thread, mutex, condition variable, read write lock, semaphore, barrier and call once. An unusual feature is statistics for mutexes, read write locks, semaphores and barriers. You can use it to see how frequently threads block on a particular mutex, to find concurrency bottlenecks. Namespace in `water/threads`.
 
-### water::logs::buffer
+### water::logs
 
-Concurrent logging class. Use this with water::str for a highly concurrent alternative to std::cout. Multiple threads write text to the logging-buffer with minimal synchronization. Implemented using a lock free queue and mostly lock free memory allocator to prevent threads from blocking. Namespace in `water/logs`, buffer in `water/logs/buffer.hpp`.
+Concurrent logging classes. Use this with water::str for a highly concurrent alternative to std::cout. Multiple threads write text to the logging-buffer with minimal synchronization. Implemented using a lock free queue and mostly lock free memory allocator to prevent threads from blocking. Namespace in `water/logs`.
 
 ### water::fixed::memory_atomic
 
