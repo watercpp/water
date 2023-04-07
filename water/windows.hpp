@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -9,7 +9,14 @@
 
 Include windows.h in a overcomplicated way.
 
-To avoid this, include it yourself or define WATER_NO_WINDOWS_H to not include windows at all.
+To avoid this, include windows.h yourself or define WATER_NO_WINDOWS_H to not include windows.h at all.
+
+You should define NTDDI_VERSION to NTDDI_WIN7 or some other version (or define _WIN32_WINNT).
+This header will not, the default NTDDI_VERSION will probalby be the latest windows version from your windows SDK.
+See sdkddkver.h in the windows SDK.
+
+It's 2023 and I could no longer remember why this was the way I have included windows.h for over 10 years.
+But it still seems like the best way to do it. Maybe not in 2033.
 
 */
 
@@ -34,17 +41,8 @@ To avoid this, include it yourself or define WATER_NO_WINDOWS_H to not include w
     #define WATER_WINDOWS_HANDLE(type) ::type
     #define WATER_WINDOWS_SELECT(windows_h, no_windows_h) windows_h
 
-    // If windows.h is already included NTDDI_WIN7 from sdkddkver.h is probably defined. Then avoid this.
-    #ifndef NTDDI_WIN7
-        #ifndef NTDDI_VERSION
-            #define NTDDI_VERSION NTDDI_WIN7
-        #endif
-        #ifndef WINVER
-            #define WINVER (NTDDI_VERSION / 0x10000)
-        #endif
-        #ifndef _WIN32_WINNT
-            #define _WIN32_WINNT (NTDDI_VERSION / 0x10000)
-        #endif
+    // If windows.h is already included NTDDI_WIN10 from sdkddkver.h is probably defined
+    #ifndef NTDDI_WIN10
         #ifdef WATER_COMPILER_MICROSOFT
             #pragma warning(push)
         #endif
@@ -52,55 +50,30 @@ To avoid this, include it yourself or define WATER_NO_WINDOWS_H to not include w
         #ifdef WATER_COMPILER_MICROSOFT
             #pragma warning(pop)
         #endif
+        // another way to avoid min max is to define NOMINMAX before including windows.h
+        // this is better because it does on define anything?
         #undef min
         #undef max
+        // near and far are defined to nothing. This is from 16-bit windows, but it is still defined even on windows for ARM64 in 2023.
+        // The windows headers seem to only use uppercase NEAR and FAR, but those are defined to lowercase near and far.
+        // So it works to undefine the lowercase ones and re-define the uppercase ones to nothing.
         #undef near
         #undef far
-        #undef small
-        #undef hyper
         #ifdef NEAR
             #undef NEAR
-            #define NEAR // wonder why i did this?
+            #define NEAR
         #endif
         #ifdef FAR
             #undef FAR
             #define FAR
         #endif
+        // rpcndr.h will define small as char and hyper as __int64
+        // small does not seem to be used anywhere in the windows SDK, but hyper is and maybe undefining it is wrong.
+        #undef small
+        #undef hyper
     #endif
 
 #endif //WATER_NO_WINDOWS_H
-
-#ifdef NTDDI_WIN7
-    #define WATER_WINDOWS_2000  NTDDI_WIN2K
-    #define WATER_WINDOWS_XP    NTDDI_WINXP
-    #define WATER_WINDOWS_2003  NTDDI_WS03
-    #define WATER_WINDOWS_VISTA NTDDI_VISTA
-    #define WATER_WINDOWS_2008  NTDDI_WS08
-    #define WATER_WINDOWS_7     NTDDI_WIN7
-    #define WATER_WINDOWS_8     NTDDI_WIN8
-    #define WATER_WINDOWS_8_1   NTDDI_WINBLUE
-    #define WATER_WINDOWS_10    NTDDI_WIN10
-#else
-    #define WATER_WINDOWS_2000  0x5000000
-    #define WATER_WINDOWS_XP    0x5010000
-    #define WATER_WINDOWS_2003  0x5020000
-    #define WATER_WINDOWS_VISTA 0x6000000
-    #define WATER_WINDOWS_2008  0x6000100
-    #define WATER_WINDOWS_7     0x6010000
-    #define WATER_WINDOWS_8     0x6020000
-    #define WATER_WINDOWS_8_1   0x6030000
-    #define WATER_WINDOWS_10    0x6030000
-#endif
-
-#ifdef WATER_WINDOWS_VERSION
-    //done
-#elif defined(NTDDI_VERSION)
-    #define WATER_WINDOWS_VERSION (NTDDI_VERSION)
-#elif defined(WINVER)
-    #define WATER_WINDOWS_VERSION ((WINVER) * 0x10000)
-#elif defined(_WIN32_WINNT)
-    #define WATER_WINDOWS_VERSION ((_WIN32_WINNT) * 0x10000)
-#endif
 
 #include <water/int.hpp>
 #include <water/types/types.hpp>
@@ -124,7 +97,7 @@ namespace water { namespace windows_hpp {
     typedef types::ifel<sizeof(long) == sizeof(void*), long, int_size<sizeof(void*)> >::result longptr_t;
     typedef types::to_unsigned<intptr_t>::result ulongptr_t;
     
-    typedef int_bits_at_least<64>::result longlong_t;
+    typedef int_bits_at_least<64> longlong_t;
     typedef types::to_unsigned<longlong_t>::result ulonglong_t;
     
     typedef long_t hresult_t;

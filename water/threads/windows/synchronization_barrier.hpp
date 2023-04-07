@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,7 +7,7 @@
 #include <water/threads/windows/bits.hpp>
 namespace water { namespace threads {
 
-#if WATER_WINDOWS_VERSION >= WATER_WINDOWS_8
+#if !(defined(NTDDI_VERSION) && defined(NTDDI_WIN8)) || NTDDI_VERSION >= NTDDI_WIN8
 
 class synchronization_barrier
 {

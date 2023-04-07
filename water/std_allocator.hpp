@@ -7,6 +7,9 @@
 #include <water/water.hpp>
 #include <water/new_here.hpp>
 #include <water/swap.hpp>
+#ifndef WATER_NO_STD
+    #include <type_traits>
+#endif
 namespace water {
 
 /*
@@ -30,10 +33,29 @@ Make a std::allocator from a water::allocator.
 
 */
 
-template<bool value_>
-struct std_allocator_bool_type {
-    static bool constexpr value = value_;
-};
+namespace _ { namespace std_allocators {
+
+    // the standard says propagate_on_container_copy_assignment etc should be std::true_type and
+    // not just any type containing type=bool and value=true/false
+
+    #ifndef WATER_NO_STD
+ 
+    using std::true_type;
+    using std::false_type;
+
+    #else
+
+    template<bool value_>
+    struct bool_constant {
+        using type = bool;
+        static bool constexpr value = value_;
+    };
+
+    using true_type = bool_constant<true>;
+    using false_type = bool_constant<false>;
+
+    #endif
+}}
 
 
 template<typename type_, typename allocator_>
@@ -53,10 +75,10 @@ public:
         using other = std_allocator<other_, allocator_>;
     };
     
-    using propagate_on_container_copy_assignment = std_allocator_bool_type<true>;
-    using propagate_on_container_move_assignment = std_allocator_bool_type<true>;
-    using propagate_on_container_swap = std_allocator_bool_type<true>;
-    using is_always_equal = std_allocator_bool_type<false>;
+    using propagate_on_container_copy_assignment = _::std_allocators::true_type;
+    using propagate_on_container_move_assignment = _::std_allocators::true_type;
+    using propagate_on_container_swap = _::std_allocators::true_type;
+    using is_always_equal = _::std_allocators::false_type;
 
 public:
     // not std

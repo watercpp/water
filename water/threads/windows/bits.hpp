@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,9 +15,10 @@ namespace water { namespace threads {
 
 using bool_t = int;
 using boolean_t = unsigned char;
-using dword_t unsigned long;
+using dword_t = unsigned long;
 using long_t = long;
-using ulongptr_t types::ifel<sizeof(unsigned long) == sizeof(void*), unsigned long, uint_size<sizeof(void*)>>::result;
+using ulong_t = unsigned long;
+using ulongptr_t = types::ifel<sizeof(unsigned long) == sizeof(void*), unsigned long, uint_size<sizeof(void*)>>::result;
 using ulonglong_t = unsigned long long;
 using windows_size_t = ulongptr_t;
 
@@ -54,6 +55,7 @@ using bool_t = BOOL;
 using boolean_t = BOOLEAN;
 using dword_t = DWORD;
 using long_t = LONG;
+using ulong_t = ULONG;
 using ulongptr_t = ULONG_PTR;
 using ulonglong_t = ULONGLONG;
 using windows_size_t = SIZE_T;
@@ -78,6 +80,7 @@ WATER_WINDOWS_FUNCTION(bool_t,  CloseHandle, (void*));
 WATER_WINDOWS_FUNCTION(void*,   GetCurrentThread, ());
 WATER_WINDOWS_FUNCTION(dword_t, GetCurrentThreadId, ());
 WATER_WINDOWS_FUNCTION(dword_t, GetThreadId, (void*));
+WATER_WINDOWS_FUNCTION(void*,   GetCurrentProcess, ());
 WATER_WINDOWS_FUNCTION(dword_t, GetCurrentProcessId, ());
 WATER_WINDOWS_FUNCTION(void,    Sleep, (dword_t));
 WATER_WINDOWS_FUNCTION(bool_t,  SwitchToThread, ());
@@ -94,7 +97,7 @@ WATER_WINDOWS_FUNCTION(ulonglong_t, GetTickCount64, ());
 WATER_WINDOWS_FUNCTION(dword_t, WaitForMultipleObjects, (dword_t, void *const*, bool_t, dword_t));
 WATER_WINDOWS_FUNCTION(dword_t, WaitForSingleObject, (void*, dword_t));
 
-WATER_WINDOWS_FUNCTION(void*,  CreateEventW, (y_attributes_t*, bool_t, bool_t, wchar_t const*));
+WATER_WINDOWS_FUNCTION(void*,  CreateEventW, (security_attributes_t*, bool_t, bool_t, wchar_t const*));
 WATER_WINDOWS_FUNCTION(void*,  OpenEventW, (dword_t, bool_t, wchar_t const*));
 WATER_WINDOWS_FUNCTION(bool_t, ResetEvent, (void*));
 WATER_WINDOWS_FUNCTION(bool_t, SetEvent, (void*));
@@ -127,7 +130,7 @@ WATER_WINDOWS_FUNCTION(bool_t, SleepConditionVariableSRW, (condition_variable_t*
 
 WATER_WINDOWS_FUNCTION(bool_t, InitOnceExecuteOnce, (init_once_t*, bool_t (WATER_WINDOWS_CALLTYPE*)(init_once_t*, void*, void**), void *pointer, void **return_));
 
-#if WATER_WINDOWS_VERSION >= WATER_WINDOWS_8
+#if !(defined(NTDDI_VERSION) && defined(NTDDI_WIN8)) || NTDDI_VERSION >= NTDDI_WIN8
     
     WATER_WINDOWS_FUNCTION(bool_t, DeleteSynchronizationBarrier, (synchronization_barrier_t*));
     WATER_WINDOWS_FUNCTION(bool_t, EnterSynchronizationBarrier, (synchronization_barrier_t*, dword_t));

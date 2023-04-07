@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,6 +15,11 @@
 #include <water/threads/tests/thread_all.hpp>
 #include <water/threads/tests/trivial.hpp>
 namespace water { namespace threads { namespace tests {
+
+#ifdef WATER_SYSTEM_WINDOWS
+WATER_WINDOWS_FUNCTION(windows_hpp::uint_t, timeBeginPeriod, (windows_hpp::uint_t));
+WATER_WINDOWS_FUNCTION(windows_hpp::uint_t, timeEndPeriod, (windows_hpp::uint_t));
+#endif
 
 inline void all() {
     #ifdef WATER_SYSTEM_WINDOWS

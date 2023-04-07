@@ -35,7 +35,7 @@ struct std_allocator_test {
         
         swap(c3, c4);
         c1 = c2;
-        c5 = container{};
+        c5 = container{a};
         for(int i = 0; i != 123; ++i)
             c1.push_back(typename container::value_type{});
         c2.assign(c1.begin(), c1.end());

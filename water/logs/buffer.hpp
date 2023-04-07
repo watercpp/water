@@ -249,8 +249,13 @@ private:
                 new_line = zero = false;
             }
             if(!zero) {
-                while(to != end && piece_at != piece->end() && !(zero = *piece_at == 0) && !(new_line = *piece_at == '\n'))
+                while(to != end && piece_at != piece->end()) {
+                    zero = *piece_at == 0;
+                    new_line = *piece_at == '\n';
+                    if(zero || new_line)
+                        break;
                     *to++ = *piece_at++;
+                }
                 if(new_line)
                     ++piece_at;
                 else if(to == end) {
@@ -263,7 +268,8 @@ private:
                         // worst case is it ends in 3 out of a 4 sequence, and the sequence before is 4, then it needs to go back 7
                         unsigned utf8 = 0;
                         while(to != begin && to > end - 8) {
-                            if((utf8 = unicode::utf8_first_of(static_cast<unsigned char>(*--to))) && static_cast<unsigned>(end - to) >= utf8) {
+                            utf8 = unicode::utf8_first_of(static_cast<unsigned char>(*--to));
+                            if(utf8 && static_cast<unsigned>(end - to) >= utf8) {
                                 to += utf8;
                                 break;
                             }
