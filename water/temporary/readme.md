@@ -8,6 +8,8 @@
 
 It works like this:
 
+`#include <water/temporary/memory.hpp>`
+
 A thread has a `water::temporary::memory` memory buffer. It is used from a single thread, each
 thread using temporary memory needs its own memory buffer. That memory buffer is allocated from an
 underlying allocator and is kept and reused for a long time.
@@ -34,8 +36,8 @@ memory is freed when the work is done, it should only be used temporarily.
     }
 
 Using `water::temporary::allocator` to allocate and free raw memory is not fun. It is difficult to
-predict what the temporary memory will be used for and prepare easy to use tools for it. But the
-`temporary::vector` exists.
+predict what the temporary memory will be used for and prepare easy to use tools for it. But
+`temporary::vector` exists, and `temporary::std_allocator<type, memory>` for STL containers.
 
 
 
@@ -46,19 +48,25 @@ predict what the temporary memory will be used for and prepare easy to use tools
 
 This class looks almost exactly like `std::vector` but it uses a `temporary::allocator` and is
 optimized for temporary memory. A `temporary::allocator` must be used to construct a
-`temporary::vector`, unlike `std::vector` where the `std::allocator` is optional. Except for that,
-the interface should be exactly like `std::vector`.
+`temporary::vector`, unlike `std::vector` where the `std::allocator` is optional.
+
+It also works with allocators that return 0 instead of throwing exceptions. All functions that
+modify the vector return an iterator (a pointer) that will be 0 if the allocator returned 0.    
 
 When using two or more `temporary::vector` at the same time, try to fully grow each
 `temporary::vector` before adding elements to another. This is the most effective way to use the
 `temporary::memory`.
 
     temporary::memory<> memory;
-    using allocator = temporary::allocator_throw<temporary::memory<>>;
+    using allocator1 = temporary::allocator_throw<temporary::memory<>>;
+    using allocator2 = temporary::allocator_nothrow<temporary::memory<>>;
     
-    temporary::vector<int, allocator>
-        v1{allocator{memory}},
-        v2{allocator{memory}};
+    temporary::vector<int, allocator1> v1{allocator1{memory}},
+    temporary::vector<int, allocator1> v2{allocator2{memory}};
+    
+    auto i = v2.push_back(1);
+    if(!i)
+        memory_allocation_failed();
     
 Avoid this:
 
@@ -67,21 +75,28 @@ Avoid this:
         v2.push_back(i);
     }
     
-This is effective:
-
-    v1.reserve(1000);
-    v2.reserve(1000);
-    for(int i = 0; i != 1000; ++i) {
-        v1.push_back(i);
-        v2.push_back(i);
-    }
-
-This is also fine:
+Prefer two loops, or use `reserve(1000)` when the size is known:
 
     for(int i = 0; i != 1000; ++i)
         v1.push_back(i);
     for(int i = 0; i != 1000; ++i)
         v2.push_back(i);
+
+
+
+## temporary::std_allocator
+
+The `temporary::std_allocator` can be used with STL containers or something else that needs a STL
+allocator: 
+
+    temporary::memory<> memory;
+    using allocator = temporary::std_allocator<int, temporary::memory<>>;
+    
+    std::list<int, allocator> list{allocator{memory}};
+
+Remember to always use a `temporary::std_allocator` constructed with a `temporary::memory` object,
+like the example above. It has a default constructor, but the program will crash if the container
+tries to allocate memory using a default-constructed `std_allocator`.
 
 
 
@@ -148,6 +163,8 @@ Look at the documentation in `water/temprary/block.hpp` for the lowest level int
 To get an idea of how the temporary memory is used, `temporary::memory_track` is a drop-in
 replacement for `temporary::memory` that collects statistics. This is slower so do not use it all
 the time.
+
+`#include <water/temporary/memory_track.hpp>` instead of `water/temporary/memory.hpp`
 
 Look at `water/temporary/memory_track.hpp` and `water/temporary/statistics.hpp`.
 

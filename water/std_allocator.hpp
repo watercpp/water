@@ -7,7 +7,6 @@
 #include <water/water.hpp>
 #include <water/new_here.hpp>
 #include <water/swap.hpp>
-#include <water/types/types.hpp>
 namespace water {
 
 /*
@@ -18,7 +17,7 @@ Make a std::allocator from a water::allocator.
     {
     public:
         template<typename type_>
-        type_* allocate(size_t count) noexcept(?);
+        type_* allocate(size_t count) noexcept(false); // cannot return 0, must throw
 
         template<typename type_>
         void free(void *pointer, size_t count) noexcept:
@@ -109,7 +108,7 @@ public:
     }
     
     template<typename to_, typename ...arguments_>
-    void constrcut(to_ *to, arguments_&&... arguments) {
+    void construct(to_ *to, arguments_&&... arguments) {
         new (here(to)) to_{static_cast<arguments_&&>(arguments)...};
     }
     

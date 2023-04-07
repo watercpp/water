@@ -15,6 +15,7 @@ namespace water { namespace tests {
 //#include <water/str/type_name.hpp>
 #include <vector>
 #include <list>
+#include <memory>
 namespace water { namespace tests {
 
 
@@ -65,6 +66,33 @@ inline void std_allocator_test_container() {
 inline void std_allocator_all() {
     std_allocator_test_container<std::vector<int, std_allocator<int, std_allocator_test_allocator>>>();
     std_allocator_test_container<std::list<int, std_allocator<int, std_allocator_test_allocator>>>();
+    
+    using vector = std::vector<int>;
+    std_allocator<vector, std_allocator_test_allocator> a;
+    vector *v = a.allocate(1);
+    a.construct(v, 1, 2, 3);
+    a.destroy(a.address(*v));
+    a.deallocate(v, 1);
+    
+    using allocator = std_allocator<vector, std_allocator_test_allocator>;
+    using traits = std::allocator_traits<allocator>;
+    static_assert(types::type_assert<
+        types::equal<traits::value_type,
+        allocator::value_type
+    >>::assert, "");
+    static_assert(types::type_assert<types::equal<
+        std_allocator<int, std_allocator_test_allocator>,
+        traits::rebind_alloc<int>
+    >>::assert, "");
+    static_assert(traits::propagate_on_container_copy_assignment::value, "");
+    static_assert(traits::propagate_on_container_move_assignment::value, "");
+    static_assert(traits::propagate_on_container_swap::value, "");
+    static_assert(!traits::is_always_equal::value, "");
+    
+    v = traits::allocate(a, 1);
+    traits::construct(a, v, 1, 2, 3);
+    traits::destroy(a, v);
+    traits::deallocate(a, v, 1);
 }
 
 

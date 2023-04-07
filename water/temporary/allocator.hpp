@@ -5,6 +5,7 @@
 #ifndef WATER_TEMPORARY_ALLOCATOR_HPP
 #define WATER_TEMPORARY_ALLOCATOR_HPP
 #include <water/temporary/block.hpp>
+#include <water/std_allocator.hpp>
 namespace water { namespace temporary {
 
 template<typename memory_, typename exception_ = void>
@@ -120,6 +121,8 @@ public:
 
 template<typename memory_> using allocator_throw = allocator<memory_, exception>;
 template<typename memory_> using allocator_nothrow = allocator<memory_>;
+
+template<typename type_, typename memory_> using std_allocator = std_allocator<type_, allocator_throw<memory_>>;
 
 }}
 #endif
