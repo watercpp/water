@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,8 @@
 #include <water/types/collection.hpp>
 #include <water/types/any_result.hpp>
 #include <water/types/equal.hpp>
+#include <water/types/ifel.hpp>
+#include <water/types/nontype.hpp>
 namespace water { namespace types {
 
 /*

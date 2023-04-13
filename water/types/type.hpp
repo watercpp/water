@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -9,13 +9,13 @@ namespace water { namespace types {
 
 /*
 
-Type results are type that have a result that is a type. The rules are:
+Type results have a result that is a type. The rules are:
 - result is a type
 - result_tag is a typedef of types::result_tag<types::type_kind>
 
 void_result {
-    typedef void result;
-    typedef types::result_tag<types::type_kind> result_tag;
+    using result = void;
+    using result_tag = types::result_tag<types::type_kind>;
 };
 
 type<a_>::result is a_, unless a_ is a result of types::type_kind, then it is a_::result.
@@ -41,32 +41,10 @@ Use types::type to make templates that allow nesting. Pass the template argument
 
 */
 
-namespace _ {
-
-    // better than moving bool_result + equal_plain to bits.hpp?
-    template<bool a_>
-    struct type_kind_bool {
-        static bool constexpr result = a_;
-        typedef bool type;
-        typedef types::result_tag<integer_kind> result_tag;
-    };
-    template<bool a_>
-    bool constexpr type_kind_bool<a_>::result;
-    
-    template<typename a_, typename b_>
-    struct type_kind_equal : type_kind_bool<false>
-    {};
-
-    template<typename a_>
-    struct type_kind_equal<a_, a_> : type_kind_bool<true>
-    {};
-
-}
-
 struct type_kind
 {
     template<typename a_, typename b_>
-    struct equal : _::type_kind_equal<typename a_::result, typename b_::result>
+    struct equal : equal_plain<typename a_::result, typename b_::result>
     {};
 
     template<typename a_>
@@ -75,30 +53,17 @@ struct type_kind
 
 };
 
+
+
 namespace _ {
 
-    template<
-        typename r_,
-        typename t_ = result_tag<type_kind>,
-        typename x_ = void,
-        bool select_ = tag_overload_is_exact
-    >
+    template<typename r_, typename t_ = result_tag<type_kind>>
     struct do_type_result {
         typedef r_ result;
     };
     
     template<typename r_>
-    struct do_type_result<r_, typename r_::result_tag, void, true> {
-        typedef typename r_::result result;
-    };
-    
-    template<typename r_>
-    struct do_type_result<r_, typename r_::result_tag, void, false> :
-        do_type_result<r_, void, typename r_::result_tag, false>
-    {};
-
-    template<typename r_>
-    struct do_type_result<r_, void, result_tag<type_kind>, false> {
+    struct do_type_result<r_, typename r_::result_tag> {
         typedef typename r_::result result;
     };
     
@@ -110,11 +75,14 @@ struct type {
     typedef types::result_tag<type_kind> result_tag;
 };
 
+
+
 template<typename result_>
 struct type_plain {
     typedef result_ result;
     typedef types::result_tag<type_kind> result_tag;
 };
+
 
 }}
 #endif

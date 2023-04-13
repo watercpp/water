@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,6 @@
 #define WATER_TYPES_PULL_HPP
 #include <water/types/collection.hpp>
 #include <water/types/ifel.hpp>
-#include <water/types/to_void.hpp>
 namespace water { namespace types {
 
 

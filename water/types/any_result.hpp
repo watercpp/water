@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -25,14 +25,6 @@ example
 */
 
 namespace _ {
-
-    template<typename t_>
-    struct do_any_result_to_void;
-    
-    template<typename k_>
-    struct do_any_result_to_void<result_tag<k_> > {
-        typedef void result;
-    };
     
     template<typename r_, typename x_ = void>
     struct do_any_result :
@@ -40,7 +32,7 @@ namespace _ {
     {};
     
     template<typename r_>
-    struct do_any_result<r_, typename do_any_result_to_void<typename r_::result_tag>::result> :
+    struct do_any_result<r_, to_void<typename r_::result_tag>> :
         r_
     {};
     

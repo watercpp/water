@@ -1,11 +1,10 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_TYPES_RESULT_HPP
 #define WATER_TYPES_RESULT_HPP
 #include <water/types/type.hpp>
-#include <water/types/integer.hpp>
 namespace water { namespace types {
 
 /*
@@ -35,18 +34,13 @@ struct result_tag :
 
 namespace _ {
     
-    template<typename x_ = void>
-    struct do_result_tag_to_void {
-        typedef void result;
-    };
-    
     template<template<typename> class to_, typename from_, typename x_ = void>
     struct do_result_tag_to :
         to_<void>
     {};
     
     template<template<typename> class to_, typename from_>
-    struct do_result_tag_to<to_, from_, typename do_result_tag_to_void<typename from_::result_tag>::result> :
+    struct do_result_tag_to<to_, from_, to_void<typename from_::result_tag>> :
         to_<typename from_::result_tag>
     {};
 

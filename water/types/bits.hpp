@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,59 +6,55 @@
 #define WATER_TYPES_BITS_HPP
 namespace water { namespace types {
 
-using size_t = decltype(sizeof(0));
-using ptrdiff_t = decltype(static_cast<int*>(0) - static_cast<int*>(0));
-
-template<typename type_> type_ make();
-
 template<typename result_> using result = typename result_::result;
 
-//forward
+template<typename result_>
+constexpr typename result_::type value = result_::result;
+
+// forward
 template<typename kind_ = void> struct result_tag;
-struct integer_kind;
+struct nontype_kind;
 struct type_kind;
-struct nothing;
 
-typedef bool true_size;
-typedef bool (&false_size)[2];
+using nontype_tag = result_tag<nontype_kind>;
+using type_tag = result_tag<type_kind>;
 
-// namespace _ {
-//   template<typename a_> types::true_size test_some_type(typename a_::some_type*);
-//   template<typename a_> types::false_size test_some_type(...);
-//   }
-// template<typename a_> struct
-//  has_some_type :
-//   types::bool_result<
-//     sizeof(_::test_some_type<typename types::type<a_>::result>(0)) == sizeof(true)
-//     > {};
-//
-// to make it compile on more compilers and witout warnings:
-// - have test-functions outside the result struct
-// - always qualify test-function with namespace
-// - do not use the sizeof(test_func<...>()) as a default template argument
-// - do not pass non-pod types to ...
+template<bool result_>
+struct bool_result {
+    using result_tag = types::result_tag<nontype_kind>;
+    using type = bool;
+    static bool constexpr result = result_;
+};
+
+using false_result = bool_result<false>;
+using true_result = bool_result<true>;
 
 
+template<typename a_, typename b_>
+struct equal_plain :
+    false_result
+{};
 
-// tag_overload_is_exact, workaround for codewarrior probably not needed any more
+template<typename a_>
+struct equal_plain<a_, a_> :
+    true_result
+{};
+
+
 namespace _ {
 
-    struct do_tag_overload_tag;
-    
-    struct do_test_tag_overload { typedef void tag; };
-    
-    template<typename t_ = do_test_tag_overload, typename tag_ = do_tag_overload_tag>
-    struct do_tag_overload_is_exact {
-        enum type { result = true };
+    // this is needed so the template arguments of to_void are used
+    template<typename ...>
+    struct to_void_do {
+        using result = void;
     };
     
-    template<typename t_>
-    struct do_tag_overload_is_exact<t_, typename t_::tag> {
-        enum type { result = false };
-    };
 }
 
-bool constexpr tag_overload_is_exact = _::do_tag_overload_is_exact<>::result;
+template<typename ...types_> using to_void = typename _::to_void_do<types_...>::result;
+
+
+struct nothing;
 
 }}
 #endif

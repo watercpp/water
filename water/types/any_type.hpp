@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,7 +12,7 @@ namespace water { namespace types {
 If type_ is a result of some kind, result kind::type<type_>, else results type_
 
 any_type<int>::result is int
-any_type<integer<int, 123>>::result is int
+any_type<nontype<int, 123>>::result is int
 
 The result_kind must have:
 

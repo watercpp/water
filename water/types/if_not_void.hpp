@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -24,6 +24,15 @@ if_not_void<enum_result<123>, int>::result is 123
 
 namespace _ {
 
+    template<typename a_>
+    struct do_if_not_void_else :
+        any_result<a_>
+    {};
+    
+    template<>
+    struct do_if_not_void_else<void>
+    {};
+
     template<typename a_, typename b_>
     struct do_if_not_void :
         any_result<a_>
@@ -31,16 +40,12 @@ namespace _ {
     
     template<typename b_>
     struct do_if_not_void<void, b_> :
-        any_result<b_>
-    {};
-    
-    template<>
-    struct do_if_not_void<void, nothing>
+        do_if_not_void_else<typename type<b_>::result>
     {};
     
 }
 
-template<typename if_not_void_, typename else_ = nothing>
+template<typename if_not_void_, typename else_ = void>
 struct if_not_void :
     _::do_if_not_void<typename type<if_not_void_>::result, else_>
 {};

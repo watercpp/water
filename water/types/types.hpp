@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,31 +7,12 @@
 #include <water/types/ands.hpp>
 #include <water/types/any_result.hpp>
 #include <water/types/any_type.hpp>
-#include <water/types/assert.hpp>
 #include <water/types/at.hpp>
 #include <water/types/collection.hpp>
 #include <water/types/equal.hpp>
 #include <water/types/if_not_void.hpp>
 #include <water/types/ifel.hpp>
 #include <water/types/insert.hpp>
-#include <water/types/is_bool_float_int.hpp>
-#include <water/types/is_bool.hpp>
-#include <water/types/is_char.hpp>
-#include <water/types/is_class_struct_union.hpp>
-#include <water/types/is_enum.hpp>
-#include <water/types/is_float.hpp>
-#include <water/types/is_function.hpp>
-#include <water/types/is_int.hpp>
-#include <water/types/is_no_to_add_array.hpp>
-#include <water/types/is_no_to_add_pointer.hpp>
-#include <water/types/is_no_to_const.hpp>
-#include <water/types/is_no_to_pointer_to_member.hpp>
-#include <water/types/is_no_to_reference.hpp>
-#include <water/types/is_no_to_rvalue_reference.hpp>
-#include <water/types/is_no_to_unsigned.hpp>
-#include <water/types/is_no_to_volatile.hpp>
-#include <water/types/is_pointer_to_member_function.hpp>
-#include <water/types/is_void.hpp>
 #include <water/types/link.hpp>
 #include <water/types/list.hpp>
 #include <water/types/next.hpp>
@@ -44,5 +25,48 @@
 #include <water/types/set.hpp>
 #include <water/types/size.hpp>
 #include <water/types/to_bool.hpp>
-#include <water/types/to_void.hpp>
+namespace water { namespace types {
+
+// using namespace water::types::use;
+
+namespace use {
+    using types::ands;
+    using types::any_result;
+    using types::any_type;
+    using types::at;
+    using types::at_type;
+    using types::bool_result;
+    using types::equal;
+    using types::equal_plain;
+    using types::false_result;
+    using types::if_not_void;
+    using types::ifel;
+    using types::ifel_plain;
+    using types::ifel_type;
+    using types::ifel_type_not;
+    using types::insert;
+    using types::is_collection;
+    using types::is_result;
+    using types::list;
+    using types::next;
+    using types::nontype;
+    using types::nontype_tag;
+    using types::nots;
+    using types::offset;
+    using types::ors;
+    using types::pull;
+    using types::remove;
+    using types::result;
+    using types::set;
+    using types::size;
+    using types::to_bool;
+    using types::to_void;
+    using types::true_result;
+    using types::type;
+    using types::type_plain;
+    using types::type_tag;
+    using types::value;
+}
+
+}}
 #endif
