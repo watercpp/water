@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,10 +22,10 @@ This expects each byte of the input to contain 8 bits.
 template<typename char_, typename memory_>
 class utf_convert_in_place
 {
-    static_assert(unicode::utf_from_char<char_>::result, "use a built in type that works with water::unicode");
-    static_assert(unicode::utf_from_char<char_>::result != 8 || sizeof(char_) == 1, "");
+    static_assert(unicode::utf_from_char<char_>, "use a built in type that works with water::unicode");
+    static_assert(unicode::utf_from_char<char_> != 8 || sizeof(char_) == 1, "");
     
-    static unsigned constexpr utf = unicode::utf_from_char<char_>::result;
+    static unsigned constexpr utf = unicode::utf_from_char<char_>;
     
     template<unsigned>
     struct select {};

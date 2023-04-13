@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -27,8 +27,8 @@ inline void barrier_all() {
 
     barrier_all_tests<barrier_semaphore>();
     barrier_all_tests<spin_barrier<>>();
-    types::ifel<synchronization_barrier::needs::need != 0, barrier_1<synchronization_barrier>, barrier_dummy>::result{};
-    types::ifel<synchronization_barrier::needs::need != 0, barrier_2<synchronization_barrier>, barrier_dummy>::result{};
+    ifel<synchronization_barrier::needs::need != 0, barrier_1<synchronization_barrier>, barrier_dummy>{};
+    ifel<synchronization_barrier::needs::need != 0, barrier_2<synchronization_barrier>, barrier_dummy>{};
     // synchronization_barrier cannot do barrier_3
     //barrier_all<synchronization_barrier>();
     

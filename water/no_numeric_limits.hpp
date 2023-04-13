@@ -1,11 +1,12 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_NO_NUMERIC_LIMITS_HPP
 #define WATER_NO_NUMERIC_LIMITS_HPP
 #include <water/water.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 #include <water/signed_representation.hpp>
 #ifdef WATER_NO_CHEADERS
     #include <float.h>
@@ -46,11 +47,11 @@ namespace _ { namespace no_numeric_limits {
     {};
     
     template<typename int_, int_ value_, unsigned result_>
-    struct bitsof_int<int_, value_, result_, 0> :
-        types::enum_result<result_>
-    {};
+    struct bitsof_int<int_, value_, result_, 0> {
+        static unsigned constexpr result = result_;
+    };
     
-    template<typename a_, int = !types::is_int<a_>::result ? 0 : types::is_unsigned<a_>::result ? 1 : -1>
+    template<typename a_, int = !is_int<a_> ? 0 : is_unsigned<a_> ? 1 : -1>
     struct max_min_int {
         static constexpr unsigned (max)() { return 0; }
         static constexpr unsigned (min)() { return 0; }
@@ -105,80 +106,89 @@ namespace _ { namespace no_numeric_limits {
     template<>
     struct max_min_int<wchar_t, -1> {
         using same =
-            types::ifel<sizeof(wchar_t) == sizeof(int), int,
-            types::ifel<sizeof(wchar_t) == sizeof(signed char), signed char,
-            types::ifel<sizeof(wchar_t) == sizeof(short), short,
-            types::ifel<sizeof(wchar_t) == sizeof(long), long,
-            types::ifel<sizeof(wchar_t) == sizeof(long long), long long
-        >>>>>::result;
+            ifel<sizeof(wchar_t) == sizeof(int), int,
+            ifel<sizeof(wchar_t) == sizeof(signed char), signed char,
+            ifel<sizeof(wchar_t) == sizeof(short), short,
+            ifel<sizeof(wchar_t) == sizeof(long), long,
+            ifel<sizeof(wchar_t) == sizeof(long long), long long,
+            void
+            >>>>>;
         static constexpr wchar_t (max)() { return static_cast<wchar_t>((max_min_int<same>::max)()); }
         static constexpr wchar_t (min)() { return static_cast<wchar_t>((max_min_int<same>::min)()); }
     };
 
-    template<typename a_, bool = types::is_int<a_>::result>
-    struct digits : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_MANT_DIG) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_MANT_DIG) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_MANT_DIG) :
-        0
-    > {};
+    template<typename a_, bool = is_int<a_>>
+    struct digits {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_MANT_DIG) :
+            equal<double, a_> ? static_cast<int>(DBL_MANT_DIG) :
+            equal<long double, a_> ? static_cast<int>(LDBL_MANT_DIG) :
+            0;
+    };
     
     template<>
-    struct digits<bool, types::is_int<bool>::result> : types::enum_result<1>
-    {};
+    struct digits<bool, is_int<bool>> {
+        static int constexpr result = 1;
+    };
     
     template<typename a_>
     struct digits<a_, true> : bitsof_int<a_, (max_min_int<a_>::max)()>
     {};
     
     template<typename a_>
-    struct digits10 : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_DIG) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_DIG) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_DIG) :
-        static_cast<int>((digits<a_>::result * 301l) / 1000l) // log(2) / log(10) = 0.301029995
-    > {};
+    struct digits10 {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_DIG) :
+            equal<double, a_> ? static_cast<int>(DBL_DIG) :
+            equal<long double, a_> ? static_cast<int>(LDBL_DIG) :
+            static_cast<int>((digits<a_>::result * 301l) / 1000l); // log(2) / log(10) = 0.301029995
+    };
 
     template<typename a_>
-    struct max_exponent : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_MAX_EXP) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_MAX_EXP) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_MAX_EXP) :
-        0
-    > {};
+    struct max_exponent {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_MAX_EXP) :
+            equal<double, a_> ? static_cast<int>(DBL_MAX_EXP) :
+            equal<long double, a_> ? static_cast<int>(LDBL_MAX_EXP) :
+            0;
+    };
 
     template<typename a_>
-    struct min_exponent : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_MIN_EXP) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_MIN_EXP) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_MIN_EXP) :
-        0
-    > {};
+    struct min_exponent {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_MIN_EXP) :
+            equal<double, a_> ? static_cast<int>(DBL_MIN_EXP) :
+            equal<long double, a_> ? static_cast<int>(LDBL_MIN_EXP) :
+            0;
+    };
 
     template<typename a_>
-    struct max_exponent10 : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_MAX_10_EXP) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_MAX_10_EXP) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_MAX_10_EXP) :
-        0
-    > {};
+    struct max_exponent10 {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_MAX_10_EXP) :
+            equal<double, a_> ? static_cast<int>(DBL_MAX_10_EXP) :
+            equal<long double, a_> ? static_cast<int>(LDBL_MAX_10_EXP) :
+            0;
+    };
 
     template<typename a_>
-    struct min_exponent10 : types::enum_result<
-        types::equal<float, a_>::result ? static_cast<int>(FLT_MIN_10_EXP) :
-        types::equal<double, a_>::result ? static_cast<int>(DBL_MIN_10_EXP) :
-        types::equal<long double, a_>::result ? static_cast<int>(LDBL_MIN_10_EXP) :
-        0
-    > {};
+    struct min_exponent10 {
+        static int constexpr result =
+            equal<float, a_> ? static_cast<int>(FLT_MIN_10_EXP) :
+            equal<double, a_> ? static_cast<int>(DBL_MIN_10_EXP) :
+            equal<long double, a_> ? static_cast<int>(LDBL_MIN_10_EXP) :
+            0;
+    };
         
     template<typename a_>
-    struct radix : types::enum_result<
-        types::is_float<a_>::result ? static_cast<int>(FLT_RADIX) :
-        (types::is_int<a_>::result || types::equal<bool, a_>::result) ? 2 :
-        0
-    > {};
+    struct radix {
+        static int constexpr result =
+            is_float<a_> ? static_cast<int>(FLT_RADIX) :
+            (is_int<a_> || equal<bool, a_>) ? 2 :
+            0;
+    };
     
-    template<typename a_, bool is_int_ = types::is_int<a_>::result>
+    template<typename a_, bool is_int_ = is_int<a_>>
     struct max_min {
         static constexpr a_ (max)() { return a_{}; }
         static constexpr a_ (min)() { return a_{}; }
@@ -191,7 +201,7 @@ namespace _ { namespace no_numeric_limits {
     };
     
     template<>
-    struct max_min<bool, types::is_int<bool>::result> {
+    struct max_min<bool, is_int<bool>> {
         static constexpr bool (max)() noexcept { return true; }
         static constexpr bool (min)() noexcept { return false; }
         static constexpr bool lowest() noexcept { return false; }
@@ -249,20 +259,20 @@ namespace _ { namespace no_numeric_limits {
     template<>            constexpr long double epsilon<long double>() noexcept { return LDBL_EPSILON; }
 
     template<typename a_>
-    constexpr typename types::ifel_type<types::is_float<a_>, a_>::result     infinity() noexcept { return static_cast<a_>(INFINITY); }
+    constexpr ifel<is_float<a_>, a_>  infinity() noexcept { return static_cast<a_>(INFINITY); }
     template<typename a_>
-    constexpr typename types::ifel_type_not<types::is_float<a_>, a_>::result infinity() noexcept { return a_{}; }
+    constexpr ifel<!is_float<a_>, a_> infinity() noexcept { return a_{}; }
     
     template<typename a_>
-    constexpr typename types::ifel_type<types::is_float<a_>, a_>::result     nan() noexcept { return static_cast<a_>(NAN); }
+    constexpr ifel<is_float<a_>, a_>  nan() noexcept { return static_cast<a_>(NAN); }
     template<typename a_>
-    constexpr typename types::ifel_type_not<types::is_float<a_>, a_>::result nan() noexcept { return a_{}; }
+    constexpr ifel<!is_float<a_>, a_> nan() noexcept { return a_{}; }
 
     // FLT_ROUNDS is not a compile time constant
     template<typename a_>
-    constexpr typename types::ifel_type<types::is_float<a_>, a_>::result     round_error() noexcept { return static_cast<a_>(0.5); }
+    constexpr ifel<is_float<a_>, a_>  round_error() noexcept { return static_cast<a_>(0.5); }
     template<typename a_>
-    constexpr typename types::ifel_type_not<types::is_float<a_>, a_>::result round_error() noexcept { return a_{}; }
+    constexpr ifel<!is_float<a_>, a_> round_error() noexcept { return a_{}; }
 
 }}
 
@@ -284,23 +294,23 @@ template<typename a_>
 struct no_numeric_limits
 {
     static bool constexpr
-        is_specialized = types::is_int<a_>::result || types::is_float<a_>::result || types::equal<bool, a_>::result,
+        is_specialized = is_int<a_> || is_float<a_> || equal<bool, a_>,
         is_bounded = is_specialized,
-        is_iec559 = types::is_float<a_>::result,
+        is_iec559 = is_float<a_>,
         is_integer = is_specialized && !is_iec559,
-        is_signed = types::is_float<a_>::result || (types::is_int<a_>::result && !types::is_unsigned<a_>::result),
-        is_modulo = types::is_unsigned<a_>::result || is_twos_complement<a_>(),
+        is_signed = is_float<a_> || (is_int<a_> && !is_unsigned<a_>),
+        is_modulo = is_unsigned<a_> || is_twos_complement<a_>(),
         is_exact = is_integer,
         has_denorm_loss = false,
         has_infinity = is_iec559,
         has_quiet_NaN = is_iec559,
         has_signaling_NaN = is_iec559,
         tinyness_before = false,
-        traps = is_specialized && !types::equal<bool, a_>::result; // division by 0 is integer trap, iec559 signaling nan is trap
+        traps = is_specialized && !equal<bool, a_>; // division by 0 is integer trap, iec559 signaling nan is trap
     static int constexpr
         digits = _::no_numeric_limits::digits<a_>::result,
         digits10 = _::no_numeric_limits::digits10<a_>::result,
-        max_digits10 = types::is_float<a_>::result ? 2 + static_cast<int>((digits * 301l) / 1000l) : 0,
+        max_digits10 = is_float<a_> ? 2 + static_cast<int>((digits * 301l) / 1000l) : 0,
         max_exponent = _::no_numeric_limits::max_exponent<a_>::result,
         min_exponent = _::no_numeric_limits::min_exponent<a_>::result,
         max_exponent10 = _::no_numeric_limits::max_exponent10<a_>::result,
@@ -341,6 +351,11 @@ template<typename a_> int constexpr no_numeric_limits<a_>::min_exponent10;
 template<typename a_> int constexpr no_numeric_limits<a_>::radix;
 template<typename a_> no_float_denorm_style constexpr no_numeric_limits<a_>::has_denorm;
 template<typename a_> no_float_round_style constexpr no_numeric_limits<a_>::round_style;
+
+
+template<typename a_> struct no_numeric_limits<a_ const> : no_numeric_limits<a_> {};
+template<typename a_> struct no_numeric_limits<a_ volatile> : no_numeric_limits<a_> {};
+template<typename a_> struct no_numeric_limits<a_ const volatile> : no_numeric_limits<a_> {};
 
 }
 #endif

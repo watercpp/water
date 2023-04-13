@@ -67,21 +67,21 @@ struct buffer_and_buffer_lines_template {
 
 
 inline void buffer_and_buffer_lines_all() {
-    static_assert(types::equal<buffer<void (*)(char16_t const*, char16_t const*)>::char_type, char16_t>::result, "");
-    static_assert(types::equal<buffer<void (char32_t const*)>::char_type, char32_t>::result, "");
-    static_assert(types::equal<buffer<buffer_and_buffer_lines_begin_end<char16_t>>::char_type, char16_t>::result, "");
-    static_assert(types::equal<buffer<buffer_and_buffer_lines_begin_end<char32_t, char>>::char_type, char32_t>::result, "");
-    static_assert(types::equal<buffer<buffer_and_buffer_lines_zero_terminated<char16_t>>::char_type, char16_t>::result, "");
-    static_assert(types::equal<buffer<buffer_and_buffer_lines_template>::char_type, char>::result, "");
-    static_assert(types::equal<buffer<buffer_and_buffer_lines_template, char16_t>::char_type, char16_t>::result, "");
+    static_assert(water::equal<buffer<void (*)(char16_t const*, char16_t const*)>::char_type, char16_t>, "");
+    static_assert(water::equal<buffer<void (char32_t const*)>::char_type, char32_t>, "");
+    static_assert(water::equal<buffer<buffer_and_buffer_lines_begin_end<char16_t>>::char_type, char16_t>, "");
+    static_assert(water::equal<buffer<buffer_and_buffer_lines_begin_end<char32_t, char>>::char_type, char32_t>, "");
+    static_assert(water::equal<buffer<buffer_and_buffer_lines_zero_terminated<char16_t>>::char_type, char16_t>, "");
+    static_assert(water::equal<buffer<buffer_and_buffer_lines_template>::char_type, char>, "");
+    static_assert(water::equal<buffer<buffer_and_buffer_lines_template, char16_t>::char_type, char16_t>, "");
 
-    static_assert(types::equal<buffer_lines<void (*)(char32_t const*, char32_t const*)>::char_type, char32_t>::result, "");
-    static_assert(types::equal<buffer_lines<void (wchar_t const*)>::char_type, wchar_t>::result, "");
-    static_assert(types::equal<buffer_lines<buffer_and_buffer_lines_begin_end<char32_t>>::char_type, char32_t>::result, "");
-    static_assert(types::equal<buffer_lines<buffer_and_buffer_lines_begin_end<char16_t, char>>::char_type, char16_t>::result, "");
-    static_assert(types::equal<buffer_lines<buffer_and_buffer_lines_zero_terminated<wchar_t>>::char_type, wchar_t>::result, "");
-    static_assert(types::equal<buffer_lines<buffer_and_buffer_lines_template>::char_type, char>::result, "");
-    static_assert(types::equal<buffer_lines<buffer_and_buffer_lines_template, char32_t>::char_type, char32_t>::result, "");
+    static_assert(water::equal<buffer_lines<void (*)(char32_t const*, char32_t const*)>::char_type, char32_t>, "");
+    static_assert(water::equal<buffer_lines<void (wchar_t const*)>::char_type, wchar_t>, "");
+    static_assert(water::equal<buffer_lines<buffer_and_buffer_lines_begin_end<char32_t>>::char_type, char32_t>, "");
+    static_assert(water::equal<buffer_lines<buffer_and_buffer_lines_begin_end<char16_t, char>>::char_type, char16_t>, "");
+    static_assert(water::equal<buffer_lines<buffer_and_buffer_lines_zero_terminated<wchar_t>>::char_type, wchar_t>, "");
+    static_assert(water::equal<buffer_lines<buffer_and_buffer_lines_template>::char_type, char>, "");
+    static_assert(water::equal<buffer_lines<buffer_and_buffer_lines_template, char32_t>::char_type, char32_t>, "");
 
     buffer_and_buffer_lines_buffer<char> b1;
     buffer_and_buffer_lines_buffer<char16_t> b2;

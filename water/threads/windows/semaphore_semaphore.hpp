@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -18,11 +18,11 @@ class semaphore_semaphore :
     using algoritm = algorithms::semaphore<atomic_uint>;
 
 public:
-    using needs = typename types::ifel_type<
-        types::equal<hold_, hold_semaphore_atomic>,
+    using needs = ifel<
+        water::equal<hold_, hold_semaphore_atomic>,
         threads::needs<need_water, need_constexpr_constructor, need_timeout>,
         threads::needs<need_water, need_constexpr_constructor, need_trivial_destructor, need_timeout>
-    >::result;
+    >;
 
 private:
     atomic_uint my;

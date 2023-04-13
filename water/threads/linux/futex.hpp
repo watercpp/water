@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -63,7 +63,7 @@ enum futex_return {
 unsigned constexpr futex_max = numeric_limits<int>::max();
 
 template<typename futex_, typename result_>
-using if_futex = typename types::ifel<futex_exists && sizeof(futex_) == sizeof(int), result_>::result;
+using if_futex = ifel<futex_exists && sizeof(futex_) == sizeof(int), result_>;
 
 template<typename futex_>
 bool futex_is_aligned(futex_& futex) noexcept {

@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,12 +22,12 @@ is_modulo and traps is skipped because the llvm c++ library seems to have this w
 */
 
 template<typename type_>
-typename types::ifel_type<types::is_float<type_>, bool>::result no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
+ifel<is_float<type_>, bool> no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
     return isnan_strict(mine) == isnan_strict(std);
 }
 
 template<typename type_>
-typename types::ifel_type_not<types::is_float<type_>, bool>::result no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
+ifel<!is_float<type_>, bool> no_numeric_limits_vs_std_nan(type_ mine, type_ std) {
     return mine == std;
 }
 
@@ -114,6 +114,9 @@ inline void no_numeric_limits_vs_std() {
     no_numeric_limits_vs_std_type<wchar_t>();
     no_numeric_limits_vs_std_type<char8_or_not>();
     no_numeric_limits_vs_std_type<no_numeric_limits_vs_std_t>();
+    
+    //no_numeric_limits_vs_std_type<int&>();
+    no_numeric_limits_vs_std_type<int const>();
 }
 
 }}

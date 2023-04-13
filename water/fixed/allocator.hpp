@@ -6,6 +6,7 @@
 #define WATER_FIXED_ALLOCATOR_HPP
 #include <water/water.hpp>
 #include <water/throw_if.hpp>
+#include <water/types.hpp>
 namespace water { namespace fixed {
 
 struct exception {};
@@ -13,7 +14,7 @@ struct exception {};
 template<typename memory_, typename exception_, bool lock_free_ = false>
 class allocator
 {
-    using select_ = typename types::ifel<lock_free_, short, long>::result*;
+    using select_ = ifel<lock_free_, short, long>*;
     
     memory_ *my;
 
@@ -26,7 +27,7 @@ public:
         my(&a)
     {}
 
-    void* allocate(size_t bytes) noexcept(types::equal<exception_, void>::result) {
+    void* allocate(size_t bytes) noexcept(equal<exception_, void>) {
         ___water_assert(my && bytes <= my->bytes());
         void *r = 0;
         if(bytes <= my->bytes())
@@ -42,7 +43,7 @@ public:
     }
 
     template<typename type_>
-    type_* allocate(size_t count = 1) noexcept(types::equal<exception_, void>::result) {
+    type_* allocate(size_t count = 1) noexcept(equal<exception_, void>) {
         return static_cast<type_*>(allocate(sizeof(type_) * count));
     }
 

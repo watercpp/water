@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -30,20 +30,19 @@ namespace _ {
     {};
     
     template<unsigned long r_, unsigned long x_>
-    struct hibit<0, r_, x_> :
-        types::integer<unsigned long, r_>
-    {};
+    struct hibit<0, r_, x_> {
+        static unsigned long constexpr result = r_;
+    };
     
     template<unsigned long r_, unsigned long x_>
-    struct hibit<1, r_, x_> :
-        types::integer<unsigned long, r_>
-    {};
+    struct hibit<1, r_, x_> {
+        static unsigned long constexpr result = r_;
+    };
     
     // log(1. + a_ / 32.) / log(2.) * (1 << 16) + .5
     template<unsigned long a_>
-    struct log2_lookup :
-        types::integer<
-            unsigned long,
+    struct log2_lookup {
+        static unsigned long constexpr result =
             a_ == 1 ? 2909ul :
             a_ == 2 ? 5732ul :
             a_ == 3 ? 8473ul :
@@ -76,8 +75,8 @@ namespace _ {
             a_ == 30 ? 62534ul :
             a_ == 31 ? 64047ul :
             a_ == 32 ? 65536ul :
-            0ul
-        > {};
+            0ul;
+    };
     
     template<
         unsigned long a_,
@@ -86,11 +85,11 @@ namespace _ {
         unsigned long l_ = ((f_ << 5) >> hi_), // 5 because lookup-size is 1<<5, 32
         unsigned long m_ = ((f_ << (16 + 5)) >> hi_) & 0xfffful
     >
-    struct log2 : types::integer<
-        unsigned long,
-        (hi_ << 16) +
-        ((log2_lookup<l_>::result * (0x10000ul - m_) + log2_lookup<l_ + 1>::result * m_ + 0x8000ul) >> 16)
-    > {};
+    struct log2 {
+        static unsigned long constexpr result =
+            (hi_ << 16) +
+            ((log2_lookup<l_>::result * (0x10000ul - m_) + log2_lookup<l_ + 1>::result * m_ + 0x8000ul) >> 16);
+    };
     
     constexpr unsigned zero_if_less_than(unsigned a, unsigned b) { return a < b ? 0 : a; }
     
@@ -99,7 +98,7 @@ namespace _ {
         unsigned radix_ = zero_if_less_than(numeric_limits<a_>::radix, 2), // using x >= 2 ? x : 0 triggered a gcc warning :(
         unsigned digits_ = zero_if_less_than(numeric_limits<a_>::digits, 1),
         char select_ =
-            (types::is_int<a_>::result || types::is_bool<a_>::result) ? 'i' :
+            (is_int<a_> || is_bool<a_>) ? 'i' :
             (!radix_ || !digits_) ? 0 :
             !(radix_ & (radix_ - 1)) ? '2' :
             (radix_ <= 63) ? 'l' :
@@ -109,50 +108,47 @@ namespace _ {
     {};
     
     template<unsigned r_, unsigned d_>
-    struct max_binary<bool, r_, d_, 'i'> :
-        types::integer<unsigned, 1>
-    {};
+    struct max_binary<bool, r_, d_, 'i'> {
+        static unsigned constexpr result = 1;
+    };
     
     template<typename a_, unsigned r_, unsigned d_>
-    struct max_binary<a_, r_, d_, 'i'> :
-        types::integer<unsigned, numeric_limits<a_>::digits + (numeric_limits<a_>::is_signed && is_twos_complement<a_>() ? 1 : 0)>
-    {};
+    struct max_binary<a_, r_, d_, 'i'> {
+        static unsigned constexpr result =
+            numeric_limits<a_>::digits +
+            (numeric_limits<a_>::is_signed && is_twos_complement<a_>() ? 1 : 0);
+    };
     
     template<typename a_, unsigned r_, unsigned d_>
-    struct max_binary<a_, r_, d_, '2'> :
-        types::integer<
-            unsigned,
+    struct max_binary<a_, r_, d_, '2'> {
+        static unsigned constexpr result = 
             static_cast<unsigned>(d_ * hibit<r_>::result) +
-            (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed ? 1 : 0)
-        > {};
+            (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed ? 1 : 0);
+    };
     
     template<typename a_, unsigned r_, unsigned d_>
-    struct max_binary<a_, r_, d_, 'l'> :
-        types::integer<
-            unsigned,
-            static_cast<unsigned>(
-                ((static_cast<uint_largest_t>(d_) * (log2<r_>::result + 1) + 0xffffu) >> 16) +
-                (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed ? 1 : 0)
-            )
-        > {};
+    struct max_binary<a_, r_, d_, 'l'> {
+        static unsigned constexpr result = static_cast<unsigned>(
+            ((static_cast<uint_largest_t>(d_) * (log2<r_>::result + 1) + 0xffffu) >> 16) +
+            (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed ? 1 : 0)
+        );
+    };
     
-    template<typename a_, bool i_ = types::is_int<a_>::result>
-    struct max_decimal :
-        types::integer<
-            unsigned,
-            types::equal_plain<a_, bool>::result ? 1 :
+    template<typename a_, bool i_ = is_int<a_>>
+    struct max_decimal {
+        static unsigned constexpr result = 
+            equal<a_, bool> ? 1 :
             (!numeric_limits<a_>::digits10 && !numeric_limits<a_>::digits) ? 0 :
             numeric_limits<a_>::digits10 +
-            (numeric_limits<a_>::radix != 10 || (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed) ? 1 : 0)
-        > {};
+            (numeric_limits<a_>::radix != 10 || (numeric_limits<a_>::is_integer && numeric_limits<a_>::is_signed) ? 1 : 0);
+    };
     
     template<typename a_>
-    struct max_decimal<a_, true> : // log10(2) * (1 << 16) = 19728
-        types::integer<
-            unsigned,
+    struct max_decimal<a_, true> { // log10(2) * (1 << 16) = 19728
+        static unsigned constexpr result = 
             static_cast<unsigned>((max_binary<a_>::result * 19728ul) >> 16) +
-            ((max_binary<a_>::result * 19728ul) & 0xfffful ? 1 : 0)
-        > {};
+            ((max_binary<a_>::result * 19728ul) & 0xfffful ? 1 : 0);
+    };
     
 }
 

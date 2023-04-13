@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,30 +19,30 @@ Unlike std::reverse_iterator this does not store iterator + 1.
 namespace _ {
 
     template<typename a_, typename = void>
-    struct reverse_iterator_converts_to_bool :
-        types::false_result
-        {};
+    struct reverse_iterator_converts_to_bool {
+        static bool constexpr result = false;
+    };
     
     template<typename a_>
-    struct reverse_iterator_converts_to_bool<a_, types::to_void<decltype(static_cast<bool>(types::make<a_ const&>()))>> :
-        types::true_result
-        {};
+    struct reverse_iterator_converts_to_bool<a_, to_void<decltype(static_cast<bool>(make_type<a_ const&>()))>> {
+        static bool constexpr result = true;
+    };
     
 }
 
 template<typename iterator_>
 class reverse_iterator
 {
-    template<typename>
-    struct nothing {};
-    using bool_ = typename types::ifel_type<_::reverse_iterator_converts_to_bool<iterator_>, bool, nothing<bool>>::result;
+    template<typename> struct nothing {};
+    
+    using bool_ = ifel<_::reverse_iterator_converts_to_bool<iterator_>::result, bool, nothing<bool>>;
 
 public:
-    using iterator_category = typename iterator_category<iterator_>::result;
-    using value_type = typename iterator_value_type<iterator_>::result;
-    using pointer = typename iterator_pointer_type<iterator_>::result;
-    using reference = typename iterator_reference_type<iterator_>::result;
-    using difference_type = typename iterator_difference_type<iterator_>::result;
+    using iterator_category = water::iterator_category<iterator_>;
+    using value_type = iterator_value_type<iterator_>;
+    using pointer = iterator_pointer_type<iterator_>;
+    using reference = iterator_reference_type<iterator_>;
+    using difference_type = iterator_difference_type<iterator_>;
 
 private:
     iterator_ my {};
@@ -69,7 +69,7 @@ public:
         return iterator_pointer(my);
     }
 
-    auto operator[](typename types::ifel_type<is_random_access_iterator<iterator_>, difference_type, nothing<void>>::result a) const -> decltype(my[a]) {
+    auto operator[](ifel<is_random_access_iterator<iterator_>, difference_type, nothing<void>> a) const -> decltype(my[a]) {
         return my[-a];
     }
 
@@ -124,7 +124,7 @@ reverse_iterator<iterator_> reverse_iterator_from(iterator_ a) {
 template<typename iterator_>
 reverse_iterator<iterator_>& operator+=(
     reverse_iterator<iterator_>& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result b
+    ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> b
 ) {
     a.underlying() -= b;
     return a;
@@ -133,7 +133,7 @@ reverse_iterator<iterator_>& operator+=(
 template<typename iterator_>
 reverse_iterator<iterator_>& operator-=(
     reverse_iterator<iterator_>& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result b
+    ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> b
 ) {
     a.underlying() += b;
     return a;
@@ -142,14 +142,14 @@ reverse_iterator<iterator_>& operator-=(
 template<typename iterator_>
 reverse_iterator<iterator_> operator+(
     reverse_iterator<iterator_> a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result b
+    ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> b
 ) {
     return a += b;
 }
 
 template<typename iterator_>
 reverse_iterator<iterator_> operator+(
-    typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result a,
+    ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> a,
     reverse_iterator<iterator_> b
 ) {
     return b += a;
@@ -158,13 +158,13 @@ reverse_iterator<iterator_> operator+(
 template<typename iterator_>
 reverse_iterator<iterator_> operator-(
     reverse_iterator<iterator_> a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result b
+    ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> b
 ) {
     return a -= b;
 }
 
 template<typename iterator_>
-typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>>::result operator-(
+ifel<is_random_access_iterator<iterator_>, iterator_difference_type<iterator_>> operator-(
     reverse_iterator<iterator_> a,
     reverse_iterator<iterator_> b
 ) {
@@ -174,7 +174,7 @@ typename types::ifel_type<is_random_access_iterator<iterator_>, iterator_differe
 template<typename iterator_>
 bool operator<(
     reverse_iterator<iterator_> const& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>>::result const& b
+    ifel<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>> const& b
 ) {
     return b.underlying() < a.underlying();
 }
@@ -182,7 +182,7 @@ bool operator<(
 template<typename iterator_>
 bool operator>(
     reverse_iterator<iterator_> const& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>>::result const& b
+    ifel<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>> const& b
 ) {
     return b.underlying() > a.underlying();
 }
@@ -190,7 +190,7 @@ bool operator>(
 template<typename iterator_>
 bool operator<=(
     reverse_iterator<iterator_> const& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>>::result const& b
+    ifel<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>> const& b
 ) {
     return b.underlying() <= a.underlying();
 }
@@ -198,7 +198,7 @@ bool operator<=(
 template<typename iterator_>
 bool operator>=(
     reverse_iterator<iterator_> const& a,
-    typename types::ifel_type<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>>::result const& b
+    ifel<is_random_access_iterator<iterator_>, reverse_iterator<iterator_>> const& b
 ) {
     return b.underlying() >= a.underlying();
 }

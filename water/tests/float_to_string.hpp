@@ -313,7 +313,7 @@ void float_to_string(str::out<o_>& to, type_ value, char const* text) {
     to << "to_chars " << to_chars << '\n';
     #endif
     
-    if(types::equal<type_, double>::result) {
+    if(equal<type_, double>) {
         #ifndef WATER_NO_CHEADERS
         using ::snprintf;
         #else

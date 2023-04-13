@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -64,12 +64,12 @@ struct char_pointer {
     char_pointer() {
         char not_const[] = "hello";
         using char_pointers::left;
-        static_assert(types::equal_plain<decltype(left() << static_cast<char const*>(0)), char const*>::result, "");
-        static_assert(types::equal_plain<decltype(left() << static_cast<char*>(0)), char const*>::result, "");
-        static_assert(types::equal_plain<decltype(left() << "hello"), unsigned>::result, "");
-        static_assert(types::equal_plain<decltype(left() << not_const), unsigned>::result, "");
-        static_assert(types::equal_plain<decltype(left() << this), void const*>::result, "");
-        static_assert(types::equal_plain<decltype(left() << static_cast<void const*>(0)), void const*>::result, "");
+        static_assert(equal<decltype(left() << static_cast<char const*>(0)), char const*>, "");
+        static_assert(equal<decltype(left() << static_cast<char*>(0)), char const*>, "");
+        static_assert(equal<decltype(left() << "hello"), unsigned>, "");
+        static_assert(equal<decltype(left() << not_const), unsigned>, "");
+        static_assert(equal<decltype(left() << this), void const*>, "");
+        static_assert(equal<decltype(left() << static_cast<void const*>(0)), void const*>, "");
         not_const[0] = 0; // avoid unused warning
     }
 };

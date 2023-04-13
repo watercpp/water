@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -12,7 +12,7 @@ class string
 {
 public:
     using iterator = iterator_;
-    using char_type = typename types::no_const<types::no_reference<decltype(*iterator{})>>::result;
+    using char_type = no_const_or_reference<decltype(*iterator{})>;
     using value_type = char_type;
     using size_type = size_t;
 

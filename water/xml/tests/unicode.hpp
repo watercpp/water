@@ -194,9 +194,9 @@ private:
     template<typename to_, typename from_>
     void parse2(vector<from_>* from, node<char16_t> original) {
         mymemory.clear();
-        auto f0 = unicode::utf_range_from<unicode::utf_from_char<to_>::result>(from[0].begin(), from[0].end());
+        auto f0 = unicode::utf_range_from<unicode::utf_from_char<to_>>(from[0].begin(), from[0].end());
         auto r0 = read_to_memory<to_>(mymemory)(f0.begin(), f0.end()).nodes();
-        auto f1 = unicode::utf_range_from<unicode::utf_from_char<to_>::result>(from[1].begin(), from[1].end());
+        auto f1 = unicode::utf_range_from<unicode::utf_from_char<to_>>(from[1].begin(), from[1].end());
         auto r1 = read_to_memory<to_>(mymemory)(f1.begin(), f1.end()).nodes();
         ___water_test(r0);
         ___water_test(r1);

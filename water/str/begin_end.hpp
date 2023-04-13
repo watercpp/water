@@ -36,7 +36,7 @@ class begin_end
 {
 public:
     using iterator = iterator_;
-    using char_type = typename types::no_const<types::no_reference<decltype(*types::make<iterator_&>())>>::result;
+    using char_type = no_const_or_reference<decltype(*make_type<iterator_&>())>;
 
 private:
     iterator

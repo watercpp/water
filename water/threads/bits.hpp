@@ -1,11 +1,12 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_THREADS_BITS_HPP
 #define WATER_THREADS_BITS_HPP
 #include <water/threads/configuration.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 #include <water/atomic.hpp>
 #include <water/int.hpp>
 #include <water/numeric_limits.hpp>
@@ -44,23 +45,28 @@ struct list
 {};
 
 namespace _ {
+
+    template<typename type_> struct
+    result_type {
+        using result = type_;
+    };
     
     template<unsigned needs_, typename ...list_>
     struct need_select_do;
     
     template<unsigned needs_, typename type_, typename ...list_>
     struct need_select_do<needs_, type_, list_...> :
-        types::ifel<
+        ifel<
             type_::needs::need &&
             (needs_ & type_::needs::need) == needs_ &&
             (needs_ & need_spin::need) == (type_::needs::need & need_spin::need), // select spin variant only if asked for
-            type_,
+            result_type<type_>,
             need_select_do<needs_, list_...>
         > {};
     
     template<unsigned need_>
     struct need_select_do<need_> :
-        types::type<void>
+        result_type<void>
         {};
 }
 
@@ -69,15 +75,16 @@ struct need_select;
 
 template<typename needs_, typename ...list_>
 struct need_select<needs_, list<list_...>> :
-    #ifndef WATER_THREADS_PREFER_WATER
-    _::need_select_do<needs_::need, list_...>
-    #else
-    types::if_not_void<
-        _::need_select_do<(needs_::need & need_system::need) ? needs_::need : (needs_::need | need_water::need), list_...>,
+    _::result_type<
+        #ifndef WATER_THREADS_PREFER_WATER
         _::need_select_do<needs_::need, list_...>
-    >
-    #endif
-    {};
+        #else
+        if_not_void<
+            typename _::need_select_do<(needs_::need & need_system::need) ? needs_::need : (needs_::need | need_water::need), list_...>::result,
+            typename _::need_select_do<needs_::need, list_...>::result
+        >
+        #endif
+    > {};
 
 template<typename type_> constexpr bool is_system()                 { return (type_::needs::need & need_system::need) != 0; }
 template<typename type_> constexpr bool is_water()                  { return (type_::needs::need & need_water::need) != 0; }

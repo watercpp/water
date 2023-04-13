@@ -39,9 +39,9 @@ template<typename allocator_ = void, typename sizer_ = void, typename out_ = voi
 class memory_track
 {
 public:
-    using real_allocator_type = typename types::if_not_void<allocator_, water::allocator_nothrow>::result;
+    using real_allocator_type = if_not_void<allocator_, water::allocator_nothrow>;
     using allocator_type = memory_track;
-    using sizer_type = typename types::if_not_void<sizer_, temporary::sizer>::result;
+    using sizer_type = if_not_void<sizer_, temporary::sizer>;
 
 private:
     block *my = 0;

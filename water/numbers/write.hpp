@@ -32,8 +32,8 @@ class write
     static bool constexpr integer = numeric_limits<type_>::is_integer;
 
 public:
-    using format_type = typename types::ifel<integer, format_int, format_float>::result;
-    using formatted_type = decltype(types::make<format_type&>()(type_{}));
+    using format_type = ifel<integer, format_int, format_float>;
+    using formatted_type = decltype(make_type<format_type&>()(type_{}));
     static unsigned constexpr utf = utf_;
 
 private:
@@ -73,7 +73,7 @@ public:
     size_t size(locale_ const& locale) {
         // return how many characters of type char_ is needed to write the number
         myused = 0;
-        return write_size<utf ? utf : unicode::utf_from_char<char_>::result>(my, locale, mygroup);
+        return write_size<utf ? utf : unicode::utf_from_char<char_>>(my, locale, mygroup);
     }
 
     template<typename char_>
@@ -85,7 +85,7 @@ public:
     output_iterator_ operator()(output_iterator_ begin, output_iterator_ end, locale_ const& locale) {
         // can stop in the middle of utf8 or utf16 sequences
         write_to_begin_end<output_iterator_> to{begin, end};
-        myused = write_to<utf ? utf : unicode::utf_from_iterator<output_iterator_>::result>(to, my, locale, mygroup);
+        myused = write_to<utf ? utf : unicode::utf_from_iterator<output_iterator_>>(to, my, locale, mygroup);
         return to.at();
     }
 
@@ -98,7 +98,7 @@ public:
     output_iterator_ operator()(output_iterator_ begin, size_t size, locale_ const& locale) {
         // will not stop in the middle of utf8 or utf16 sequence
         write_to_begin_size<output_iterator_> to{begin, size};
-        myused = write_to<utf ? utf : unicode::utf_from_iterator<output_iterator_>::result>(to, my, locale, mygroup);
+        myused = write_to<utf ? utf : unicode::utf_from_iterator<output_iterator_>>(to, my, locale, mygroup);
         return to.at();
     }
 

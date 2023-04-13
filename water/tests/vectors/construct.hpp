@@ -24,7 +24,7 @@ struct construct_one_if_default_constructor
 };
 
 template<typename vector_>
-struct construct_one_if_default_constructor<vector_, true, types::to_void<decltype(typename vector_::value_type{3})>>
+struct construct_one_if_default_constructor<vector_, true, to_void<decltype(typename vector_::value_type{3})>>
 {
     static void do_it(typename vector_::allocator_type const& a) {
         vector_ v{3, a};

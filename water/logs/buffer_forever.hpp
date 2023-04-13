@@ -51,8 +51,11 @@ public:
         return write_type(*this, tag)(cstring);
     }
 
-    template<typename range_>
-    if_range<range_ const, bool> operator()(tag_type const& tag, range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    bool operator()(tag_type const& tag, range_ const& a) {
         return write_type(*this, tag)(a);
     }
 
@@ -70,8 +73,11 @@ public:
         return (*this)(tag_type{}, cstring);
     }
 
-    template<typename range_>
-    if_range<range_ const, bool> operator()(range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    bool operator()(range_ const& a) {
         return (*this)(tag_type{}, a);
     }
     

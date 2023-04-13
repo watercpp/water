@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,7 @@
 #define WATER_ASCII_LOWERCASE_ITERATOR_HPP
 #include <water/ascii_lower_upper.hpp>
 #include <water/iterator.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 namespace water {
 
 /*
@@ -21,18 +21,18 @@ class ascii_lowercase_iterator
 {
     struct no_difference_type;
     
-    using difference_if = typename types::ifel_type<
+    using difference_if = ifel<
         is_random_access_iterator<iterator_>,
         iterator_difference_type<iterator_>,
         no_difference_type
-    >::result;
+    >;
 
 public:
-    using iterator_category = typename water::iterator_category<iterator_>::result;
-    using value_type = typename iterator_value_type<iterator_>::result;
+    using iterator_category = water::iterator_category<iterator_>;
+    using value_type = iterator_value_type<iterator_>;
     using reference = value_type;
     using pointer = void;
-    using difference_type = typename iterator_difference_type<iterator_>::result;
+    using difference_type = iterator_difference_type<iterator_>;
 
 private:
     iterator_ my {};

@@ -66,7 +66,7 @@ public:
     using char_type = char_;
     using memory_type = memory_;
     using text_type = text<char_type const*>;
-    using node_if_mutable = typename types::ifel_type<types::if_not_void<memory_>, node<char_, memory_>, node_is_const>::result;
+    using node_if_mutable = ifel<water::equal<memory_, void>, node_is_const, node<char_, memory_>>;
 
 private:
     memory_type *mym = 0; // can never be 0 if memory_ != void and my != 0
@@ -81,7 +81,7 @@ private:
 public:
     constexpr node() = default;
 
-    node(typename types::if_not_void<memory_type, node_is_const>::result& m, memory_node *n) :
+    node(if_not_void<memory_type, node_is_const>& m, memory_node *n) :
         mym{&m},
         my{n}
     {}
@@ -146,8 +146,8 @@ public:
         return attributes().find(name);
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result attributes(range_ const& name) const {
+    template<typename range_, typename = void_if_range<range_>>
+    node attributes(range_ const& name) const {
         return attributes().find(name.begin(), xml::range_size(name));
     }
 
@@ -170,8 +170,8 @@ public:
         return nodes().find(name);
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result nodes(range_ const& name) const {
+    template<typename range_, typename = void_if_range<range_>>
+    node nodes(range_ const& name) const {
         return nodes().find(name.begin(), xml::range_size(name));
     }
 
@@ -239,7 +239,7 @@ public:
     }
 
     template<typename range_>
-    typename if_range<range_, node>::result find(range_ const& name) const {
+    node find(range_ const& name) const {
         return find(name.begin(), xml::range_size(name));
     }
 
@@ -258,8 +258,8 @@ public:
         return next().find(name);
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result next(range_ const& name) const {
+    template<typename range_, typename = void_if_range<range_>>
+    node next(range_ const& name) const {
         return next().find(name.begin(), xml::range_size(name));
     }
 
@@ -283,8 +283,8 @@ public:
         return previous(name, size_ - (name[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result previous(range_ const& name) const {
+    template<typename range_, typename = void_if_range<range_>>
+    node previous(range_ const& name) const {
         return previous(name.begin(), xml::range_size(name));
     }
 
@@ -363,8 +363,8 @@ public:
         return nodes_or_add(name, size_ - (name[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result nodes_or_add(range_ const& name) {
+    template<typename range_, typename = void_if_range<range_>>
+    node_if_mutable nodes_or_add(range_ const& name) {
         return nodes_or_add(name.begin(), xml::range_size(name));
     }
 
@@ -410,8 +410,8 @@ public:
         return attributes_or_add(name, size_ - (name[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result attributes_or_add(range_ const& name) {
+    template<typename range_, typename = void_if_range<range_>>
+    node_if_mutable attributes_or_add(range_ const& name) {
         return attributes_or_add(name.begin(), xml::range_size(name));
     }
 
@@ -578,8 +578,8 @@ public:
         return this->name(name, size_ - (name[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result name(range_ const& name) {
+    template<typename range_, typename = void_if_range<range_>>
+    node_if_mutable name(range_ const& name) {
         return this->name(name.begin(), xml::range_size(name));
     }
 
@@ -645,8 +645,8 @@ public:
         return value(text, size_ - (text[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result value(range_ const& text) {
+    template<typename range_, typename = void_if_range<range_>>
+    node_if_mutable value(range_ const& text) {
         return value(text.begin(), xml::range_size(text));
     }
 
@@ -688,8 +688,8 @@ public:
         return first_value(text, size_ - (text[size_ - 1] ? 0 : 1));
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result first_value(range_ const& text) {
+    template<typename range_, typename = void_if_range<range_>>
+    node_if_mutable first_value(range_ const& text) {
         return first_value(text.begin(), xml::range_size(text));
     }
 

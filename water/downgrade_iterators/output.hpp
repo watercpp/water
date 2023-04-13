@@ -16,7 +16,7 @@ output++ cound maybe return a proxy that converts to output const&
 template<typename iterator_>
 class output_reference
 {
-    using value_ = typename iterator_value_type<iterator_>::result;
+    using value_ = iterator_value_type<iterator_>;
     iterator_ *my;
 
 public:
@@ -44,12 +44,12 @@ public:
 template<typename iterator_>
 class output
 {
-    static_assert(types::type_assert<is_forward_iterator<iterator_>>::assert, "must be at least forward");
-    static_assert(types::type_assert<types::is_reference<iterator_reference_type<iterator_>>>::assert, "must be a real reference");
+    static_assert(is_forward_iterator<iterator_>, "must be at least forward");
+    static_assert(is_reference<iterator_reference_type<iterator_>>, "must be a real reference");
 
 public:
     using iterator_category = output_iterator_tag;
-    using value_type = typename iterator_value_type<iterator_>::result;
+    using value_type = iterator_value_type<iterator_>;
     using reference = void;
     using pointer = void;
     using difference_type = void;

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -101,11 +101,11 @@ public:
         double r = static_cast<double>(myi);
         if(mye) {
             auto e = mye;
-            int32_t const small = numeric_limits<double>::min_exponent10 + (numeric_limits<double>::digits10 + 2);
-            if(e <= small) {
+            int32_t const e_small = numeric_limits<double>::min_exponent10 + (numeric_limits<double>::digits10 + 2);
+            if(e <= e_small) {
                 // if it's really small do two pow()
-                r *= pow(10., e - small);
-                e = small;
+                r *= pow(10., e - e_small);
+                e = e_small;
             }
             r *= pow(10., e);
         }

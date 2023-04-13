@@ -22,7 +22,7 @@ The container_ type needs only the insert and end functions, nothing else.
 template<typename container_>
 class insert_at_end_of_container
 {
-    using char_type = typename types::no_const<types::no_reference<decltype(*types::make<container_*>()->end())>>::result;
+    using char_type = no_const_or_reference<decltype(*make_type<container_*>()->end())>;
 
 private:
     container_ *my;

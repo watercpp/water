@@ -43,7 +43,7 @@ public:
     using memory_type = memory_;
     using tag_type = typename memory_type::tag_type;
     using exception = exception_;
-    static bool constexpr is_noexcept = types::equal_plain<void, exception>::result;
+    static bool constexpr is_noexcept = equal<void, exception>;
 
 private:
     tag_type mytag {};

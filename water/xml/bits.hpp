@@ -1,18 +1,39 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_XML_BITS_HPP
 #define WATER_XML_BITS_HPP
 #include <water/water.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 #include <water/unicode/utf.hpp>
 #include <water/swap.hpp>
 namespace water { namespace xml {
 
-template<typename range_, typename result_, typename iterator_ = typename range_::iterator>
-struct if_range : types::type_plain<result_>
-{};
+
+
+template<typename char_>
+struct memory_node
+{
+    using char_type = if_not_void<to_unsigned<char_>, char_>; // must have unsigned char
+    
+    memory_node
+        *previous,
+        *next,
+        *in,
+        *nodes,
+        *attributes;
+    char_type
+        *name_begin,
+        *name_end,
+        *name_end_memory, // name_begin to name_end_memory can be used, name_begin to name_end is used now
+        *value_begin,
+        *value_end,
+        *value_end_memory;
+};
+
+
 
 namespace _ {
 
@@ -29,9 +50,10 @@ namespace _ {
     };
     
     template<typename iterator_>
-    struct size_iterators<iterator_, decltype(static_cast<size_t>(iterator_{} - iterator_{}))> {
+    struct size_iterators<iterator_, decltype(static_cast<size_t>(make_type<iterator_&>() - make_type<iterator_&>()))> {
         static size_t do_it(iterator_ begin, iterator_ end) {
-            return static_cast<size_t>(end - begin);
+            auto s = end - begin;
+            return s > 0 ? static_cast<size_t>(s) : 0;
         }
     };
     
@@ -41,6 +63,7 @@ template<typename iterator_>
 size_t size(iterator_ begin, iterator_ end) {
     return _::size_iterators<iterator_>::do_it(begin, end);
 }
+
 
 
 namespace _ {
@@ -53,7 +76,7 @@ namespace _ {
     };
     
     template<typename range_>
-    struct range_size<range_, decltype(static_cast<size_t>(typename range_::size_type{}))> {
+    struct range_size<range_, decltype(static_cast<size_t>(make_type<range_ const&>().size()))> {
         static size_t do_it(range_ const& a) {
             return static_cast<size_t>(a.size());
         }
@@ -67,12 +90,19 @@ size_t range_size(range_ const& a) {
 }
 
 
+
+// this only checks for begin(), because range_size below will use size() and not end() when it can
+template<typename range_>
+using void_if_range = to_void<decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().begin())>;
+
+
+
 template<typename iterator_>
 class text
 {
 public:
     using iterator = iterator_;
-    using char_type = typename types::no_const<types::no_reference<decltype(*iterator{})>>::result;
+    using char_type = no_const_or_reference<decltype(*iterator{})>;
     using value_type = char_type;
     using size_type = size_t;
 
@@ -125,12 +155,14 @@ text<iterator_> text_from(iterator_ begin, size_t size) {
 }
 
 
+
 template<typename char_>
-inline char32_t text_compare_cast(char_ a) { return static_cast<char32_t>(a); }
+inline char32_t      text_compare_cast(char_ a)         { return static_cast<char32_t>(a); }
 inline char16_t      text_compare_cast(char16_t a)      { return a; }
 inline unsigned char text_compare_cast(unsigned char a) { return a; }
 inline unsigned char text_compare_cast(signed char a)   { return static_cast<unsigned char>(a); }
 inline unsigned char text_compare_cast(char a)          { return static_cast<unsigned char>(a); }
+
 
 
 template<typename iterator1_, typename iterator2_>
@@ -148,6 +180,7 @@ template<typename iterator_, typename char_, size_t size_>
 bool equal(char_ const (&a)[size_], iterator_ b, iterator_ e) {
     return equal(a + 0, a + size_ - 1, b, e);
 }
+
 
 
 template<typename a_, typename b_>
@@ -181,25 +214,6 @@ bool operator!=(char const (&a)[size_], text<iterator_> const& b) {
 }
 
 
-template<typename char_>
-struct memory_node
-{
-    using char_type = typename types::if_not_void<types::to_unsigned<char_>, char_>::result; // must have unsigned char
-    
-    memory_node
-        *previous,
-        *next,
-        *in,
-        *nodes,
-        *attributes;
-    char_type
-        *name_begin,
-        *name_end,
-        *name_end_memory, // name_begin to name_end_memory can be used, name_begin to name_end is used now
-        *value_begin,
-        *value_end,
-        *value_end_memory;
-};
 
 }}
 #endif

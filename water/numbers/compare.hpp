@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -29,7 +29,7 @@ public:
         auto i1 = begin1;
         while(i1 != end1 && begin2 != end2) {
             char32_t c;
-            size_t n = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>::result>(c, i1, end1);
+            size_t n = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>>(c, i1, end1);
             if(!n || transform(c) != transform(unicode::cast(*begin2)))
                 return *this;
             u += n;
@@ -102,11 +102,11 @@ public:
 
 private:
     template<typename iterator1_, typename iterator2_, typename transform_>
-    void do_it(iterator1_& begin1, iterator1_ end1, iterator2_ begin2, iterator2_ end2, transform_& transform, if_not_begin_end<decltype(*begin2)> = {}) {
+    void do_it(iterator1_& begin1, iterator1_ end1, iterator2_ begin2, iterator2_ end2, transform_& transform, ifel<!has_begin_end<decltype(*begin2)>, int*> = {}) {
         // compare first character of begin1,end1 against range of characters
         auto i1 = begin1;
         char32_t c;
-        size_t u = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>::result>(c, i1, end1);
+        size_t u = unicode::utf_decode_and_move<unicode::utf_from_iterator<iterator1_>>(c, i1, end1);
         if(u && c) {
             c = transform(c);
             size_t w = 0;
@@ -124,7 +124,7 @@ private:
     }
 
     template<typename iterator1_, typename iterator2_, typename transform_>
-    void do_it(iterator1_& begin1, iterator1_ end1, iterator2_ begin2, iterator2_ end2, transform_& transform, if_begin_end<decltype(*begin2)> = {}) {
+    void do_it(iterator1_& begin1, iterator1_ end1, iterator2_ begin2, iterator2_ end2, transform_& transform, ifel<has_begin_end<decltype(*begin2)>, int*> = {}) {
         // compare begin1,end1 against range of strings
         size_t w = 0;
         while(begin2 != end2) {

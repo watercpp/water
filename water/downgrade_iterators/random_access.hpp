@@ -10,15 +10,15 @@ namespace water { namespace downgrade_iterators {
 template<typename iterator_, bool make_const_ = false, bool proxy_ = false>
 class random_access
 {
-    static_assert(types::type_assert<is_random_access_iterator<iterator_>>::assert, "must be random access");
+    static_assert(is_random_access_iterator<iterator_>, "must be random access");
     using select_ = select_reference_pointer<iterator_, make_const_, proxy_>;
 
 public:
     using iterator_category = random_access_iterator_tag;
-    using value_type = typename iterator_value_type<iterator_>::result;
+    using value_type = iterator_value_type<iterator_>;
     using reference = typename select_::reference_type;
     using pointer = typename select_::pointer_type;
-    using difference_type = typename iterator_difference_type<iterator_>::result;
+    using difference_type = iterator_difference_type<iterator_>;
 
 private:
     iterator_ my {};

@@ -17,8 +17,8 @@ template<typename allocator_ = void, typename sizer_ = void>
 class memory
 {
 public:
-    using allocator_type = typename types::if_not_void<allocator_, water::allocator_nothrow>::result;
-    using sizer_type = typename types::if_not_void<sizer_, temporary::sizer>::result;
+    using allocator_type = if_not_void<allocator_, water::allocator_nothrow>;
+    using sizer_type = if_not_void<sizer_, temporary::sizer>;
 
 private:
     block *my = 0;

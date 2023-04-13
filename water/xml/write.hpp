@@ -1,4 +1,4 @@
-// Copyright 2017-2020 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -71,7 +71,7 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
     // this cannot fail if to() cannot fail
     //
     if(xml_declaration) {
-        _::write_xml_declaration<char_, unicode::utf_from_char<char_>::result>::to(to);
+        _::write_xml_declaration<char_, unicode::utf_from_char<char_>>::to(to);
         if(indent_spaces_or_tab)
             to(static_cast<char_>('\n'));
     }
@@ -220,7 +220,7 @@ size_t write(to_&& to, node<char_, memory_> nodes, bool xml_declaration = true, 
     // returns the number of characters written.
     struct buffer_
     {
-        typename types::no_reference<to_>::result *to;
+        no_reference<to_> *to;
         unsigned at;
         size_t size;
         char_ buffer[write_buffer_size];
@@ -249,7 +249,7 @@ size_t write(to_&& to, node<char_, memory_> nodes, bool xml_declaration = true, 
             auto
                 b = static_cast<char_ const*>(buffer),
                 e1 = b + at,
-                e2 = unicode::utf_adjust_end<unicode::utf_from_char<char_>::result>(b, e1);
+                e2 = unicode::utf_adjust_end<unicode::utf_from_char<char_>>(b, e1);
             if(b == e2)
                 return;
             (*to)(b, e2);

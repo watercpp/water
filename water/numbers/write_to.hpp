@@ -109,14 +109,14 @@ namespace _ {
 
     public:
         template<typename to_, typename from_>
-        if_not_begin_end<from_, size_t> operator()(to_& to, from_ const& from) {
+        ifel<!has_begin_end<from_>, size_t> operator()(to_& to, from_ const& from) {
             size_t r = write_one<utf_>::do_it(to, unicode::cast(from));
             my += r;
             return r;
         }
 
         template<typename to_, typename from_>
-        if_begin_end<from_, size_t> operator()(to_& to, from_ const& from) {
+        ifel<has_begin_end<from_>, size_t> operator()(to_& to, from_ const& from) {
             size_t r = 0;
             auto f = from.begin();
             while(f != from.end()) {
@@ -211,7 +211,7 @@ public:
 };
 
 template<typename iterator_>
-class write_to_begin_end<iterator_, types::to_void<decltype(iterator_{} - iterator_{})>> : public write_to_begin_size<iterator_> {
+class write_to_begin_end<iterator_, to_void<decltype(iterator_{} - iterator_{})>> : public write_to_begin_size<iterator_> {
 public:
     write_to_begin_end(iterator_ begin, iterator_ end) :
         write_to_begin_size<iterator_>{begin, static_cast<size_t>(end - begin)}
@@ -332,12 +332,12 @@ namespace _ {
     >
     struct write_buffered_to
     {
-        using char_type = typename
-            types::ifel<utf_ == 0, char_,
-            types::ifel<utf_ == 8, char,
-            types::ifel<utf_ == 16, char16_t,
+        using char_type = 
+            ifel<utf_ == 0, char_,
+            ifel<utf_ == 8, char,
+            ifel<utf_ == 16, char16_t,
             char32_t
-        >>>::result;
+            >>>;
             
         static unsigned constexpr capacity = 256;
     
@@ -372,18 +372,18 @@ namespace _ {
 
 template<unsigned utf_, typename to_, typename iterator_, typename locale_>
 size_t write_buffered(to_&& to, formatted<iterator_> const& from, locale_ const& locale, bool group = false) {
-    using buffer = _::write_buffered_to<utf_, typename types::no_reference<to_>::result>;
+    using buffer = _::write_buffered_to<utf_, no_reference<to_>>;
     buffer b(to);
-    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>::result>(b, from, locale, group);
+    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>>(b, from, locale, group);
     b.flush();
     return r;
 }
 
 template<unsigned utf_, typename to_, typename float_, typename locale_>
 size_t write_buffered(to_&& to, formatted_mantissa_exponent<float_> const& from, locale_ const& locale, bool group = false) {
-    using buffer = _::write_buffered_to<utf_, typename types::no_reference<to_>::result>;
+    using buffer = _::write_buffered_to<utf_, no_reference<to_>>;
     buffer b(to);
-    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>::result>(b, from, locale, group);
+    size_t r = write_to<utf_ ? utf_ : unicode::utf_from_char<typename buffer::char_type>>(b, from, locale, group);
     b.flush();
     return r;
 }

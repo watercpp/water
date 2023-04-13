@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -153,8 +153,11 @@ public:
         return write();
     }
 
-    template<typename range_>
-    if_range<range_ const, bool> operator()(range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())    
+    >
+    bool operator()(range_ const& a) {
         return (*this)(a.begin(), a.end());
     }
 

@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -36,7 +36,7 @@ public:
 
 private:
     template<typename a_>
-    void timeout_if(a_& a, typename types::ifel<has_timeout<m_>(), int>::result = 0) {
+    void timeout_if(a_& a, ifel<has_timeout<m_>(), int> = 0) {
         ___water_test(down(a, 0.01));
         ___water_test(up(a));
         ___water_test(a.down(0.01));
@@ -49,16 +49,16 @@ private:
     }
 
     template<typename s_>
-    void timeout_if(s_&, typename types::ifel<!has_timeout<m_>(), int>::result = 0) {
+    void timeout_if(s_&, ifel<!has_timeout<m_>(), int> = 0) {
     }
 
     template<typename a_>
-    void spin_if(a_& a, typename types::ifel<is_spin<m_>(), int>::result = 0) {
+    void spin_if(a_& a, ifel<is_spin<m_>(), int> = 0) {
         a.spin_times(1000);
     }
 
     template<typename a_>
-    void spin_if(a_& a, typename types::ifel<!is_spin<m_>(), int>::result = 0) {
+    void spin_if(a_& a, ifel<!is_spin<m_>(), int> = 0) {
     }
 };
 

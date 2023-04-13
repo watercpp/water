@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,7 +7,7 @@
 #include <water/water.hpp>
 #include <water/int.hpp>
 #include <water/throw_if.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 #include <water/new_here.hpp>
 namespace water { namespace memory_track {
 
@@ -18,7 +18,7 @@ using large_t = uint_bits_at_least<64>;
 // if 1GB is allocated every second, it will overflow after 544 years
 // used as a counter, it will overflow after 544 years if the count is incremented every nanosecond
 
-using upointer_t = types::if_not_void<uint_size_at_least<sizeof(void*)>, size_t>::result;
+using upointer_t = if_not_void<uint_size_at_least<sizeof(void*)>, size_t>;
 
 inline upointer_t upointer(void const* a) noexcept {
     return reinterpret_cast<upointer_t>(a);
@@ -132,7 +132,7 @@ inline void const* pattern_check(void const* pointer, size_t bytes) {
 }
 
 template<typename unsigned_>
-void add(unsigned_& a, typename types::type<unsigned_>::result b) {
+void add(unsigned_& a, first<unsigned_> b) {
     if(a > static_cast<unsigned_>(-1) - b)
         a = static_cast<unsigned_>(-1);
     else
@@ -140,7 +140,7 @@ void add(unsigned_& a, typename types::type<unsigned_>::result b) {
 }
 
 template<typename unsigned_>
-void sub(unsigned_& a, typename types::type<unsigned_>::result b) {
+void sub(unsigned_& a, first<unsigned_> b) {
     if(a < b)
         a = 0;
     else

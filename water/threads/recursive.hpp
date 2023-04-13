@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,7 +14,7 @@ bool constexpr recursive_exists =
     #ifdef WATER_THREADS_NO_RECURSIVE
     false;
     #else
-    (types::is_int<thread_t>::result || types::is_pointer<thread_t>::result) &&
+    (is_int<thread_t> || is_pointer<thread_t>) &&
     atomic_exists;
     #endif
 
@@ -25,10 +25,10 @@ public:
     using needs = threads::needs<
         need_water,
         need_recursive,
-        typename types::ifel<has_timeout<mutex_>(), need_timeout, need_nothing>::result,
-        typename types::ifel<is_spin<mutex_>(), need_spin, need_nothing>::result,
-        typename types::ifel<has_constexpr_constructor<mutex_>(), need_constexpr_constructor, need_nothing>::result,
-        typename types::ifel<has_trivial_destructor<mutex_>(), need_trivial_destructor, need_nothing>::result
+        ifel<has_timeout<mutex_>(), need_timeout, need_nothing>,
+        ifel<is_spin<mutex_>(), need_spin, need_nothing>,
+        ifel<has_constexpr_constructor<mutex_>(), need_constexpr_constructor, need_nothing>,
+        ifel<has_trivial_destructor<mutex_>(), need_trivial_destructor, need_nothing>
     >;
 
 private:
@@ -45,7 +45,7 @@ public:
     }
 
     template<typename timeout_>
-    auto lock(timeout_ timeout) -> decltype(types::make<mutex_&>().lock(timeout)) {
+    auto lock(timeout_ timeout) -> decltype(make_type<mutex_&>().lock(timeout)) {
         thread_t t = thread();
         if(recurse(t))
             return true;

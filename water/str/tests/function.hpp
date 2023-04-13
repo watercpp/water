@@ -66,10 +66,10 @@ inline void function_all() {
     function_char<wchar_t>();
 
     to_function(function_template_function{}) << "hello";
-    static_assert(types::equal<decltype(to_function(function_template_function{}))::char_type, char>::result, "should default to char");
+    static_assert(water::equal<decltype(to_function(function_template_function{}))::char_type, char>, "should default to char");
 
     to_function<char16_t>(function_template_function{}) << "hello";
-    static_assert(types::equal<decltype(to_function<char16_t>(function_template_function{}))::char_type, char16_t>::result, "");
+    static_assert(water::equal<decltype(to_function<char16_t>(function_template_function{}))::char_type, char16_t>, "");
 }
 
 }}}

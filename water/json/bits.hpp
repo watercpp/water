@@ -1,11 +1,12 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_JSON_BITS_HPP
 #define WATER_JSON_BITS_HPP
 #include <water/water.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 #include <water/int.hpp>
 #include <water/unicode/utf_iterators.hpp>
 #include <water/unicode/utf_length.hpp>
@@ -15,7 +16,7 @@
 #include <water/char8.hpp>
 namespace water { namespace json {
 
-using uchar_t = types::ifel_type<types::is_unsigned<char>, char, unsigned char>::result;
+using uchar_t = ifel<is_unsigned<char>, char, unsigned char>;
 using int64_t = int_bits_at_least<64>;
 using int32_t = int_bits_at_least<32>;
 using uint16_t = uint_bits_at_least<16>;
@@ -75,7 +76,7 @@ namespace _ {
     };
 
     template<typename iterator_>
-    struct size_do<iterator_, types::to_void<decltype(iterator_{} - iterator_{})>> {
+    struct size_do<iterator_, to_void<decltype(make_type<iterator_>() - make_type<iterator_>())>> {
         static size_t do_it(iterator_ begin, iterator_ end) {
             return static_cast<size_t>(end - begin);
         }
@@ -88,8 +89,6 @@ size_t size(iterator_ begin, iterator_ end) {
     return _::size_do<iterator_>::do_it(begin, end);
 }
 
-template<typename range_, typename result_, typename = decltype(types::make<range_ const&>().begin() == types::make<range_ const&>().end())>
-struct if_range : types::type_plain<result_> {};
 
 namespace _ {
 
@@ -101,7 +100,7 @@ namespace _ {
     };
     
     template<typename range_>
-    struct range_size_do<range_, types::to_void<decltype(types::make<range_ const&>().size())>> {
+    struct range_size_do<range_, to_void<decltype(make_type<range_ const&>().size())>> {
         static size_t do_it(range_ const& a) {
             return static_cast<size_t>(a.size());
         }

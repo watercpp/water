@@ -1,10 +1,10 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_SIGNED_REPRESENTATION_HPP
 #define WATER_SIGNED_REPRESENTATION_HPP
-#include <water/types/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water {
 
 /*
@@ -36,25 +36,25 @@ enum class signed_representation {
 
 namespace _ {
 
-    template<typename int_>
-    struct signed_representation_do : types::integer<
-        signed_representation,
-        (static_cast<int_>(-1) >= static_cast<int_>(0)) ? signed_representation::none : // unsigned
-        (~static_cast<int_>(0) == static_cast<int_>(-1)) ? signed_representation::twos_complement : // 0xffff is -1
-        (~static_cast<int_>(0) == static_cast<int_>(-0)) ? signed_representation::ones_complement : // 0xffff is -0 could be a trap value
-        (~static_cast<int_>(0) <= static_cast<int_>(-2)) ? signed_representation::signed_magnitude : // 0xffff is -max
-        signed_representation::none
-    > {};
+    template<typename int_, bool = is_int<int_>>
+    struct signed_representation_do {
+        static signed_representation constexpr result =
+            (static_cast<int_>(-1) >= static_cast<int_>(0)) ? signed_representation::none : // unsigned
+            (~static_cast<int_>(0) == static_cast<int_>(-1)) ? signed_representation::twos_complement : // 0xffff is -1
+            (~static_cast<int_>(0) == static_cast<int_>(-0)) ? signed_representation::ones_complement : // 0xffff is -0 could be a trap value
+            (~static_cast<int_>(0) <= static_cast<int_>(-2)) ? signed_representation::signed_magnitude : // 0xffff is -max
+            signed_representation::none;
+    };
     
+    template<typename int_>
+    struct signed_representation_do<int_, false> {
+        static signed_representation constexpr result = signed_representation::none;
+    };    
 }
 
 template<typename type_>
 constexpr signed_representation signed_representation_of() {
-    return types::ifel<
-        types::is_int<type_>::result,
-        _::signed_representation_do<typename types::type<type_>::result>,
-        types::integer<signed_representation, signed_representation::none>
-    >::result;
+    return _::signed_representation_do<no_const_or_reference<type_>>::result;
 }
 
 template<typename type_>

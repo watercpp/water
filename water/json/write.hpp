@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -17,7 +17,6 @@ void write_unbuffered(to_&& to, node<> nodes, json::escape escape = json::escape
     // esacpe_all
     // - true will write ascii, will be larger
     // - false will write utf-8, will be smaller, only things that must be esacped is
-    using to_reference = typename types::to_reference<to_>::result;
     auto n = nodes;
     while(n) {
         bool next = true;
@@ -25,7 +24,7 @@ void write_unbuffered(to_&& to, node<> nodes, json::escape escape = json::escape
             to('"');
             auto s = n.name();
             if(s)
-                write_string<to_reference>(
+                write_string<to_reference<to_>>(
                     to,
                     static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
                     static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
@@ -50,7 +49,7 @@ void write_unbuffered(to_&& to, node<> nodes, json::escape escape = json::escape
                 to('"');
                 auto s = n.string();
                 if(s)
-                    write_string<to_reference>(
+                    write_string<to_reference<to_>>(
                         to,
                         static_cast<uchar_t const*>(static_cast<void const*>(s.begin())),
                         static_cast<uchar_t const*>(static_cast<void const*>(s.end())),
@@ -60,7 +59,7 @@ void write_unbuffered(to_&& to, node<> nodes, json::escape escape = json::escape
                 break;
             }
             case type::number: {
-                write_number<to_reference>(to, n.number());
+                write_number<to_reference<to_>>(to, n.number());
                 break;
             }
             case type::boolean: {
@@ -101,7 +100,7 @@ size_t write(to_&& to, node<> nodes, json::escape escape = json::escape::minimal
     //
     struct buffer_
     {
-        typename types::no_reference<to_>::result *to;
+        no_reference<to_> *to;
         unsigned at;
         size_t size;
         char buffer[write_buffer_size];

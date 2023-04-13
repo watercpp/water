@@ -1,17 +1,18 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_DOWNGRADE_ITERATORS_BITS_HPP
 #define WATER_DOWNGRADE_ITERATORS_BITS_HPP
 #include <water/iterator.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water { namespace downgrade_iterators {
 
 template<typename iterator_>
 class reference
 {
-    using reference_ = typename types::type_plain<decltype(*types::make<iterator_ const&>())>::result; // type_plain because visual c++
+    using reference_ = first<decltype(*make_type<iterator_ const&>())>; // first because visual c++ 2017
     iterator_ my;
 
 public:
@@ -23,7 +24,7 @@ public:
         return *my;
     }
 
-    reference& operator=(typename iterator_value_type<iterator_>::result const& a) {
+    reference& operator=(iterator_value_type<iterator_> const& a) {
         *my = a;
         return *this;
     }
@@ -32,7 +33,7 @@ public:
 template<typename iterator_>
 class reference_const
 {
-    using value_ = typename iterator_value_type<iterator_>::result;
+    using value_ = iterator_value_type<iterator_>;
     iterator_ my;
 
 public:
@@ -48,7 +49,7 @@ public:
 template<typename iterator_>
 class pointer
 {
-    using pointer_ = typename types::type_plain<decltype(iterator_pointer(types::make<iterator_ const&>()))>::result; // type_plain because visual c++
+    using pointer_ = first<decltype(iterator_pointer(make_type<iterator_ const&>()))>; // first because visual c++ 2017
     iterator_ my;
 
 public:
@@ -68,7 +69,7 @@ public:
 template<typename iterator_>
 class pointer_const
 {
-    using value_ = typename iterator_value_type<iterator_>::result;
+    using value_ = iterator_value_type<iterator_>;
     iterator_ my;
 
 public:
@@ -88,17 +89,17 @@ public:
 template<typename iterator_, bool make_const_, bool proxy_>
 struct select_reference_pointer
 {
-    using pointer_type = typename types::ifel<
-        make_const_ || iterator_is_const<iterator_>::result,
+    using pointer_type = ifel<
+        make_const_ || iterator_is_const<iterator_>,
         pointer_const<iterator_>,
         downgrade_iterators::pointer<iterator_>
-    >::result;
+    >;
     
-    using reference_type = typename types::ifel<
-        make_const_ || iterator_is_const<iterator_>::result,
+    using reference_type = ifel<
+        make_const_ || iterator_is_const<iterator_>,
         reference_const<iterator_>,
         downgrade_iterators::reference<iterator_>
-    >::result;
+    >;
     
     static pointer_type pointer(iterator_ const& a) { return pointer_type{a}; }
     static reference_type reference(iterator_ const& a) { return reference_type{a}; }
@@ -107,9 +108,9 @@ struct select_reference_pointer
 template<typename iterator_, bool make_const_>
 struct select_reference_pointer<iterator_, make_const_, false>
 {
-    using value_type = typename iterator_value_type<iterator_>::result;
-    using pointer_type = typename types::ifel<make_const_, value_type const*, iterator_pointer_type<iterator_>>::result;
-    using reference_type = typename types::ifel<make_const_, value_type const&, iterator_reference_type<iterator_>>::result;
+    using value_type = iterator_value_type<iterator_>;
+    using pointer_type = ifel<make_const_, value_type const*, iterator_pointer_type<iterator_>>;
+    using reference_type = ifel<make_const_, value_type const&, iterator_reference_type<iterator_>>;
     
     static pointer_type pointer(iterator_ const& a) { return iterator_pointer(a); }
     static reference_type reference(iterator_ const& a) { return *a; }

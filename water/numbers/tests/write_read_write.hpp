@@ -31,12 +31,12 @@ inline bool write_read_write_divide_4_maybe(bool a) {  // visual c++ warnings wh
 }
 
 template<typename type_>
-auto write_read_write_one_denorm_or_0(type_ t) -> typename types::ifel_type<types::is_float<type_>, bool>::result {
+auto write_read_write_one_denorm_or_0(type_ t) -> ifel<is_float<type_>, bool> {
     return !t || !isnormal_strict(t);
 }
 
 template<typename type_>
-auto write_read_write_one_denorm_or_0(type_) -> typename types::ifel_type_not<types::is_float<type_>, bool>::result {
+auto write_read_write_one_denorm_or_0(type_) -> ifel<!is_float<type_>, bool> {
     return false;
 }
 

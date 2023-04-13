@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -15,7 +15,7 @@ template<typename semaphore_>
 class semaphore_pong
 {
     semaphore_ my0, my1, my2, my3, my4;
-    typename types::ifel<is_spin<semaphore_>(), mutex<need_spin>, mutex<>>::result mylock;
+    ifel<is_spin<semaphore_>(), mutex<need_spin>, mutex<>> mylock;
     unsigned myat = 0;
 
 public:

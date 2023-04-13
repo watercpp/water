@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -18,7 +18,7 @@ leading_zeros makes this return that many 0 before the number
 template<typename int_>
 class int_iterator
 {
-    using select_ = typename types::ifel<numeric_limits<int_>::is_signed, signed, unsigned>::result; // avoid warning compare -1 with unsigned, intel c++
+    using select_ = ifel<numeric_limits<int_>::is_signed, signed, unsigned>; // avoid warning compare -1 with unsigned, intel c++
 
 public:
     using iterator_category = forward_iterator_tag;

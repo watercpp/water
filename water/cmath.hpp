@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -68,7 +68,7 @@ inline long double pow(long double a, long double b) { return ::powl(a, b); }
 
 #include <water/int.hpp>
 #include <water/numeric_limits.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 namespace water {
 
 namespace _ {
@@ -77,7 +77,7 @@ namespace _ {
         typename float_,
         unsigned bits_ = sizeof(float_) * numeric_limits<unsigned char>::digits,
         typename unsigned_ = uint_bits<bits_>,
-        bool = (bits_ == 32 || bits_ == 64) && !types::is_void<unsigned_>::result && numeric_limits<float_>::is_iec559
+        bool = (bits_ == 32 || bits_ == 64) && !equal<void, unsigned_> && numeric_limits<float_>::is_iec559
     >
     struct slow_math
     {

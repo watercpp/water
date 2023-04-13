@@ -49,7 +49,7 @@ class buffer_lines
     static_assert(!buffer_size_ || buffer_size_ > 8, "");
 
 public:
-    using function_type = typename types::ifel_type<types::is_function<function_>, function_*, function_>::result;
+    using function_type = ifel<is_function<function_>, function_*, function_>;
     using char_type = typename _::buffer_function_char<function_type, char_>::result;
     static unsigned constexpr buffer_size = buffer_size_ ? buffer_size_ : 512;
 
@@ -155,7 +155,7 @@ private:
         unsigned s = mysize; // if function throws, set mysize to 0 first
         myline = mysize = 0;
         if(add_line_break || my[s - 1] != static_cast<char_type>(u'\n')) {
-            auto end = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(my + 0, my + s);
+            auto end = unicode::utf_adjust_end<unicode::utf_from_char<char_type>>(my + 0, my + s);
             s = static_cast<unsigned>(end - my);
             my[s++] = static_cast<char_type>(u'\n');
         }

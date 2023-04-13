@@ -50,7 +50,7 @@ namespace _ {
     }
 
     template<typename unsigned_>
-    void buffer_statistics_add(unsigned_& to, typename types::type<unsigned_>::result add) {
+    void buffer_statistics_add(unsigned_& to, first<unsigned_> add) {
         if(to < static_cast<unsigned_>(-1) - add) to += add;
         else to = static_cast<unsigned_>(-1);
     }
@@ -61,8 +61,8 @@ template<typename output_ = void, typename tag_ = void, bool memory_statistics_ 
 class buffer
 {
 public:
-    using output_type = typename types::if_not_void<output_, output_to_trace>::result;
-    using tag_type = typename types::if_not_void<tag_, tag_with_nothing>::result;
+    using output_type = if_not_void<output_, output_to_trace>;
+    using tag_type = if_not_void<tag_, tag_with_nothing>;
     using piece_type = logs::piece<tag_type>;
     using write_type = write_to_buffer<buffer<output_, tag_, memory_statistics_>>;
 
@@ -106,8 +106,11 @@ public:
         return write_type(*this, tag)(cstring);
     }
 
-    template<typename range_>
-    if_range<range_ const, bool> operator()(tag_type const& tag, range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    bool operator()(tag_type const& tag, range_ const& a) {
         return write_type(*this, tag)(a);
     }
 
@@ -125,8 +128,11 @@ public:
         return (*this)(tag_type{}, cstring);
     }
 
-    template<typename range_>
-    if_range<range_ const, bool> operator()(range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    bool operator()(range_ const& a) {
         return (*this)(tag_type{}, a);
     }
     

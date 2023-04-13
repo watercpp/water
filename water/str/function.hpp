@@ -32,11 +32,11 @@ namespace _ {
 
     template<
         typename function_,
-        typename char_ = decltype(function_test<typename types::no_pointer<types::no_const<types::no_reference<function_>>>::result>(0, 0, 0))
+        typename char_ = decltype(function_test<no_pointer<no_const<no_reference<function_>>>>(0, 0, 0))
     >
-    struct function_char :
-        types::type_plain<char_>
-    {};
+    struct function_char {
+        using result = char_;
+    };
 
     template<typename function_, typename char_>
     void function_call(function_& function, char_ const* begin, char_ const* end) {
@@ -53,15 +53,11 @@ namespace _ {
 template<typename function_, typename char_ = typename _::function_char<function_>::result>
 class function
 {
-    using function_plain_ = typename types::no_const<types::no_reference<function_>>::result;
+    using function_plain_ = no_const_or_reference<function_>;
 
 public:
     using char_type = char_;
-    using function_type = typename types::ifel_type<
-        types::is_function<function_plain_>,
-        function_plain_*,
-        function_plain_
-    >::result;
+    using function_type = ifel<is_function<function_plain_>, function_plain_*,function_plain_>;
 
 private:
     function_type my {};
@@ -96,7 +92,7 @@ public:
             *b = buffer;
         while(begin != end) {
             if(b == buffer + size) {
-                auto e = unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(buffer + 0, b);
+                auto e = unicode::utf_adjust_end<unicode::utf_from_char<char_type>>(buffer + 0, b);
                 operator()(static_cast<char_type const*>(buffer), static_cast<char_type const*>(e));
                 auto b2 = buffer;
                 while(e != b) *b2++ = *e++;

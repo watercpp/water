@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -26,7 +26,7 @@ public:
         {
             auto l = lock_move(my);
         }
-        spin_if(my, static_cast<typename types::ifel<is_spin<read_write_>(), bool, void>::result*>(0));
+        spin_if(my, static_cast<ifel<is_spin<read_write_>(), bool, void>*>(0));
         my.lock();
         my.unlock();
         lock(my);
@@ -50,7 +50,7 @@ public:
         if(locked)
             my.read_unlock();
         
-        timeout_if(my, static_cast<typename types::ifel<has_timeout<read_write_>(), bool, void>::result*>(0));
+        timeout_if(my, static_cast<ifel<has_timeout<read_write_>(), bool, void>*>(0));
     }
 
 private:

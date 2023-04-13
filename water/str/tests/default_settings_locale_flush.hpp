@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -56,7 +56,7 @@ namespace default_settings_locale_flush {
         o1 << 123;
         o2 << 123;
         ___water_test(o1.used);
-        static_assert(types::equal<decltype(o1.locale()), numbers::locale_lowercase>::result, "");
+        static_assert(water::equal<decltype(o1.locale()), numbers::locale_lowercase>, "");
     }
 
     struct has_flush : base {

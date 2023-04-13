@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,8 +6,9 @@
 #define WATER_VECTOOL_HPP
 #include <water/water.hpp>
 #include <water/numeric_limits.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 #include <water/type_traits.hpp>
+#include <water/is_no_to.hpp>
 #include <water/new_here.hpp>
 #ifdef WATER_NO_CHEADERS
     #include <string.h>
@@ -124,7 +125,7 @@ namespace _ { namespace vectools {
     };
     
     
-    template<typename value_, bool memcmp_ = !types::is_class_struct_union<value_>::result>
+    template<typename value_, bool memcmp_ = !is_class_struct_union<value_>>
     struct equal {
         static bool do_it(value_ const *a, value_ const *ae, value_ const *b, value_ const *be) {
             if(ae - a != be - b)
@@ -145,7 +146,7 @@ namespace _ { namespace vectools {
     };
     
     
-    template<typename value_, bool memcmp_ = types::is_unsigned<value_>::result && numeric_limits<value_>::digits == numeric_limits<unsigned char>::digits>
+    template<typename value_, bool memcmp_ = is_unsigned<value_> && numeric_limits<value_>::digits == numeric_limits<unsigned char>::digits>
     struct less {
         static bool do_it(value_ const *a, value_ const *ae, value_ const *b, value_ const *be) {
             // like std::lexicographical_compare
@@ -178,8 +179,8 @@ namespace _ { namespace vectools {
 
 template<
     typename value_,
-    bool destruct_ = !has_trivial_destructor<value_>::result,
-    bool memcpy_ = has_trivial_copy_constructor<value_>::result && has_trivial_copy_assign<value_>::result
+    bool destruct_ = !has_trivial_destructor<value_>,
+    bool memcpy_ = has_trivial_copy_constructor<value_> && has_trivial_copy_assign<value_>
 >
 struct vectool
 {

@@ -148,7 +148,7 @@ struct modify_one {
     
         b.shrink_to_fit();
         
-        resize_if_default_constructor(b, static_cast<typename types::ifel<default_constructor_, long, short>::result*>(0));
+        resize_if_default_constructor(b, static_cast<ifel<default_constructor_, long, short>*>(0));
         
         swap(a, b);
         

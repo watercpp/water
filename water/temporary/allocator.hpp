@@ -14,7 +14,7 @@ class allocator
 public:
     using memory_type = memory_;
     using exception = exception_;
-    static bool constexpr is_noexcept = allocator_noexcept<typename memory_::allocator_type>() && types::equal_plain<void, exception>::result;
+    static bool constexpr is_noexcept = allocator_noexcept<typename memory_::allocator_type>() && equal<void, exception>;
 
 private:
     memory_type *my;

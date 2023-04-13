@@ -7,7 +7,7 @@
 #include <water/water.hpp>
 #include <water/test.hpp>
 #include <water/trace.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 #include <water/xtr/xtr.hpp>
 #include <water/cstring.hpp>
 #include <water/begin_end.hpp>

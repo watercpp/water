@@ -68,7 +68,7 @@ public:
     
     template<typename write_>
     void operator()(write_&& write) const {
-        str::out<xtr_write_from_str<typename types::no_reference<write_>::result>>{write} << *my;
+        str::out<xtr_write_from_str<no_reference<write_>>>{write} << *my;
     }
 };
 

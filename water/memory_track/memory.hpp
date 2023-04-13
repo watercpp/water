@@ -34,7 +34,7 @@ public:
     using cookie_type = cookie<tag_>;
     using tag_type = typename cookie_type::tag_type;
     using cookie_iterator = memory_track::cookie_iterator<cookie_type>;
-    using callback_type = typename types::if_not_void<callback_, no_callback>::result;
+    using callback_type = if_not_void<callback_, no_callback>;
     static constexpr size_t
         align = align_max,
         overhead =

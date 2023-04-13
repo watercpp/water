@@ -5,7 +5,7 @@
 #ifndef WATER_TESTS_NO_INITIALIZER_LIST_HPP
 #define WATER_TESTS_NO_INITIALIZER_LIST_HPP
 #include <water/test.hpp>
-#include <water/types/type.hpp>
+#include <water/types.hpp>
 #include <water/initializer_list.hpp>
 #include <water/no_initializer_list.hpp>
 namespace water { namespace tests {
@@ -29,17 +29,17 @@ public:
     void function(no_initializer_list<type_> const&) {}
 };
 
-using no_initializer_list_test_1 = types::list<
+using no_initializer_list_test_1 = to_void<
     decltype(no_initializer_list_test_class<int>{}),
     decltype(no_initializer_list_test_class<int>{{1}, initializer_list_test_argument{}}),
     decltype(no_initializer_list_test_class<int>{{1, 2}, initializer_list_test_argument{}}),
     decltype(no_initializer_list_test_class<int>{{1, 2, 3}}),
-    decltype(types::make<no_initializer_list_test_class<int>&>() = {}),
-    decltype(types::make<no_initializer_list_test_class<int>&>() = {1}),
-    decltype(types::make<no_initializer_list_test_class<int>&>() = {1, 2}),
-    decltype(types::make<no_initializer_list_test_class<int>&>() = {1, 2, 3}),
-    decltype(types::make<no_initializer_list_test_class<int>&>().function({1, 2, 3})),
-    decltype(types::make<no_initializer_list_test_class<int>&>().function({}))
+    decltype(make_type<no_initializer_list_test_class<int>&>() = {}),
+    decltype(make_type<no_initializer_list_test_class<int>&>() = {1}),
+    decltype(make_type<no_initializer_list_test_class<int>&>() = {1, 2}),
+    decltype(make_type<no_initializer_list_test_class<int>&>() = {1, 2, 3}),
+    decltype(make_type<no_initializer_list_test_class<int>&>().function({1, 2, 3})),
+    decltype(make_type<no_initializer_list_test_class<int>&>().function({}))
 >;
 
 
@@ -54,7 +54,7 @@ public:
     void function(initializer_list<type_> const&) {}
 };
 
-using initializer_list_test_1 = types::list<
+using initializer_list_test_1 = to_void<
     #ifndef WATER_NO_STD
     decltype(initializer_list_test_class<int>{}),
     decltype(initializer_list_test_class<int>{1, 2, 3}),
@@ -62,11 +62,11 @@ using initializer_list_test_1 = types::list<
     #endif
     decltype(initializer_list_test_class<int>{{1}, initializer_list_test_argument{}}),
     decltype(initializer_list_test_class<int>{{1, 2, 3}}),
-    decltype(types::make<initializer_list_test_class<int>&>() = {}),
-    decltype(types::make<initializer_list_test_class<int>&>() = {1}),
-    decltype(types::make<initializer_list_test_class<int>&>() = {1, 2}),
-    decltype(types::make<initializer_list_test_class<int>&>() = {1, 2, 3}),
-    decltype(types::make<initializer_list_test_class<int>&>().function({1, 2, 3}))
+    decltype(make_type<initializer_list_test_class<int>&>() = {}),
+    decltype(make_type<initializer_list_test_class<int>&>() = {1}),
+    decltype(make_type<initializer_list_test_class<int>&>() = {1, 2}),
+    decltype(make_type<initializer_list_test_class<int>&>() = {1, 2, 3}),
+    decltype(make_type<initializer_list_test_class<int>&>().function({1, 2, 3}))
 >;
 
 
@@ -101,10 +101,10 @@ struct std_initializer_list_do<type_, list_<int>> {
 template<typename type_>
 using std_initializer_list = typename std_initializer_list_do<type_>::result;
 
-static_assert(types::type_assert<types::equal<
+static_assert(equal<
     std_initializer_list<double>,
     std::initializer_list<double>
->>::assert, "");
+>, "");
 
 #endif
 

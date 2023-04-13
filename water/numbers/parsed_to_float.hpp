@@ -19,7 +19,7 @@ numeric_limits lowest() is better than -max() ?
 template<typename float_>
 class parsed_to_float
 {
-    using double_ = typename types::ifel_type<types::equal<float_, float>, double, float_>::result;
+    using double_ = ifel<equal<float_, float>, double, float_>;
     
 private:
 

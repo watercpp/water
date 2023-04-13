@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,12 +7,12 @@
 #include <water/align_max.hpp>
 #include <water/int.hpp>
 #include <water/throw_if.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 namespace water { namespace temporary {
 
 using byte = unsigned char;
 
-using upointer_t = types::if_not_void<uint_size_at_least<sizeof(void*)>, uint_largest_t>::result;
+using upointer_t = if_not_void<uint_size_at_least<sizeof(void*)>, uint_largest_t>;
 
 // waste is minimum allocation size, and also maximum align. see temporary::pop
 size_t constexpr waste =
@@ -41,7 +41,7 @@ struct exception {};
 
 template<typename allocator_>
 inline constexpr bool allocator_noexcept() {
-    return noexcept(types::make<allocator_&>().allocate(1));
+    return noexcept(make_type<allocator_&>().allocate(1));
 }
 
 template<>

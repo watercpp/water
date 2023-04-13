@@ -6,7 +6,8 @@
 #define WATER_NO_ATOMIC_INTERLOCKED_HPP
 #include <water/water.hpp>
 #include <water/int.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 #ifndef WATER_NO_ATOMIC_TESTS_FAKE_INTERLOCKED_HPP
     #include <intrin.h>
 #endif
@@ -67,7 +68,7 @@ inline long long _InterlockedXor64(long long *a, long long v) {
 
 template<typename type_>
 constexpr bool interlocked_is_atomic() {
-    return types::is_pointer<type_>::result || sizeof(type_) <= sizeof(long long);
+    return is_pointer<type_> || sizeof(type_) <= sizeof(long long);
 }
 
 enum interlocked_order {
@@ -191,21 +192,21 @@ inline long long interlocked_fetch_xor(long long *a, long long b, interlocked_or
 }
 
 template<typename a_>
-struct interlocked_type_from :
-    types::ifel<types::is_pointer<a_>::result, void*,
-    types::ifel<sizeof(a_) == sizeof(char), char,
-    types::ifel<sizeof(a_) <= sizeof(short), short,
-    types::ifel<sizeof(a_) <= sizeof(long), long,
-    types::ifel<sizeof(a_) <= sizeof(long long), long long,
+using interlocked_type_from =
+    ifel<is_pointer<a_>, void*,
+    ifel<sizeof(a_) == sizeof(char), char,
+    ifel<sizeof(a_) <= sizeof(short), short,
+    ifel<sizeof(a_) <= sizeof(long), long,
+    ifel<sizeof(a_) <= sizeof(long long), long long,
     void
->>>>> {};
+    >>>>>;
 
 template<
     typename to_,
     typename from_,
     bool copy_ =
-        !(types::is_pointer<to_>::result || types::is_int<to_>::result || types::is_bool<to_>::result) ||
-        !(types::is_pointer<from_>::result || types::is_int<from_>::result || types::is_bool<from_>::result)
+        !(is_pointer<to_> || is_int<to_> || is_bool<to_>) ||
+        !(is_pointer<from_> || is_int<from_> || is_bool<from_>)
 >
 struct cast {
     static constexpr to_ do_it(from_ a) {
@@ -238,10 +239,10 @@ template<typename type_>
 class interlocked
 {
     struct not_integer;
-    using int_ = typename types::ifel_type<types::is_int<type_>, type_, not_integer>::result;
+    using int_ = ifel<is_int<type_>, type_, not_integer>;
     struct not_pointer;
-    using ptrdiff_ = typename types::ifel_type<types::is_pointer<type_>, ptrdiff_t, not_pointer>::result;
-    using atomic_ = typename interlocked_type_from<type_>::result;
+    using ptrdiff_ = ifel<is_pointer<type_>, ptrdiff_t, not_pointer>;
+    using atomic_ = interlocked_type_from<type_>;
     using cast_to_type = cast<type_, atomic_>;
     using cast_to_atomic = cast<atomic_, type_>;
 

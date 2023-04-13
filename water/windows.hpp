@@ -76,7 +76,8 @@ But it still seems like the best way to do it. Maybe not in 2033.
 #endif //WATER_NO_WINDOWS_H
 
 #include <water/int.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water { namespace windows_hpp {
 
 #ifdef WATER_NO_WINDOWS_H
@@ -89,16 +90,16 @@ namespace water { namespace windows_hpp {
     
     typedef int int_t;
     typedef unsigned int uint_t;
-    typedef types::ifel<sizeof(int) == sizeof(void*), int, int_size<sizeof(void*)> >::result intptr_t;
-    typedef types::to_unsigned<intptr_t>::result uintptr_t;
+    typedef ifel<sizeof(int) == sizeof(void*), int, int_size<sizeof(void*)>> intptr_t;
+    typedef to_unsigned<intptr_t> uintptr_t;
     
     typedef long long_t;
     typedef unsigned long ulong_t;
-    typedef types::ifel<sizeof(long) == sizeof(void*), long, int_size<sizeof(void*)> >::result longptr_t;
-    typedef types::to_unsigned<intptr_t>::result ulongptr_t;
+    typedef ifel<sizeof(long) == sizeof(void*), long, int_size<sizeof(void*)>> longptr_t;
+    typedef to_unsigned<intptr_t> ulongptr_t;
     
     typedef int_bits_at_least<64> longlong_t;
-    typedef types::to_unsigned<longlong_t>::result ulonglong_t;
+    typedef to_unsigned<longlong_t> ulonglong_t;
     
     typedef long_t hresult_t;
     typedef ulongptr_t sizet_t;

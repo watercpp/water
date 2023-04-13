@@ -61,7 +61,7 @@ public:
         no_exponent_max_max = 10000;
         
     template<typename float_>
-    using double_if_float = typename types::ifel_type<types::equal<float_, float>, double, float_>::result;
+    using double_if_float = ifel<equal<float_, float>, double, float_>;
 
 private:
     unsigned mybase = 10;

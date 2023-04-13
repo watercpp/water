@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -109,7 +109,7 @@ public:
     read& operator()(iterator_ begin, iterator_ end) {
         reset();
         // avoid "conditional expression is constant" warning :(
-        copy_or_convert_and_parse(begin, end, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, uchar_t, char16_t>::result{});
+        copy_or_convert_and_parse(begin, end, ifel<unicode::utf_from_iterator<iterator_> == 8, uchar_t, char16_t>{});
         return *this;
     }
 
@@ -117,7 +117,7 @@ public:
     read& operator()(iterator_ begin, size_t size) {
         reset();
         // avoid "conditional expression is constant" warning :(
-        copy_or_convert_and_parse(begin, size, typename types::ifel<unicode::utf_from_iterator<iterator_>::result == 8, uchar_t, char16_t>::result{});
+        copy_or_convert_and_parse(begin, size, ifel<unicode::utf_from_iterator<iterator_> == 8, uchar_t, char16_t>{});
         return *this;
     }
 

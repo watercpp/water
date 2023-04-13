@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,7 @@
 #include <water/threads/mutex.hpp>
 #include <water/allocator_nothrow.hpp>
 #include <water/new_here.hpp>
+#include <water/types.hpp>
 #include <water/fixed/allocator.hpp>
 #include <water/fixed/block_atomic.hpp>
 namespace water { namespace fixed {
@@ -64,7 +65,7 @@ template<typename allocator_ = void, bool statistics_ = false>
 class memory_atomic
 {
 public:
-    using allocator_type = typename types::if_not_void<allocator_, water::allocator_nothrow>::result;
+    using allocator_type = if_not_void<allocator_, water::allocator_nothrow>;
     static unsigned constexpr align = sizeof(size_t);
 
 private:

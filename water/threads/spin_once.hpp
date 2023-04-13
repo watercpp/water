@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,7 +14,7 @@ namespace _ {
     };
     
     template<typename function_>
-    struct spin_once_bool<function_, decltype(static_cast<bool>(types::make<function_&>()()))> {
+    struct spin_once_bool<function_, decltype(static_cast<bool>(make_type<function_&>()()))> {
         static bool function(function_& f) { return static_cast<bool>(f()); }
     };
     

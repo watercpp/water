@@ -53,7 +53,7 @@ public:
 
     template<typename forward_iterator_, typename locale_, typename transform_>
     forward_iterator_ operator()(forward_iterator_ begin, forward_iterator_ end, locale_ const& locale, transform_&& transform) {
-        return do_it(begin, end, locale, transform, static_cast<typename types::ifel<numeric_limits<type_>::is_integer, int, float>::result*>(0));
+        return do_it(begin, end, locale, transform, static_cast<ifel<numeric_limits<type_>::is_integer, int, float>*>(0));
     }
 
     template<typename forward_iterator_, typename locale_>

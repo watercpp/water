@@ -19,7 +19,7 @@ class allocator<memory_track<allocator_, sizer_, out_>, exception_>
 public:
     using memory_type = memory_track<allocator_, sizer_, out_>;
     using exception = exception_;
-    static bool constexpr is_noexcept = allocator_noexcept<typename memory_type::allocator_type>() && types::equal_plain<void, exception>::result;
+    static bool constexpr is_noexcept = allocator_noexcept<typename memory_type::allocator_type>() && equal<void, exception>;
 
 private:
     memory_type *my;

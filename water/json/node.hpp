@@ -48,7 +48,7 @@ class node
 
 public:
     using memory_type = memory_;
-    using node_if_mutable = typename types::ifel_type<types::if_not_void<memory_>, node<memory_>, node_is_const>::result;
+    using node_if_mutable = ifel<equal<memory_, void>, node_is_const, node<memory_>>;
     using iterator = json::iterator<node<memory_>>;
 
 private:
@@ -64,7 +64,7 @@ private:
 public:
     constexpr node() = default;
 
-    node(typename types::if_not_void<memory_type, node_is_const>::result& m, memory_node *n) :
+    node(if_not_void<memory_type, node_is_const>& m, memory_node *n) :
         mym{&m},
         my{n}
     {}
@@ -228,8 +228,11 @@ public:
         return nodes().find(a);
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result operator[](range_ const& name) const {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    node operator[](range_ const& name) const {
         return nodes().find(name);
     }
 
@@ -266,8 +269,11 @@ public:
         return find(begin, json::size(begin, end));
     }
 
-    template<typename range_>
-    typename if_range<range_, node>::result find(range_ const& name) const {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    node find(range_ const& name) const {
         if(!my) return *this;
         return find(name.begin(), json::range_size(name));
     }
@@ -450,8 +456,11 @@ public:
         return *this;
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result name(range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    node_if_mutable name(range_ const& a) {
         if(my) name(a.begin(), json::range_size(a));
         return *this;
     }
@@ -471,7 +480,7 @@ public:
         //
         if(my) {
             uchar_t *to = 0;
-            typename types::no_reference<decltype(my->size)>::result to_size = 0;
+            no_reference<decltype(my->size)> to_size = 0;
             if(my->type == type_::string) {
                 to = my->string;
                 to_size = my->size;
@@ -494,8 +503,11 @@ public:
         return *this;
     }
 
-    template<typename range_>
-    typename if_range<range_, node_if_mutable>::result string(range_ const& a) {
+    template<
+        typename range_,
+        typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
+    >
+    node_if_mutable string(range_ const& a) {
         if(my) string(a.begin(), json::range_size(a));
         return *this;
     }

@@ -11,6 +11,7 @@ namespace water { namespace tests {
 #else
 #include <water/test.hpp>
 #include <water/std_allocator.hpp>
+#include <water/types.hpp>
 //#include <water/str/out_trace.hpp>
 //#include <water/str/type_name.hpp>
 #include <vector>
@@ -76,14 +77,8 @@ inline void std_allocator_all() {
     
     using allocator = std_allocator<vector, std_allocator_test_allocator>;
     using traits = std::allocator_traits<allocator>;
-    static_assert(types::type_assert<
-        types::equal<traits::value_type,
-        allocator::value_type
-    >>::assert, "");
-    static_assert(types::type_assert<types::equal<
-        std_allocator<int, std_allocator_test_allocator>,
-        traits::rebind_alloc<int>
-    >>::assert, "");
+    static_assert(equal<traits::value_type, allocator::value_type>, "");
+    static_assert(equal<std_allocator<int, std_allocator_test_allocator>, traits::rebind_alloc<int>>, "");
     static_assert(traits::propagate_on_container_copy_assignment::value, "");
     static_assert(traits::propagate_on_container_move_assignment::value, "");
     static_assert(traits::propagate_on_container_swap::value, "");

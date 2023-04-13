@@ -18,7 +18,7 @@ using boolean_t = unsigned char;
 using dword_t = unsigned long;
 using long_t = long;
 using ulong_t = unsigned long;
-using ulongptr_t = types::ifel<sizeof(unsigned long) == sizeof(void*), unsigned long, uint_size<sizeof(void*)>>::result;
+using ulongptr_t = ifel<sizeof(unsigned long) == sizeof(void*), unsigned long, uint_size<sizeof(void*)>>;
 using ulonglong_t = unsigned long long;
 using windows_size_t = ulongptr_t;
 

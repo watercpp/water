@@ -19,7 +19,7 @@ template<typename float_>
 bool write_read_almost_equal(float_ a, float_ b) {
     // on os x the accuracy of long double seems to be less than what it could be, and pow() seems to be the problem?
     // using double epsilon instead
-    using limit_type = typename types::ifel_type<types::equal<long double, float_>, double, float_>::result;
+    using limit_type = ifel<equal<long double, float_>, double, float_>;
     float_ const e = static_cast<float_>(1) + numeric_limits<limit_type>::epsilon() * static_cast<float_>(1.5);
     bool r = a < 0 ?
         (a / e >= b && b >= a * e) || (b / e >= a && a >= b * e) :

@@ -5,7 +5,7 @@
 #ifndef WATER_NO_INITIALIZER_LIST_HPP
 #define WATER_NO_INITIALIZER_LIST_HPP
 #include <water/water.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
 #include <water/new_here.hpp>
 namespace water {
 
@@ -117,7 +117,7 @@ private:
 
 
 template<typename type_, size_t size_>
-class no_initializer_list_temporary<type_, size_, types::to_void<decltype(types::make<typename types::ifel<size_ != 1, type_&>::result>() = type_{})>>
+class no_initializer_list_temporary<type_, size_, to_void<decltype(make_type<ifel<size_ != 1, type_&>>() = type_{})>>
 {
     struct {
         type_ array[size_];

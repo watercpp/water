@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -35,7 +35,7 @@ struct trivial_test_constexpr<type_, false> {
 
 template<typename type_>
 struct trivial_test {
-    static_assert(water::has_trivial_destructor<type_>::result || !has_trivial_destructor<type_>(), "");
+    static_assert(water::has_trivial_destructor<type_> || !has_trivial_destructor<type_>(), "");
     trivial_test_constexpr<type_> my;
     constexpr trivial_test() noexcept {}
     constexpr trivial_test(unsigned a) noexcept : my(a) {}
@@ -43,9 +43,9 @@ struct trivial_test {
 
 inline void trivial() {
     trivial_test_constexpr<once, true>();
-    static_assert(water::has_trivial_destructor<once>::result, "");
+    static_assert(water::has_trivial_destructor<once>, "");
     trivial_test_constexpr<spin_once<>, true>();
-    static_assert(water::has_trivial_destructor<spin_once<>>::result, "");
+    static_assert(water::has_trivial_destructor<spin_once<>>, "");
     test_list<trivial_test, barrier_list>(1);
     test_list<trivial_test, condition_list>();
     test_list<trivial_test, mutex_list>();

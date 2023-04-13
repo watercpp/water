@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -55,8 +55,8 @@ public:
 template<
     typename iterator_,
     bool if_ =
-        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ||
-        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 32
+        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>> == 16 ||
+        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>> == 32
 >
 struct write_range_select_utf;
 
@@ -71,7 +71,7 @@ struct write_range_select<iterator_, settings_, size_, typename write_range_sele
         iterator_,
         settings_,
         size_,
-        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>>::result == 16 ? 16 : 32
+        unicode::utf_from_char<no_const_reference<decltype(*_::make<iterator_&>())>> == 16 ? 16 : 32
     >;
 };
 
@@ -79,15 +79,15 @@ struct write_range_select<iterator_, settings_, size_, typename write_range_sele
 
 template<typename char_, typename settings_, bool utf8_ = settings_::utf8>
 class write_utf_char :
-    public write_size<unicode::utf_from_char<char_>::result == 16 ? 3 : 4>
+    public write_size<unicode::utf_from_char<char_> == 16 ? 3 : 4>
 {
-    static constexpr unsigned utf_ = unicode::utf_from_char<char_>::result;
+    static constexpr unsigned utf_ = unicode::utf_from_char<char_>;
     char my[4];
     unsigned mylength = 0;
 
 public:
     write_utf_char(char_ a) {
-        if(unicode::utf_from_char<char_>::result == 16 ? unicode::utf16_is_1_of_1(a) : unicode::utf32_verify(a)) {
+        if(unicode::utf_from_char<char_> == 16 ? unicode::utf16_is_1_of_1(a) : unicode::utf32_verify(a)) {
             auto *m = static_cast<unsigned char*>(static_cast<void*>(my));
             mylength = unicode::utf8_encode_and_move(m, a);
         }
@@ -115,7 +115,7 @@ public:
 
 
 
-unsigned constexpr wchar_utf = unicode::utf_from_char<wchar_t>::result == 16 ? 16 : 32;
+unsigned constexpr wchar_utf = unicode::utf_from_char<wchar_t> == 16 ? 16 : 32;
 
 template<typename p_, typename w_>
 out<out<p_, w_>, write_utf_char<char16_t, typename out<p_, w_>::settings>> operator<<(

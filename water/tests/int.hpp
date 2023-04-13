@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -17,7 +17,7 @@ compile time test that water/int.hpp seems to work
 template<size_t bits_>
 constexpr int int_bits_test() {
     static_assert(
-        !types::equal<void, int_bits_at_least<bits_>>::result ||
+        !equal<void, int_bits_at_least<bits_>> ||
         bits_ > numeric_limits<int_largest_t>::digits + 1,
         ""
     );
@@ -30,7 +30,7 @@ constexpr int int_bits_test() {
         ""
     );
     static_assert(
-        !types::equal<void, uint_bits_at_least<bits_>>::result ||
+        !equal<void, uint_bits_at_least<bits_>> ||
         bits_ > numeric_limits<uint_largest_t>::digits,
         ""
     );
@@ -54,7 +54,7 @@ constexpr size_t int_sizeof_or_0<void>() { return 0; }
 template<size_t size_>
 constexpr int int_size_test() {
     static_assert(
-        !types::equal<void, int_size_at_least<size_>>::result ||
+        !equal<void, int_size_at_least<size_>> ||
         size_ > int_sizeof_or_0<int_largest_t>(),
         ""
     );
@@ -67,7 +67,7 @@ constexpr int int_size_test() {
         ""
     );
     static_assert(
-        !types::equal<void, uint_size_at_least<size_>>::result ||
+        !equal<void, uint_size_at_least<size_>> ||
         size_ > int_sizeof_or_0<uint_largest_t>(),
         ""
     );
@@ -85,12 +85,12 @@ constexpr int int_size_test() {
 template<size_t digits_>
 constexpr int int_digits10_test() {
     static_assert(
-        !types::equal<void, int_digits10_at_least<digits_>>::result ||
+        !equal<void, int_digits10_at_least<digits_>> ||
         digits_ > numeric_limits<int_largest_t>::digits10,
         ""
     );
     static_assert(
-        !types::equal<void, uint_digits10_at_least<digits_>>::result ||
+        !equal<void, uint_digits10_at_least<digits_>> ||
         digits_ > numeric_limits<uint_largest_t>::digits10,
         ""
     );

@@ -10,6 +10,8 @@
 #include <water/unicode/utf_iterators.hpp>
 #include <water/swap.hpp>
 #include <water/char8.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water { namespace str {
 
 using numbers::settings;
@@ -79,7 +81,7 @@ namespace _ {
 
     // locale_do + default_settings_do are workarounds for clang 5.0.1
 
-    template<typename a_, typename return_ = decltype(types::make<a_&>().locale())>
+    template<typename a_, typename return_ = decltype(make_type<a_&>().locale())>
     struct locale_do {
         using to_void = void;
         using return_type = return_;
@@ -99,7 +101,7 @@ namespace _ {
         }
     };
 
-    template<typename a_, typename return_ = decltype(types::make<a_&>().default_settings())>
+    template<typename a_, typename return_ = decltype(make_type<a_&>().default_settings())>
     struct default_settings_do {
         using to_void = void;
         using return_type = return_;
@@ -131,15 +133,19 @@ namespace _ {
     };
     
     template<typename a_>
-    struct flush<a_, types::to_void<decltype(types::make<a_&>().flush())>> {
+    struct flush<a_, to_void<decltype(make_type<a_&>().flush())>> {
         static void do_it(a_& a) { a.flush(); }
     };
 
     template<typename a_, typename = void>
-    struct char_type_of : types::type_plain<char> {};
+    struct char_type_of {
+        using result = char;
+    };
     
     template<typename a_>
-    struct char_type_of<a_, types::to_void<typename a_::char_type>> : types::type_plain<typename a_::char_type> {};
+    struct char_type_of<a_, to_void<typename a_::char_type>> {
+        using result = typename a_::char_type;
+    };
 
 }
 
@@ -153,7 +159,7 @@ class out :
 {
 public:
     using char_type = char_type_of<write_>;
-    static unsigned constexpr utf = unicode::utf_from_char<char_type>::result;
+    static unsigned constexpr utf = unicode::utf_from_char<char_type>;
 
 private:
     str::settings mysettings;
@@ -190,7 +196,7 @@ public:
     template<typename iterator_>
     out& operator()(iterator_ begin, iterator_ end) {
         if(begin != end)
-            write(begin, end, typename types::ifel<utf == unicode::utf_from_iterator<iterator_>::result, short*, long*>::result{});
+            write(begin, end, ifel<utf == unicode::utf_from_iterator<iterator_>, short*, long*>{});
         return *this;
     }
 
@@ -198,7 +204,7 @@ public:
     out& operator()(char_ *begin, char_ *end) {
         ___water_assert(begin == end || (begin && begin < end));
         if(begin && begin < end)
-            write(begin, end, typename types::ifel<utf == unicode::utf_from_iterator<char_*>::result, short*, long*>::result{});
+            write(begin, end, ifel<utf == unicode::utf_from_iterator<char_*>, short*, long*>{});
         return *this;
     }
 
@@ -207,7 +213,7 @@ public:
         if(cstring && *cstring) {
             auto end = cstring;
             while(*++end);
-            write(cstring, end, typename types::ifel<utf == unicode::utf_from_char<char_>::result, short*, long*>::result{});
+            write(cstring, end, ifel<utf == unicode::utf_from_char<char_>, short*, long*>{});
         }
         return *this;
     }
@@ -221,14 +227,14 @@ public:
                 stop = cstring + max_size,
                 end = cstring;
             while(++end != stop && *end);
-            write(cstring, end, typename types::ifel<utf == unicode::utf_from_char<char_>::result, short*, long*>::result{});
+            write(cstring, end, ifel<utf == unicode::utf_from_char<char_>, short*, long*>{});
         }
         return *this;
     }
 
     template<typename char_>
     out& operator()(char_ a) {
-        write(a, typename types::ifel<utf >= unicode::utf_from_char<char_>::result, short*, long*>::result{});
+        write(a, ifel<utf >= unicode::utf_from_char<char_>, short*, long*>{});
         return *this;
     }
 
@@ -239,7 +245,7 @@ public:
         return *this;
     }
 
-    auto locale() -> decltype(_::locale<write_>::from(types::make<write_&>())) {
+    auto locale() -> decltype(_::locale<write_>::from(make_type<write_&>())) {
         return _::locale<write_>::from(*this);
     }
 
@@ -346,7 +352,7 @@ out<write_>& operator<<(out<write_>& o, restore_settings_move&& a) {
 // specific<char const*> means the array operator is prefered over char const*
 // void_const_pointer is needed to not make char const* go to void const*
 // then void_const_pointer_if disables the constructor for char const*
-// after that if_bool is needed, a plain bool operator would be used for pointers
+// after that ifel<equal<bool_, bool>, ...> is needed, a plain bool operator would be used for pointers
 
 // useful to avoid implicit conversions for the << operators
 template<typename type_>
@@ -391,14 +397,8 @@ out<write_>& operator<<(out<write_>& o, char8_or_not a) {
 
 // numbers
 
-template<typename if_, typename result_>
-struct if_bool;
-
-template<typename result_>
-struct if_bool<bool, result_> { using result = result_; };
-
 template<typename write_, typename bool_>
-typename if_bool<bool_, out<write_>&>::result operator<<(out<write_>& o, bool_ a) {
+ifel<equal<bool_, bool>, out<write_>&> operator<<(out<write_>& o, bool_ a) {
     return o.number(a);
 }
 
@@ -449,7 +449,7 @@ out<write_>& operator<<(out<write_>& o, long double a) {
 
 // pointer
 
-template<typename type_> struct void_const_pointer_if : types::type_plain<decltype(static_cast<void const*>(0) == static_cast<type_*>(0))> {};
+template<typename type_> struct void_const_pointer_if { using result = void_const_pointer_if; };
 template<> struct void_const_pointer_if<char> {};
 template<> struct void_const_pointer_if<char16_t> {};
 template<> struct void_const_pointer_if<char32_t> {};
@@ -467,7 +467,7 @@ out<write_>& operator<<(out<write_>& o, void_const_pointer a) {
     auto r = o.restore_settings();
     if(!o.settings().base())
         o.settings().base(16);
-    return o.number(reinterpret_cast<typename types::if_not_void<uint_size_at_least<sizeof(void*)>, size_t>::result>(a.pointer));
+    return o.number(reinterpret_cast<if_not_void<uint_size_at_least<sizeof(void*)>, size_t>>(a.pointer));
 }
 
 // cstrings
@@ -526,8 +526,12 @@ out<write_>& operator<<(out<write_>& o, char8_or_not const (&a)[size_]) {
 
 // begin end range
 
-template<typename write_, typename begin_end_>
-numbers::if_begin_end<begin_end_, out<write_>&> operator<<(out<write_>& o, begin_end_ const& a) {
+template<
+    typename write_,
+    typename begin_end_,
+    typename = decltype(make_type<begin_end_ const&>().begin() == make_type<begin_end_ const&>().end())
+>
+out<write_>& operator<<(out<write_>& o, begin_end_ const& a) {
     return o(a.begin(), a.end());
 }
 

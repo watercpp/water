@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -244,7 +244,7 @@ namespace _ {
     };
     
     template<typename type_>
-    struct statistics_pointer_if<type_, decltype(types::make<type_&>().statistics())> {
+    struct statistics_pointer_if<type_, decltype(make_type<type_&>().statistics())> {
         static bool constexpr has = true;
         static statistics::data* do_it(type_& a) noexcept { return a.statistics(); }
     };

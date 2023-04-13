@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -31,7 +31,7 @@ public:
                 do unlock(my); while(--n);
             }
         }
-        spin_if(my, static_cast<typename types::ifel<is_spin<mutex_>(), bool, void>::result*>(0));
+        spin_if(my, static_cast<ifel<is_spin<mutex_>(), bool, void>*>(0));
         my.lock();
         my.unlock();
         lock(my);
@@ -42,7 +42,7 @@ public:
         ___water_test(locked = my.try_lock());
         if(locked)
             my.unlock();
-        timeout_if(my, static_cast<typename types::ifel<has_timeout<mutex_>(), bool, void>::result*>(0));
+        timeout_if(my, static_cast<ifel<has_timeout<mutex_>(), bool, void>*>(0));
     }
 
 private:

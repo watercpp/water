@@ -39,7 +39,7 @@ struct read_float_and_compare
             return;
         }
         auto value = r.value();
-        auto const epsilon = static_cast<float_>(numeric_limits<typename types::ifel_type<types::equal<long double, float_>, double, float_>::result>::epsilon());
+        auto const epsilon = static_cast<float_>(numeric_limits<ifel<equal<long double, float_>, double, float_>>::epsilon());
         auto almost1 = static_cast<float_>(1) + epsilon;
         exact = compiler == value;
         similar =

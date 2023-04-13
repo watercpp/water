@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -10,22 +10,22 @@ namespace water { namespace xml {
 namespace _ {
 
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ == 8, bool>::result decode_is_0x85(char_ *f, char_ *end) {
+    ifel<utf_ == 8, bool> decode_is_0x85(char_ *f, char_ *end) {
         return f[0] == 0xc2 && f + 1 < end && f[1] == 0x85;
     }
     
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ != 8, bool>::result decode_is_0x85(char_ *f, char_ *) {
+    ifel<utf_ != 8, bool> decode_is_0x85(char_ *f, char_ *) {
         return *f == 0x85;
     }
 
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ == 8, bool>::result decode_is_0x2028(char_ *f, char_ *end) {
+    ifel<utf_ == 8, bool> decode_is_0x2028(char_ *f, char_ *end) {
         return f[0] == 0xe2 && f + 2 < end && f[1] == 0x80 && f[2] == 0xa8;
     }
     
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ != 8, bool>::result decode_is_0x2028(char_ *f, char_ *) {
+    ifel<utf_ != 8, bool> decode_is_0x2028(char_ *f, char_ *) {
         return *f == 0x2028;
     }
     
@@ -44,7 +44,7 @@ char_* decode(char_ *begin, char_ *end) {
     // - 0xd 0x85
     // - 0x2028 (unicode, xml 1.1, utf-8 is 0xe2 0x80 0xa8)
     //
-    unsigned constexpr utf = unicode::utf_from_char<char_>::result;
+    unsigned constexpr utf = unicode::utf_from_char<char_>;
     char_
         *f = begin,
         *t = f;
@@ -160,7 +160,7 @@ char_* decode(char_ *begin, char_ *end) {
 namespace _ {
 
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ == 8, unsigned>::result decode_attribute_is_space(char_ *f, char_ *end) {
+    ifel<utf_ == 8, unsigned> decode_attribute_is_space(char_ *f, char_ *end) {
         if(*f <= 0x20)
             return 1;
         if(f[0] == 0xc2 && f + 1 < end && f[1] == 0x85)
@@ -171,7 +171,7 @@ namespace _ {
     }
     
     template<unsigned utf_, typename char_>
-    typename types::ifel<utf_ != 8, unsigned>::result decode_attribute_is_space(char_ *f, char_ *) {
+    ifel<utf_ != 8, unsigned> decode_attribute_is_space(char_ *f, char_ *) {
         if(*f <= 0x20 || *f == 0x85 || *f == 0x2028)
             return 1;
         return 0;
@@ -188,7 +188,7 @@ char_* decode_attribute(char_ *begin, char_ *end) {
         *t = begin;
     bool space = false;
     while(f != end) {
-        if(unsigned n = _::decode_attribute_is_space<unicode::utf_from_char<char_>::result>(f, end)) {
+        if(unsigned n = _::decode_attribute_is_space<unicode::utf_from_char<char_>>(f, end)) {
             space = true;
             f += n;
         }

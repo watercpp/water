@@ -8,6 +8,7 @@
 #include <water/temporary/memory_track.hpp>
 #include <water/temporary/vector.hpp>
 #include <water/test.hpp>
+#include <water/types/types.hpp>
 namespace water { namespace temporary { namespace tests {
 
 inline void dead(void *pointer, size_t size) {

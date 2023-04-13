@@ -45,16 +45,14 @@ namespace _ {
     template<typename f_> char8_or_not buffer_function_char_test(f_* f, decltype((*f)(static_cast<char8_or_not const*>(0)))*, ...);
 
     template<typename function_, typename char_>
-    struct buffer_function_char :
-        types::type_plain<char_>
-    {};
+    struct buffer_function_char {
+        using result = char_;
+    };
     
     template<typename function_>
-    struct buffer_function_char<function_, void> :
-        types::type_plain<
-            decltype(buffer_function_char_test<typename types::no_pointer<function_>::result>(0, 0, 0, 0))
-        >
-    {};
+    struct buffer_function_char<function_, void> {
+        using result = decltype(buffer_function_char_test<no_pointer<function_>>(0, 0, 0, 0));
+    };
 
     template<typename char_, typename function_> char_ const* buffer_function_end_test(function_ *f, decltype((*f)(static_cast<char_ const*>(0), static_cast<char_ const*>(0)))*);
     template<typename char_, typename function_> void  const* buffer_function_end_test(function_ *f, ...);
@@ -89,7 +87,7 @@ class buffer
     static_assert(!buffer_size_ || buffer_size_ > 8, "");
 
 public:
-    using function_type = typename types::ifel_type<types::is_function<function_>, function_*, function_>::result;
+    using function_type = ifel<is_function<function_>, function_*, function_>;
     using char_type = typename _::buffer_function_char<function_type, char_>::result;
     static unsigned constexpr buffer_size = buffer_size_ ? buffer_size_ : 512;
 
@@ -147,7 +145,7 @@ public:
 
     void flush() {
         if(mysize) {
-            unsigned size = static_cast<unsigned>(unicode::utf_adjust_end<unicode::utf_from_char<char_type>::result>(my + 0, my + mysize) - my);
+            unsigned size = static_cast<unsigned>(unicode::utf_adjust_end<unicode::utf_from_char<char_type>>(my + 0, my + mysize) - my);
             if(!size)
                 return;
             // if myfunction throws, behave as if it did not. discard the buffer

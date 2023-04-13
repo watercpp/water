@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -14,44 +14,30 @@
 #include <water/cmath.hpp>
 #include <water/char8.hpp>
 #include <water/begin_end.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water { namespace numbers {
 
-struct nothing {};
+
 
 namespace _ {
 
     template<typename a_, typename = void>
-    struct is_begin_end_do :
-        types::bool_result<false>
-    {};
+    struct has_begin_end_do {
+        static bool constexpr result = false;
+    };
     
     template<typename a_>
-    struct is_begin_end_do<a_, types::to_void<decltype(types::make<a_ const&>().begin() == types::make<a_ const&>().end())>> :
-        types::bool_result<true>
-    {};
-    
-    // these if_begin_end_do is need for visual c++
-    
-    template<typename a_, typename result_>
-    struct if_begin_end_do : types::ifel<is_begin_end_do<a_>::result, result_>
-    {};
-    
-    template<typename a_, typename result_>
-    struct if_not_begin_end_do : types::ifel<!is_begin_end_do<a_>::result, result_>
-    {};
+    struct has_begin_end_do<a_, to_void<decltype(make_type<a_ const&>().begin() == make_type<a_ const&>().end())>> {
+        static bool constexpr result = true;
+    };
 
 }
 
 template<typename a_>
-inline constexpr bool is_begin_end() {
-    return _::is_begin_end_do<typename types::no_const<types::no_reference<a_>>::result>::result;
-}
+bool constexpr has_begin_end = _::has_begin_end_do<no_const_or_reference<a_>>::result;
 
-template<typename type_, typename result_ = nothing>
-using if_begin_end = typename _::if_begin_end_do<type_, result_>::result;
 
-template<typename type_, typename result_ = nothing>
-using if_not_begin_end = typename _::if_not_begin_end_do<type_, result_>::result;
 
 // ascii lowercase used when parsing numbers
 struct transform_lowercase {
@@ -59,6 +45,8 @@ struct transform_lowercase {
         return ascii_to_lower(a);
     }
 };
+
+
 
 // group base 10 by 3 digits, base 2 by 8 digits, others by 4 digits
 struct group {
@@ -68,6 +56,8 @@ struct group {
         return (distance_to_point % every) == 0;
     }
 };
+
+
 
 }}
 #endif

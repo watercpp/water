@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,7 +6,8 @@
 #define WATER_NO_ATOMIC_GCCLANG_HPP
 #include <water/water.hpp>
 #include <water/int.hpp>
-#include <water/types/types.hpp>
+#include <water/types.hpp>
+#include <water/is_no_to.hpp>
 namespace water { namespace no_atomic {
 
 /*
@@ -47,9 +48,9 @@ template<typename type_>
 class gcclang
 {
     struct not_integer;
-    using int_ = typename types::ifel_type<types::is_int<type_>, type_, not_integer>::result;
+    using int_ = ifel<is_int<type_>, type_, not_integer>;
     struct not_pointer;
-    using ptrdiff_ = typename types::ifel_type<types::is_pointer<type_>, ptrdiff_t, not_pointer>::result;
+    using ptrdiff_ = ifel<is_pointer<type_>, ptrdiff_t, not_pointer>;
 
 private:
     type_ my {};
@@ -122,11 +123,11 @@ public:
     }
 
     type_ fetch_add(ptrdiff_ a, gcclang_order o = gcclang_order_seq_cst) noexcept {
-        return __atomic_fetch_add(&my, a * static_cast<ptrdiff_t>(sizeof(typename types::no_pointer<type_>::result)), o);
+        return __atomic_fetch_add(&my, a * static_cast<ptrdiff_t>(sizeof(no_pointer<type_>)), o);
     }
 
     type_ fetch_sub(ptrdiff_ a, gcclang_order o = gcclang_order_seq_cst) noexcept {
-        return __atomic_fetch_sub(&my, a * static_cast<ptrdiff_t>(sizeof(typename types::no_pointer<type_>::result)), o);
+        return __atomic_fetch_sub(&my, a * static_cast<ptrdiff_t>(sizeof(no_pointer<type_>)), o);
     }
 
     operator type_() const {

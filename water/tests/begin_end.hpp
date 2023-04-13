@@ -21,35 +21,35 @@ namespace begin_end_tests {
     struct no_equal {};
     
     template<typename a_, typename b_, typename = void>
-    struct can_compare_equal :
-        types::false_result
-    {};
+    struct can_compare_equal {
+        static bool constexpr result = false;
+    };
     
     template<typename a_, typename b_>
-    struct can_compare_equal<a_, b_, types::to_void<decltype(types::make<a_ const&>() == types::make<b_ const&>())>> :
-        types::true_result
-    {};
+    struct can_compare_equal<a_, b_, to_void<decltype(make_type<a_ const&>() == make_type<b_ const&>())>> {
+        static bool constexpr result = true;
+    };
     
-    static_assert(types::type_assert<can_compare_equal<
+    static_assert(can_compare_equal<
         begin_end<float const*>,
         begin_end<double*>
-    >>::assert, "");
+    >::result, "");
     
     
-    static_assert(types::type_assert<types::nots<can_compare_equal<
+    static_assert(!can_compare_equal<
         begin_end<no_equal*>,
         begin_end<char*>
-    >>>::assert, "");
+    >::result, "");
     
-    static_assert(types::type_assert<can_compare_equal<
+    static_assert(can_compare_equal<
         begin_end<downgrade_iterators::forward<int const*>>,
         begin_end<downgrade_iterators::forward<long*>>
-    >>::assert, "");
+    >::result, "");
     
-    static_assert(types::type_assert<types::nots<can_compare_equal<
+    static_assert(!can_compare_equal<
         begin_end<downgrade_iterators::forward<no_equal*>>,
         begin_end<downgrade_iterators::forward<char*>>
-    >>>::assert, "");
+    >::result, "");
     
     template<typename ...a_>
     constexpr void unused(a_&&...) {}

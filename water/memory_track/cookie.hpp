@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -16,7 +16,7 @@ linked list, added to all allocations
 template<typename tag_ = void>
 struct cookie
 {
-    using tag_type = typename types::if_not_void<tag_, memory_track::tag>::result;
+    using tag_type = if_not_void<tag_, memory_track::tag>;
     
     cookie
         *next,
