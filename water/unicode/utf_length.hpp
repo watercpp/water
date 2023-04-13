@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -23,11 +23,11 @@ class utf_length
 {
     static_assert(utf_ == 8 || utf_ == 16 || utf_ == 32, "utf_ must be 8, 16, 32");
     
-    using select_ = typename
-        types::ifel<utf_ == 8, uchar_t,
-        types::ifel<utf_ == 16, char16_t,
-        types::ifel<utf_ == 32, char32_t
-    > > >::result;
+    using select_ =
+        ifel<utf_ == 8, uchar_t,
+        ifel<utf_ == 16, char16_t,
+        char32_t
+        >>;
     
     size_t
         my8 = 0,
@@ -185,12 +185,12 @@ using utf16_length = utf_length<16>;
 using utf32_length = utf_length<32>;
 
 template<typename forward_iterator_>
-utf_length<utf_from_iterator<forward_iterator_>::result> utf_length_from(forward_iterator_ begin, size_t size) {
+utf_length<utf_from_iterator<forward_iterator_>> utf_length_from(forward_iterator_ begin, size_t size) {
     return {begin, size};
 }
 
 template<typename forward_iterator_>
-utf_length<utf_from_iterator<forward_iterator_>::result> utf_length_from(forward_iterator_ begin, forward_iterator_ end) {
+utf_length<utf_from_iterator<forward_iterator_>> utf_length_from(forward_iterator_ begin, forward_iterator_ end) {
     return {begin, end};
 }
 

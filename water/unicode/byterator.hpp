@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -16,7 +16,7 @@ class byterator
 
 public:
     using iterator_category = random_access_iterator_tag;
-    using value_type = typename types::ifel<bits_ <= 16, char16_t, char32_t>::result;
+    using value_type = ifel<bits_ <= 16, char16_t, char32_t>;
     using reference = value_type;
     using pointer = value_type const*;
     using difference_type = decltype(static_cast<uchar_t*>(0) - static_cast<uchar_t*>(0));

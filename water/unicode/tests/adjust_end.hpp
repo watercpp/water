@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -11,7 +11,7 @@ namespace water { namespace unicode { namespace tests {
 template<typename char_>
 void adjust_end_test(char32_t codepoint) {
     unsigned constexpr
-        utf = utf_from_char<char_>::result,
+        utf = utf_from_char<char_>,
         size = 8 * 3; // multiple of 1,2,3,4
     char_ array[size];
     unsigned n = utf_encode<utf>(array, codepoint);

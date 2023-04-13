@@ -56,89 +56,75 @@ bits
 
 namespace _ {
 
+    template<typename char_, bool = is_int<char_>>
+    struct utf_from_char_do {
+        static unsigned constexpr result = 0;
+    };
+    
     template<typename char_>
-    struct utf_from_char_do :
-        types::integer<
-            unsigned,
+    struct utf_from_char_do<char_, true> {
+        static unsigned constexpr result =
             static_cast<char_>(-1) < 0xff ? 0 :
             static_cast<char_>(-1) < 0xffff ? 8 :
             static_cast<char_>(-1) < 0x10ffff ? 16 :
-            32
-        > {};
+            32;
+    };
     
     template<>
-    struct utf_from_char_do<char> :
-        types::integer<unsigned, 8>
-    {};
+    struct utf_from_char_do<char, true> {
+        static unsigned constexpr result = 8;
+    };
 
     template<>
-    struct utf_from_char_do<signed char> :
-        types::integer<unsigned, 8>
-    {};
+    struct utf_from_char_do<signed char, true> {
+        static unsigned constexpr result = 8;
+    };
 
     template<>
-    struct utf_from_char_do<unsigned char> :
-        types::integer<unsigned, 8>
-    {};
+    struct utf_from_char_do<unsigned char, true> {
+        static unsigned constexpr result = 8;
+    };
 
     template<>
-    struct utf_from_char_do<char16_t> :
-        types::integer<unsigned, 16>
-    {};
+    struct utf_from_char_do<char16_t, true> {
+        static unsigned constexpr result = 16;
+    };
 
     template<>
-    struct utf_from_char_do<char32_t> :
-        types::integer<unsigned, 32>
-    {};
+    struct utf_from_char_do<char32_t, true> {
+        static unsigned constexpr result = 32;
+    };
 
     template<>
-    struct utf_from_char_do<wchar_t> :
-        types::integer<
-            unsigned,
+    struct utf_from_char_do<wchar_t, true> {
+        static unsigned constexpr result =
             static_cast<wchar_t>(-1) < 0 ? 32 : // signed whcar_t as utf-32, will this create problems?
             static_cast<wchar_t>(-1) < 0xffff ? 8 :
             static_cast<wchar_t>(-1) < 0x10ffff ? 16 :
-            32
-        > {};
+            32;
+    };
+    
+    
     
 }
 
-// result 8 or 16 or 32 if char_ is a char type or unsigned integer type
-// if wchar_t is signed, this results 32
+// 8 or 16 or 32 if char_ is a char type or unsigned integer type
+// if wchar_t is signed, this is 32
 template<typename char_>
-struct utf_from_char :
-    types::ifel_type<
-        types::is_int<types::no_const<char_> >,
-        _::utf_from_char_do<typename types::no_const<char_>::result>,
-        types::integer<unsigned, 0>
-    > {};
+unsigned constexpr utf_from_char = _::utf_from_char_do<no_const_or_reference<char_>>::result;
 
 
 template<unsigned utf_>
-struct char_from_utf :
-    types::type_plain<void>
-{};
-
-template<>
-struct char_from_utf<8> :
-    types::type_plain<uchar_t>
-{};
-
-template<>
-struct char_from_utf<16> :
-    types::type_plain<char16_t>
-{};
-
-template<>
-struct char_from_utf<32> :
-    types::type_plain<char32_t>
-{};
+using char_from_utf =
+    ifel<utf_ == 8, uchar_t,
+    ifel<utf_ == 16, char16_t,
+    ifel<utf_ == 32, char32_t,
+    void
+    >>>;
 
 
 template<typename iterator_>
-struct utf_from_iterator :
-    utf_from_char<types::no_reference<decltype(*types::make<iterator_&>())> >
-{};
+unsigned constexpr utf_from_iterator = utf_from_char<iterator_value_type<iterator_>>;
 
 
 constexpr uchar_t utf8_first_lookup[0x100] = {
@@ -367,7 +353,7 @@ bool utf32_verify(char_ c) {
 // easy to check the decoded codepoint afterwards
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf8_decode_and_move(
+ifel<is_int<int_>, unsigned> utf8_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -403,10 +389,10 @@ typename types::ifel_type<types::is_int<int_>, unsigned>::result utf8_decode_and
 }
 
 template<typename to_, typename iterator_>
-typename if_random_access<iterator_, unsigned>::result utf8_decode_and_move(
+ifel<is_random_access_iterator<iterator_>, unsigned> utf8_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // return 0 to 4, 0 if from reached end
     if(from == end)
@@ -434,10 +420,10 @@ typename if_random_access<iterator_, unsigned>::result utf8_decode_and_move(
 }
 
 template<typename to_, typename iterator_>
-typename if_not_random_access<iterator_, unsigned>::result utf8_decode_and_move(
+ifel<!is_random_access_iterator<iterator_>, unsigned> utf8_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // returns 0 to 4, how many characters was read from from.
     // pre: from != end
@@ -476,7 +462,7 @@ typename if_not_random_access<iterator_, unsigned>::result utf8_decode_and_move(
 }
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf16_decode_and_move(
+ifel<is_int<int_>, unsigned> utf16_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -503,7 +489,7 @@ template<typename to_, typename iterator_>
 unsigned utf16_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // return 0 1 2, how many from from was used
     // pre: from != end
@@ -524,7 +510,7 @@ unsigned utf16_decode_and_move(
 }
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf32_decode_and_move(
+ifel<is_int<int_>, unsigned> utf32_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -542,7 +528,7 @@ template<typename to_, typename iterator_>
 unsigned utf32_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     if(from != end) {
         to = *from;
@@ -553,7 +539,7 @@ unsigned utf32_decode_and_move(
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 8 && types::is_int<int_>::result, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 8 && is_int<int_>, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -562,7 +548,7 @@ typename types::ifel<utf_ == 8 && types::is_int<int_>::result, unsigned>::result
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 16 && types::is_int<int_>::result, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 16 && is_int<int_>, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -571,7 +557,7 @@ typename types::ifel<utf_ == 16 && types::is_int<int_>::result, unsigned>::resul
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 32 && types::is_int<int_>::result, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 32 && is_int<int_>, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -580,28 +566,28 @@ typename types::ifel<utf_ == 32 && types::is_int<int_>::result, unsigned>::resul
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 8, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 8, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf8_decode_and_move(to, from, end);
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 16, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 16, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf16_decode_and_move(to, from, end);
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 32, unsigned>::result utf_decode_and_move(
+ifel<utf_ == 32, unsigned> utf_decode_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf32_decode_and_move(to, from, end);
 }
@@ -614,7 +600,7 @@ typename types::ifel<utf_ == 32, unsigned>::result utf_decode_and_move(
 //
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf8_decode_verify_and_move(
+ifel<is_int<int_>, unsigned> utf8_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -659,10 +645,10 @@ typename types::ifel_type<types::is_int<int_>, unsigned>::result utf8_decode_ver
 }
 
 template<typename to_, typename iterator_>
-typename if_random_access<iterator_, unsigned>::result utf8_decode_verify_and_move(
+ifel<is_random_access_iterator<iterator_>, unsigned> utf8_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // return 0 to 4, 0 if from reached end
     if(from == end)
@@ -701,10 +687,10 @@ typename if_random_access<iterator_, unsigned>::result utf8_decode_verify_and_mo
 }
 
 template<typename to_, typename iterator_>
-typename if_not_random_access<iterator_, unsigned>::result utf8_decode_verify_and_move(
+ifel<!is_random_access_iterator<iterator_>, unsigned> utf8_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // returns 0 to 4, how many characters was read from from.
     // pre: from != end
@@ -750,7 +736,7 @@ typename if_not_random_access<iterator_, unsigned>::result utf8_decode_verify_an
 }
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf16_decode_verify_and_move(
+ifel<is_int<int_>, unsigned> utf16_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -782,7 +768,7 @@ template<typename to_, typename iterator_>
 unsigned utf16_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     // return 0 1 2
     if(from == end)
@@ -806,7 +792,7 @@ unsigned utf16_decode_verify_and_move(
 }
 
 template<typename to_, typename iterator_, typename int_>
-typename types::ifel_type<types::is_int<int_>, unsigned>::result utf32_decode_verify_and_move(
+ifel<is_int<int_>, unsigned> utf32_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -823,7 +809,7 @@ template<typename to_, typename iterator_>
 unsigned utf32_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     if(from != end && utf32_verify(to = *from)) {
         ++from;
@@ -833,7 +819,7 @@ unsigned utf32_decode_verify_and_move(
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 8 && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8 && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -842,7 +828,7 @@ typename types::ifel<utf_ == 8 && types::is_int<int_>::result, unsigned>::result
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 16 && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16 && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -851,7 +837,7 @@ typename types::ifel<utf_ == 16 && types::is_int<int_>::result, unsigned>::resul
 }
 
 template<unsigned utf_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 32 && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32 && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -860,28 +846,28 @@ typename types::ifel<utf_ == 32 && types::is_int<int_>::result, unsigned>::resul
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 8, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf8_decode_verify_and_move(to, from, end);
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 16, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf16_decode_verify_and_move(to, from, end);
 }
 
 template<unsigned utf_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 32, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf32_decode_verify_and_move(to, from, end);
 }
@@ -890,7 +876,7 @@ typename types::ifel<utf_ == 32, unsigned>::result utf_decode_verify_and_move(
 /////////////////////////////////////////////////////////////////////
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 8 && verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8 && verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -899,7 +885,7 @@ typename types::ifel<utf_ == 8 && verify_ && types::is_int<int_>::result, unsign
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 16 && verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16 && verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -908,7 +894,7 @@ typename types::ifel<utf_ == 16 && verify_ && types::is_int<int_>::result, unsig
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 32 && verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32 && verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -917,34 +903,34 @@ typename types::ifel<utf_ == 32 && verify_ && types::is_int<int_>::result, unsig
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 8 && verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8 && verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf8_decode_verify_and_move(to, from, end);
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 16 && verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16 && verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf16_decode_verify_and_move(to, from, end);
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 32 && verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32 && verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf32_decode_verify_and_move(to, from, end);
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 8 && !verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8 && !verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -953,7 +939,7 @@ typename types::ifel<utf_ == 8 && !verify_ && types::is_int<int_>::result, unsig
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 16 && !verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16 && !verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -962,7 +948,7 @@ typename types::ifel<utf_ == 16 && !verify_ && types::is_int<int_>::result, unsi
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_, typename int_>
-typename types::ifel<utf_ == 32 && !verify_ && types::is_int<int_>::result, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32 && !verify_ && is_int<int_>, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
     int_& size
@@ -971,28 +957,28 @@ typename types::ifel<utf_ == 32 && !verify_ && types::is_int<int_>::result, unsi
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 8 && !verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 8 && !verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf8_decode_and_move(to, from, end);
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 16 && !verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 16 && !verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf16_decode_and_move(to, from, end);
 }
 
 template<unsigned utf_, bool verify_, typename to_, typename iterator_>
-typename types::ifel<utf_ == 32 && !verify_, unsigned>::result utf_decode_verify_and_move(
+ifel<utf_ == 32 && !verify_, unsigned> utf_decode_verify_and_move(
     to_& to,
     iterator_& from,
-    typename types::type<iterator_>::result const& end
+    first<iterator_> const& end
 ) {
     return utf32_decode_and_move(to, from, end);
 }
@@ -1045,17 +1031,17 @@ unsigned utf32_encode(iterator_ to, char32_t from) {
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 8, unsigned>::result utf_encode(iterator_ to, char32_t from) {
+ifel<utf_ == 8, unsigned> utf_encode(iterator_ to, char32_t from) {
     return utf8_encode(to, from);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 16, unsigned>::result utf_encode(iterator_ to, char32_t from) {
+ifel<utf_ == 16, unsigned> utf_encode(iterator_ to, char32_t from) {
     return utf16_encode(to, from);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 32, unsigned>::result utf_encode(iterator_ to, char32_t from) {
+ifel<utf_ == 32, unsigned> utf_encode(iterator_ to, char32_t from) {
     return utf32_encode(to, from);
 }
 
@@ -1114,17 +1100,17 @@ unsigned utf32_encode_and_move(iterator_& to, char32_t from) {
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 8, unsigned>::result utf_encode_and_move(iterator_& to, char32_t from) {
+ifel<utf_ == 8, unsigned> utf_encode_and_move(iterator_& to, char32_t from) {
     return utf8_encode_and_move(to, from);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 16, unsigned>::result utf_encode_and_move(iterator_& to, char32_t from) {
+ifel<utf_ == 16, unsigned> utf_encode_and_move(iterator_& to, char32_t from) {
     return utf16_encode_and_move(to, from);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 32, unsigned>::result utf_encode_and_move(iterator_& to, char32_t from) {
+ifel<utf_ == 32, unsigned> utf_encode_and_move(iterator_& to, char32_t from) {
     return utf32_encode_and_move(to, from);
 }
 
@@ -1165,7 +1151,7 @@ template<unsigned to_, unsigned from_, typename to_iterator_, typename from_iter
 utf_from_utf_return<to_iterator_> utf_from_utf(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<to_ != from_, size_t>::result from_size
+    ifel<to_ != from_, size_t> from_size
 ) {
     static_assert(to_ == 8 || to_ == 16 || to_ == 32, "to_ must be 8, 16, 32");
     static_assert(from_ == 8 || from_ == 16 || from_ == 32, "from_ must be 8, 16, 32");
@@ -1180,7 +1166,7 @@ template<unsigned to_, unsigned from_, typename to_iterator_, typename from_iter
 utf_from_utf_return<to_iterator_> utf_from_utf(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<to_ != from_, from_iterator_>::result from_end
+    ifel<to_ != from_, from_iterator_> from_end
 ) {
     static_assert(to_ == 8 || to_ == 16 || to_ == 32, "to_ must be 8, 16, 32");
     static_assert(from_ == 8 || from_ == 16 || from_ == 32, "from_ must be 8, 16, 32");
@@ -1195,7 +1181,7 @@ template<unsigned to_, unsigned from_, typename to_iterator_, typename from_iter
 utf_from_utf_return<to_iterator_> utf_from_utf(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<to_ == from_, size_t>::result from_size
+    ifel<to_ == from_, size_t> from_size
 ) {
     size_t to_size = 0;
     while(to_size != from_size) {
@@ -1211,7 +1197,7 @@ template<unsigned to_, unsigned from_, typename to_iterator_, typename from_iter
 utf_from_utf_return<to_iterator_> utf_from_utf(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<to_ == from_, from_iterator_>::result from_end
+    ifel<to_ == from_, from_iterator_> from_end
 ) {
     size_t to_size = 0;
     while(from != from_end) {
@@ -1245,7 +1231,7 @@ template<unsigned to_, unsigned from_, typename to_iterator_, typename from_iter
 utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::type<from_iterator_>::result from_end
+    first<from_iterator_> from_end
 ) {
     static_assert(to_ == 8 || to_ == 16 || to_ == 32, "to_ must be 8, 16, 32");
     static_assert(from_ == 8 || from_ == 16 || from_ == 32, "from_ must be 8, 16, 32");
@@ -1263,7 +1249,7 @@ template<unsigned to_, unsigned from_, bool verify_, typename to_iterator_, type
 utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<verify_, size_t>::result from_size
+    ifel<verify_, size_t> from_size
 ) {
     return utf_from_utf_verify<to_, from_>(to, from, from_size);
 }
@@ -1272,7 +1258,7 @@ template<unsigned to_, unsigned from_, bool verify_, typename to_iterator_, type
 utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<verify_, from_iterator_>::result from_end
+    ifel<verify_, from_iterator_> from_end
 ) {
     return utf_from_utf_verify<to_, from_>(to, from, from_end);
 }
@@ -1281,7 +1267,7 @@ template<unsigned to_, unsigned from_, bool verify_, typename to_iterator_, type
 utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<!verify_, size_t>::result from_size
+    ifel<!verify_, size_t> from_size
 ) {
     return utf_from_utf<to_, from_>(to, from, from_size);
 }
@@ -1290,7 +1276,7 @@ template<unsigned to_, unsigned from_, bool verify_, typename to_iterator_, type
 utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     to_iterator_ to,
     from_iterator_ from,
-    typename types::ifel<!verify_, from_iterator_>::result from_end
+    ifel<!verify_, from_iterator_> from_end
 ) {
     return utf_from_utf<to_, from_>(to, from, from_end);
 }
@@ -1303,10 +1289,7 @@ utf_from_utf_return<to_iterator_> utf_from_utf(
     from_iterator_ from,
     size_t from_size
 ) {
-    return utf_from_utf<
-        utf_from_iterator<to_iterator_>::result,
-        utf_from_iterator<from_iterator_>::result
-    >(to, from, from_size);
+    return utf_from_utf<utf_from_iterator<to_iterator_>, utf_from_iterator<from_iterator_>>(to, from, from_size);
 }
 
 template<typename to_iterator_, typename from_iterator_>
@@ -1315,10 +1298,7 @@ utf_from_utf_return<to_iterator_> utf_from_utf(
     from_iterator_ from,
     from_iterator_ from_end
 ) {
-    return utf_from_utf<
-        utf_from_iterator<to_iterator_>::result,
-        utf_from_iterator<from_iterator_>::result
-    >(to, from, from_end);
+    return utf_from_utf<utf_from_iterator<to_iterator_>, utf_from_iterator<from_iterator_>>(to, from, from_end);
 }
 
 template<typename to_iterator_, typename from_iterator_>
@@ -1327,10 +1307,7 @@ utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     from_iterator_ from,
     size_t from_size
 ) {
-    return utf_from_utf_verify<
-        utf_from_iterator<to_iterator_>::result,
-        utf_from_iterator<from_iterator_>::result
-    >(to, from, from_size);
+    return utf_from_utf_verify<utf_from_iterator<to_iterator_>, utf_from_iterator<from_iterator_>>(to, from, from_size);
 }
 
 template<typename to_iterator_, typename from_iterator_>
@@ -1339,10 +1316,7 @@ utf_from_utf_return<to_iterator_> utf_from_utf_verify(
     from_iterator_ from,
     from_iterator_ from_end
 ) {
-    return utf_from_utf_verify<
-        utf_from_iterator<to_iterator_>::result,
-        utf_from_iterator<from_iterator_>::result
-    >(to, from, from_end);
+    return utf_from_utf_verify<utf_from_iterator<to_iterator_>, utf_from_iterator<from_iterator_>>(to, from, from_end);
 }
 
 // utf_adjust_end
@@ -1380,17 +1354,17 @@ iterator_ utf32_adjust_end(iterator_ /*begin*/, iterator_ end) {
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 8, iterator_>::result utf_adjust_end(iterator_ begin, iterator_ end) {
+ifel<utf_ == 8, iterator_> utf_adjust_end(iterator_ begin, iterator_ end) {
     return utf8_adjust_end(begin, end);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 16, iterator_>::result utf_adjust_end(iterator_ begin, iterator_ end) {
+ifel<utf_ == 16, iterator_> utf_adjust_end(iterator_ begin, iterator_ end) {
     return utf16_adjust_end(begin, end);
 }
 
 template<unsigned utf_, typename iterator_>
-typename types::ifel<utf_ == 32, iterator_>::result utf_adjust_end(iterator_ begin, iterator_ end) {
+ifel<utf_ == 32, iterator_> utf_adjust_end(iterator_ begin, iterator_ end) {
     return utf32_adjust_end(begin, end);
 }
 

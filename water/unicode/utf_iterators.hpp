@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -19,7 +19,7 @@ namespace water { namespace unicode {
 //
 // it is safe to ++ or read this past the end, it will return 0. this also means it will work as a 0-terminated cstring
 //
-template<unsigned to_, typename iterator_, bool verify_ = false, unsigned from_ = utf_from_iterator<iterator_>::result>
+template<unsigned to_, typename iterator_, bool verify_ = false, unsigned from_ = utf_from_iterator<iterator_>>
 class utf_iterator_with_end
 {
     static_assert(to_ == 8 || to_ == 16 || to_ == 32, "to_ must be 8, 16, 32");
@@ -27,18 +27,17 @@ class utf_iterator_with_end
 
 public:
     using iterator_category = forward_iterator_tag;
-    using value_type = typename types::ifel<to_ == 8, uchar_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
+    using value_type =
+        ifel<to_ == 8, uchar_t,
+        ifel<to_ == 16, char16_t,
+        char32_t
+        >>;
     using reference = value_type const&;
     using pointer = value_type const*;
     using difference_type = ptrdiff_t;
 
 private:
     constexpr static unsigned size_ = to_ == 8 ? 4 : to_ == 16 ? 2 : 1;
-    using select_ = typename
-        types::ifel<to_ == 8, uchar_t,
-        types::ifel<to_ == 16, char16_t,
-        types::ifel<to_ == 32, char32_t
-    > > >::result;
 
 private:
     iterator_
@@ -54,7 +53,7 @@ public:
         myfrom{begin},
         myend{end}
     {
-        next(static_cast<select_*>(0));
+        next(static_cast<value_type*>(0));
     }
 
     explicit operator bool() const {
@@ -71,7 +70,7 @@ public:
 
     utf_iterator_with_end& operator++() {
         if(++myat >= size_)
-            next(static_cast<select_*>(0));
+            next(static_cast<value_type*>(0));
         return *this;
     }
 
@@ -143,7 +142,7 @@ utf_iterator_with_end<to_, iterator_, verify_, from_> end(utf_iterator_with_end<
 //
 // it is safe to ++ or read this past the end, it will return 0. this also means it will work as a 0-terminated cstring
 //
-template<unsigned to_, typename iterator_, bool verify_ = false, unsigned from_ = utf_from_iterator<iterator_>::result>
+template<unsigned to_, typename iterator_, bool verify_ = false, unsigned from_ = utf_from_iterator<iterator_>>
 class utf_iterator_with_size
 {
     static_assert(to_ == 8 || to_ == 16 || to_ == 32, "to_ must be 8, 16, 32");
@@ -151,18 +150,17 @@ class utf_iterator_with_size
 
 public:
     using iterator_category = forward_iterator_tag;
-    using value_type = typename types::ifel<to_ == 8, uchar_t, types::ifel<to_ == 16, char16_t, char32_t>>::result;
+    using value_type =
+        ifel<to_ == 8, uchar_t,
+        ifel<to_ == 16, char16_t,
+        char32_t
+        >>;
     using reference = value_type const&;
     using pointer = value_type const*;
     using difference_type = ptrdiff_t;
 
 private:
     constexpr static unsigned size_ = to_ == 8 ? 4 : to_ == 16 ? 2 : 1;
-    using select_ = typename
-        types::ifel<to_ == 8, uchar_t,
-        types::ifel<to_ == 16, char16_t,
-        types::ifel<to_ == 32, char32_t
-    > > >::result;
 
 private:
     iterator_ myfrom {};
@@ -177,7 +175,7 @@ public:
         myfrom{begin},
         mysize{size}
     {
-        next(static_cast<select_*>(0));
+        next(static_cast<value_type*>(0));
     }
 
     explicit operator bool() const {
@@ -194,7 +192,7 @@ public:
 
     utf_iterator_with_size& operator++() {
         if(++myat >= size_)
-            next(static_cast<select_*>(0));
+            next(static_cast<value_type*>(0));
         return *this;
     }
 
