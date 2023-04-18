@@ -60,14 +60,12 @@ recent versions of Clang, GCC, Intel C++ and Visual C++.
 # Changelog
 
 The CHANGELOG.md should be updated when major or breaking changes are made to the code. The changes
-are ordered by date, and a tag is set on the code with the same date. This date is a version. When
-minor non-breaking changes are made, the date does not change, the tag is just moved forward to
-include that change.
+are ordered by date, and a tag is set on the code with the same date.
 
-- When updating to a newer date-tag, look at the CHANGELOG.md to see if your code need changes.
-- When updating within the same date-tag, no changes are needed.
+Small changes and bugfixes will usually not be added to the changelog. These changes should not
+break existing code, and hopefully the code commits explain what was done.
 
-This was not done in the past, so the CHANGELOG.md does not go back very far in time.
+The CHANGELOG.md does not go back very far in time, it was added recently.
 
 
 
