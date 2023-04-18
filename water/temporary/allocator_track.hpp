@@ -77,21 +77,25 @@ public:
     // temporary
     
     block* find(void const* pointer) const noexcept {
-        return my->statistics().find(temporary::find(my->list(), pointer));
+        return my ? my->statistics().find(temporary::find(my->list(), pointer)) : 0;
     }
 
     size_t release(void const* pointer) noexcept {
-        return my->statistics().release(temporary::release(my->list(), pointer));
+        return my ? my->statistics().release(temporary::release(my->list(), pointer)) : 0;
     }
 
     size_t retain(void const* pointer) noexcept {
-        auto r = my->statistics().retain(temporary::retain(my->list(), pointer));
+        auto r = my ? my->statistics().retain(temporary::retain(my->list(), pointer)) : 0;
         if(r)
             block_count();
         return r;
     }
 
     void* push(size_t bytes, size_t align = 0, bool allocate_block = true) noexcept(is_noexcept) {
+        if(!my) {
+            throw_if<exception>();
+            return 0;
+        }
         auto &s = my->statistics();
         auto undo = s.push.failure;
         s.push.failure(bytes);
@@ -106,6 +110,11 @@ public:
     }
 
     void* push_at_least(size_t& pushed, size_t at_least, size_t multiply = 1, size_t align = 0, bool allocate_block = true) noexcept(is_noexcept) {
+        pushed = 0;
+        if(!my) {
+            throw_if<exception>();
+            return 0;
+        }
         auto &s = my->statistics();
         auto undo = s.push_at_least.failure;
         s.push_at_least.failure(at_least * (multiply ? multiply : 1));
@@ -120,17 +129,23 @@ public:
     }
 
     void pop(void const* pointer, size_t bytes) noexcept {
+        ___water_assert(my || !pointer);
+        if(!my)
+            return;
         temporary::pop(my->list(), pointer, bytes);
         pop_do(pointer);
     }
 
     void pop(void const* begin, void const* end) noexcept {
+        ___water_assert(my || !begin);
+        if(!my)
+            return;
         temporary::pop(my->list(), begin, end);
         pop_do(begin);
     }
 
     void* resize(void const* pointer, size_t old_size, size_t new_size) noexcept {
-        return my->statistics().resize(temporary::resize(my->list(), pointer, old_size, new_size));
+        return my ? my->statistics().resize(temporary::resize(my->list(), pointer, old_size, new_size)) : 0;
     }
 
     template<typename type_>

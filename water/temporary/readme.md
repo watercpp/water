@@ -95,8 +95,8 @@ allocator:
     std::list<int, allocator> list{allocator{memory}};
 
 Remember to always use a `temporary::std_allocator` constructed with a `temporary::memory` object,
-like the example above. It has a default constructor, but the program will crash if the container
-tries to allocate memory using a default-constructed `std_allocator`.
+like the example above. It has a default constructor, but it will not be able to allocate memory
+so it will throw an exception instead.
 
 
 

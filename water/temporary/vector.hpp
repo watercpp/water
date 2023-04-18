@@ -43,7 +43,7 @@ The constructors and copy-assignment operator cannot return 0, if the allocator 
 
 Differences from std::vector
 - All constructors require an allocator, except the default constructor
-- A default constructed temporary::vector has no allocator, and trying to modify it will make the program to crash.
+- A default constructed temporary::vector has no allocator, and trying to modify it will fail (throw or return 0)
 - A default constructed temporary::vector is only useful after copy-assigning another temporary::vector to it, so it gets an allocator
 - at(size_type i) does not throw if i >= size()
 - clear() deallocates memory

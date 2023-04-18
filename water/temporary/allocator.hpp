@@ -41,39 +41,44 @@ public:
     // temporary
     
     block* find(void const* pointer) const noexcept {
-        return temporary::find(my->list(), pointer);
+        return my ? temporary::find(my->list(), pointer) : 0;
     }
 
     size_t release(void const* pointer) noexcept {
-        return temporary::release(my->list(), pointer);
+        return my ? temporary::release(my->list(), pointer) : 0;
     }
 
     size_t retain(void const* pointer) noexcept {
-        return temporary::retain(my->list(), pointer);
+        return my ? temporary::retain(my->list(), pointer) : 0;
     }
 
     void* push(size_t bytes, size_t align = 0, bool allocate_block = true) noexcept(is_noexcept) {
-        void *r = temporary::push(my->list(), bytes, align, allocate_block ? my->allocate_and_keep_blocks() : 0, my->allocator_pointer(), my->sizer());
+        void *r = my ? temporary::push(my->list(), bytes, align, allocate_block ? my->allocate_and_keep_blocks() : 0, my->allocator_pointer(), my->sizer()) : 0;
         if(!r) throw_if<exception>();
         return r;
     }
 
     void* push_at_least(size_t& pushed, size_t at_least, size_t multiply = 1, size_t align = 0, bool allocate_block = true) noexcept(is_noexcept) {
-        void *r = temporary::push_at_least(my->list(), pushed, at_least, multiply, align, allocate_block ? my->allocate_and_keep_blocks() : 0, my->allocator_pointer(), my->sizer());
+        pushed = 0;
+        void *r = my ? temporary::push_at_least(my->list(), pushed, at_least, multiply, align, allocate_block ? my->allocate_and_keep_blocks() : 0, my->allocator_pointer(), my->sizer()) : 0;
         if(!r) throw_if<exception>();
         return r;
     }
 
     void pop(void const* pointer, size_t bytes) noexcept {
-        temporary::pop(my->list(), pointer, bytes);
+        ___water_assert(my || !pointer);
+        if(my)
+            temporary::pop(my->list(), pointer, bytes);
     }
 
     void pop(void const* begin, void const* end) noexcept {
-        temporary::pop(my->list(), begin, end);
+        ___water_assert(my || !begin);
+        if(my)
+            temporary::pop(my->list(), begin, end);
     }
 
     void* resize(void const* pointer, size_t old_size, size_t new_size) noexcept {
-        return temporary::resize(my->list(), pointer, old_size, new_size);
+        return my ? temporary::resize(my->list(), pointer, old_size, new_size) : 0;
     }
 
     template<typename type_>
