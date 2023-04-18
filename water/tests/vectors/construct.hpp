@@ -6,6 +6,7 @@
 #define WATER_TESTS_VECTORS_CONSTRUCT_HPP
 #include <water/tests/vectors/bits.hpp>
 #include <water/begin_end.hpp>
+#include <water/allocator_pointer.hpp>
 namespace water { namespace tests { namespace vectors {
 
 // construct operator= swap
@@ -273,6 +274,63 @@ void construct_one(typename vector_::value_type const& value, typename vector_::
 }
 
 
+template<typename a_, typename b_>
+struct result_if_equal {
+};
+
+template<typename a_>
+struct result_if_equal<a_, a_> {
+    static bool constexpr result = true;
+};
+
+
+template<typename value_>
+void construct_with_template_deduction(value_ const& value) {
+    #ifdef __cpp_deduction_guides
+
+    water::allocator allocator;
+    water::allocator_pointer allocator_pointer{allocator};
+    value_ i[5] = {value, value, value, value, value};
+    size_t is = 5;
+
+    #ifndef WATER_NO_STD
+
+    vector v0{value};
+    vector v1{value, value};
+    vector v2{value, value, value};
+    static_assert(result_if_equal<vector<value_>, decltype(v0)>::result, "");
+    static_assert(result_if_equal<vector<value_>, decltype(v1)>::result, "");
+    static_assert(result_if_equal<vector<value_>, decltype(v2)>::result, "");
+
+    #endif
+
+    vector v3(i);
+    vector v4(i, allocator_pointer);
+    static_assert(result_if_equal<vector<value_>, decltype(v3)>::result, "");
+    static_assert(result_if_equal<vector<value_, decltype(allocator_pointer)>, decltype(v4)>::result, "");
+
+    vector v6(i, i + is);
+    vector v7(downgrade_iterators::forward_proxied_const_from(i), downgrade_iterators::forward_proxied_const_from(i + is));
+    vector v8(i, i + is, allocator_pointer);
+    vector v9(downgrade_iterators::forward_proxied_const_from(i), downgrade_iterators::forward_proxied_const_from(i + is), allocator_pointer);
+    static_assert(result_if_equal<vector<value_>, decltype(v6)>::result, "");
+    static_assert(result_if_equal<vector<value_>, decltype(v7)>::result, "");
+    static_assert(result_if_equal<vector<value_, decltype(allocator_pointer)>, decltype(v8)>::result, "");
+    static_assert(result_if_equal<vector<value_, decltype(allocator_pointer)>, decltype(v9)>::result, "");
+
+    vector v10(i, is);
+    vector v11(downgrade_iterators::forward_proxied_const_from(i), is);
+    vector v12(i, is, allocator_pointer);
+    vector v13(downgrade_iterators::forward_proxied_const_from(i), is, allocator_pointer);
+    static_assert(result_if_equal<vector<value_>, decltype(v10)>::result, "");
+    static_assert(result_if_equal<vector<value_>, decltype(v11)>::result, "");
+    static_assert(result_if_equal<vector<value_, decltype(allocator_pointer)>, decltype(v12)>::result, "");
+    static_assert(result_if_equal<vector<value_, decltype(allocator_pointer)>, decltype(v13)>::result, "");
+
+    #endif
+}
+
+
 struct construct {
     construct() {
         construct_one<vector<int>>(0, {}, {});
@@ -282,6 +340,10 @@ struct construct {
         construct_one<vector<value_complex>, false>(value_complex(c), {}, {});
         ___water_test(c.count == 0);
         construct_one<vector<value_simple>>({}, {}, {});
+
+        construct_with_template_deduction(value_simple{});
+        construct_with_template_deduction(static_cast<int*>(0));
+        construct_with_template_deduction(static_cast<size_t>(0));
     }
 };
 

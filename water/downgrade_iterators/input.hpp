@@ -29,7 +29,7 @@ private:
 public:
     input() = default;
 
-    explicit input(iterator_ const& a) :
+    explicit input(iterator_ a) :
         my{a},
         myinitialized{true}
     {}

@@ -28,7 +28,7 @@ private:
 public:
     forward() = default;
 
-    explicit forward(iterator_ const& a) :
+    explicit forward(iterator_ a) :
         my{a},
         myinitialized{true}
     {}

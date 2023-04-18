@@ -23,12 +23,12 @@ public:
     
     constexpr begin_end() = default;
     
-    constexpr begin_end(iterator const& begin, iterator const& end) :
+    constexpr begin_end(iterator begin, iterator end) :
         mybegin{begin},
         myend{end}
     {}
     
-    constexpr begin_end(iterator const& begin, size_t size) :
+    constexpr begin_end(iterator begin, size_t size) :
         mybegin{begin},
         myend{begin + size}
     {}

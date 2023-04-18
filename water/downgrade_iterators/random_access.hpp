@@ -28,7 +28,7 @@ private:
 public:
     random_access() = default;
 
-    explicit random_access(iterator_ const& a) :
+    explicit random_access(iterator_ a) :
         my{a},
         myinitialized{true}
     {}

@@ -944,10 +944,61 @@ private:
 
 
 
+#ifdef __cpp_deduction_guides
+
+// remember to use () and not {} for deduction with iterators
+//   vector v(begin, end);
+// otherwise the initializer_list constructor will be selected
+
+template<typename value_, size_t size_>
+vector(value_ (&)[size_]) -> vector<no_const<value_>>;
+
+template<
+    typename value_,
+    size_t size_,
+    typename allocator_,
+    typename = decltype(make_type<allocator_&>().template allocate<no_const<value_>>())
+>
+vector(value_ (&)[size_], allocator_ const&) -> vector<no_const<value_>, allocator_>;
+
+template<
+    typename iterator_,
+    typename = if_not_void<iterator_category<iterator_>>
+>
+vector(iterator_ begin, iterator_ end) -> vector<iterator_value_type<iterator_>>;
+
+template<
+    typename iterator_,
+    typename allocator_,
+    typename = if_not_void<iterator_category<iterator_>>,
+    typename = decltype(make_type<allocator_&>().template allocate<iterator_value_type<iterator_>>())
+>
+vector(iterator_ begin, iterator_ end, allocator_ const& a) -> vector<iterator_value_type<iterator_>, allocator_>;
+
+template<
+    typename iterator_,
+    typename = if_not_void<iterator_category<iterator_>>
+>
+vector(iterator_ begin, size_t size) -> vector<iterator_value_type<iterator_>>;
+
+template<
+    typename iterator_,
+    typename allocator_,
+    typename = if_not_void<iterator_category<iterator_>>,
+    typename = decltype(make_type<allocator_&>().template allocate<iterator_value_type<iterator_>>())
+>
+vector(iterator_ begin, size_t size, allocator_ const& a) -> vector<iterator_value_type<iterator_>, allocator_>;
+
+#endif
+
+
+
 template<typename v_, typename a_, typename s_>
 void swap(vector<v_, a_, s_>& a, vector<v_, a_, s_>& b) noexcept {
     a.swap(b);
 }
+
+
 
 template<typename v_, typename a_, typename s_>
 bool operator==(vector<v_, a_, s_> const& a, vector<v_, a_, s_> const& b) {

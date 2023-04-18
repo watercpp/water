@@ -1420,6 +1420,16 @@ public:
 };
 
 
+#ifdef __cpp_deduction_guides
+
+template<typename p_, typename w_>
+char_array(expression<p_, w_>& x) -> char_array<expression<p_, w_>::size>;
+
+template<typename p_, typename w_>
+char_array(expression<p_, w_>&& x) -> char_array<expression<p_, w_>::size>;
+
+#endif
+
 template<typename p_, typename w_>
 auto string(expression<p_, w_>&& x) -> char_array<expression<p_, w_>::size> {
     return x;

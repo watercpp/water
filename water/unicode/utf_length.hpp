@@ -180,9 +180,28 @@ private:
     }
 };
 
+
+#ifdef __cpp_deduction_guides
+
+template<typename forward_iterator_>
+utf_length(forward_iterator_ begin, size_t size) -> utf_length<utf_from_iterator<forward_iterator_>>;
+
+template<typename forward_iterator_>
+utf_length(forward_iterator_ begin, forward_iterator_ end) -> utf_length<utf_from_iterator<forward_iterator_>>;
+
+template<typename forward_iterator_, typename verify_>
+utf_length(forward_iterator_ begin, size_t size, verify_&& verify) -> utf_length<utf_from_iterator<forward_iterator_>>;
+
+template<typename forward_iterator_, typename verify_>
+utf_length(forward_iterator_ begin, forward_iterator_ end, verify_&& verify) -> utf_length<utf_from_iterator<forward_iterator_>>;
+
+#endif
+
+
 using utf8_length = utf_length<8>;
 using utf16_length = utf_length<16>;
 using utf32_length = utf_length<32>;
+
 
 template<typename forward_iterator_>
 utf_length<utf_from_iterator<forward_iterator_>> utf_length_from(forward_iterator_ begin, size_t size) {
@@ -193,6 +212,7 @@ template<typename forward_iterator_>
 utf_length<utf_from_iterator<forward_iterator_>> utf_length_from(forward_iterator_ begin, forward_iterator_ end) {
     return {begin, end};
 }
+
 
 }}
 #endif

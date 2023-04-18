@@ -11,7 +11,7 @@ namespace water { namespace fixed {
 
 struct exception {};
 
-template<typename memory_, typename exception_, bool lock_free_ = false>
+template<typename memory_, typename exception_ = void, bool lock_free_ = false>
 class allocator
 {
     using select_ = ifel<lock_free_, short, long>*;
@@ -23,7 +23,7 @@ public:
         my(a)
     {}
 
-    allocator(memory_& a = 0) noexcept :
+    allocator(memory_& a) noexcept :
         my(&a)
     {}
 

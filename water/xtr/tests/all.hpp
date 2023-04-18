@@ -8,6 +8,7 @@
 #include <water/xtr/tests/char_pointer.hpp>
 #include <water/xtr/tests/floatingpoint.hpp>
 #include <water/xtr/tests/integers.hpp>
+#include <water/xtr/tests/template_deduction.hpp>
 #include <water/xtr/tests/to_function.hpp>
 #include <water/xtr/tests/truncate.hpp>
 #include <water/xtr/tests/utf.hpp>
@@ -21,6 +22,7 @@ inline void all() {
     char_pointer();
     floatingpoint();
     integers();
+    template_deduction();
     to_function_test();
     truncate();
     utf();

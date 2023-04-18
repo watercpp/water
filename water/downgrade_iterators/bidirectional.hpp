@@ -28,7 +28,7 @@ private:
 public:
     bidirectional() = default;
 
-    explicit bidirectional(iterator_ const& a) :
+    explicit bidirectional(iterator_ a) :
         my{a},
         myinitialized{true}
     {}

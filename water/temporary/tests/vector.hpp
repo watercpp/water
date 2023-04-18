@@ -8,6 +8,31 @@
 #include <water/tests/vectors/all.hpp>
 namespace water { namespace temporary { namespace tests {
 
+template<typename value_, typename allocator_>
+void vector_template_deduction(value_ const& value, allocator_ const& a) {
+    #ifdef __cpp_deduction_guides
+
+    using water::tests::vectors::result_if_equal;
+
+    value_ i[5] = {value, value, value, value, value};
+    size_t is = 5;
+
+    vector v4(i, a);
+    static_assert(result_if_equal<vector<value_, allocator_>, decltype(v4)>::result, "");
+
+    vector v8(i, i + is, a);
+    vector v9(downgrade_iterators::forward_proxied_const_from(i), downgrade_iterators::forward_proxied_const_from(i + is), a);
+    static_assert(result_if_equal<vector<value_, allocator_>, decltype(v8)>::result, "");
+    static_assert(result_if_equal<vector<value_, allocator_>, decltype(v9)>::result, "");
+
+    vector v12(i, is, a);
+    vector v13(downgrade_iterators::forward_proxied_const_from(i), is, a);
+    static_assert(result_if_equal<vector<value_, allocator_>, decltype(v12)>::result, "");
+    static_assert(result_if_equal<vector<value_, allocator_>, decltype(v13)>::result, "");
+
+    #endif
+}
+
 struct vector_test {
     template<typename memory_>
     void operator()(memory_& memory) {
@@ -64,6 +89,10 @@ struct vector_test {
             vector<value_move_only, allocator_type> v{a};
             move_one{v};
         }
+
+        vector_template_deduction(value_simple{}, a);
+        vector_template_deduction(static_cast<int*>(0), a);
+        vector_template_deduction(static_cast<size_t>(0), a);
     }
 };
 

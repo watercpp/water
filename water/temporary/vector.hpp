@@ -930,10 +930,42 @@ private:
 
 
 
+#ifdef __cpp_deduction_guides
+
+template<
+    typename value_,
+    size_t size_,
+    typename memory_,
+    typename exception_
+>
+vector(value_ (&)[size_], allocator<memory_, exception_> const&) -> vector<no_const<value_>, allocator<memory_, exception_>>;
+
+template<
+    typename iterator_,
+    typename memory_,
+    typename exception_,
+    typename = if_not_void<iterator_category<iterator_>>
+>
+vector(iterator_ begin, iterator_ end, allocator<memory_, exception_> const& a) -> vector<iterator_value_type<iterator_>, allocator<memory_, exception_>>;
+
+template<
+    typename iterator_,
+    typename memory_,
+    typename exception_,
+    typename = if_not_void<iterator_category<iterator_>>
+>
+vector(iterator_ begin, size_t size, allocator<memory_, exception_> const& a) -> vector<iterator_value_type<iterator_>, allocator<memory_, exception_>>;
+
+#endif
+
+
+
 template<typename v_, typename a_, typename s_>
 void swap(vector<v_, a_, s_>& a, vector<v_, a_, s_>& b) noexcept {
     a.swap(b);
 }
+
+
 
 template<typename v_, typename a_, typename s_>
 bool operator==(vector<v_, a_, s_> const& a, vector<v_, a_, s_> const& b) {

@@ -63,7 +63,7 @@ private:
 public:
     output() = default;
 
-    explicit output(iterator_ const& a) :
+    explicit output(iterator_ a) :
         my{a},
         myinitialized{true}
     {}
