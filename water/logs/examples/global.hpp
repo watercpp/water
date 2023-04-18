@@ -74,5 +74,28 @@ auto operator<<(global_xtr_class, a_ && a) -> decltype(water::xtr::expression<xt
 }
 
 
+
+/*
+
+Example use, will write:
+
+   One
+   Two 2
+   Four 4
+   Three 3
+
+Three comes after Four because it is written when s is destroyed
+
+*/
+
+inline void use_global() {
+    global("One");
+    global_str s;
+    s << "Two " << 2 << str::el; // el writes the string to the log now
+    s << "Three " << 3; // witout el, it writes the string when s is destroyed
+    global_xtr << "Four " << 4;
+}
+
+
 }}}
 #endif

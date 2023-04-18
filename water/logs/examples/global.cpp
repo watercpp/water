@@ -71,7 +71,7 @@ void global_output::stop() {
 
 void main() {
     water::logs::flush_thread{water::logs::examples::global};
-    water::logs::global("Hello world!");
+    water::logs::examples::global("Hello world!");
 }
 
 #endif
