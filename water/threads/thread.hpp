@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -6,6 +6,9 @@
 #define WATER_THREADS_THREAD_HPP
 #include <water/threads/configuration.hpp>
 #include WATER_THREADS_INCLUDE(thread.hpp)
+#include <water/threads/thread_start_allocator.hpp>
+#include <water/later.hpp>
+#include <water/new_here.hpp>
 namespace water { namespace threads {
 
 template<typename class_, void (class_::*function_)()>
@@ -90,6 +93,51 @@ inline qos_t qos() noexcept;
 inline bool qos(qos_t) noexcept;
 
 #endif
+
+
+
+template<typename function_>
+struct run_copy_function
+{
+    using pointer = function_*;
+
+    void operator()(pointer p) {
+        auto destroy = later([p] {
+            p->~function_();
+            thread_start_free(p, sizeof(function_));
+        });
+        function_ function{static_cast<function_&&>(*p)}; // can throw, but that will crash the program
+        destroy.now();
+        function();
+    }
+};
+
+
+// run_copy(function) will always copy or move the function, unlike run(function)
+//
+// bool ok1 = run_copy([]{ trace << "hello!"; });
+// 
+// join_t j;
+// bool ok2 = run_copy([]{ trace << "hello!"; }, j);
+// join(j);
+
+template<typename function_, typename ...options_>
+bool run_copy(function_&& function, options_&&... options) {
+    using function_type = no_const_or_reference<function_>;
+    void *p = thread_start_allocate(sizeof(function_type));
+    if(!p)
+        return false;
+    auto free = later([p] { thread_start_free(p, sizeof(function_type)); });
+    auto f = new(here(p)) function_type{static_cast<function_&&>(function)}; // can throw
+    auto destroy = later([f] { f->~function_type(); });
+    bool r = run<run_copy_function<function_type>>(f, static_cast<options_&&>(options)...);
+    if(r) {
+        destroy.dont();
+        free.dont();
+    }
+    return r;
+}
+
 
 }}
 #endif

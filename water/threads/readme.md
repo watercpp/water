@@ -3,6 +3,16 @@
 `water::threads` contains functions to run threads, and synchronization objects: mutexes, condition
 variables, read write locks, semaphores, barriers and call-once.
 
+You probably want to use the C++ standard library instead of `water::threads`.
+
+Much of this was originally created to work on Windows 2000 and Windows XP that did not have read
+write locks or condition variables. It was very useful for writing multithreaded code that worked
+across linux, mac and windows. Since then every new version of the C++ standard library has added
+more and more of what `water::threads` does.
+
+`water::threads` is still maintained and used, if for some reason you want to use it instead of the
+C++ standard library.
+
 One part is a thin layer over posix and windows threads and synchronization objects, another part is
 synchronization objects implemented here. The system synchronization objects are preferred over the
 water variants, most of the time.
@@ -110,7 +120,9 @@ The second `name_if` is a `water::ministr::out`.
 
 ## Running threads
 
-In `water::threads` a thread is represented by a simple type `thread_t` or `join_t`. A thread is started with the `run` function. This is a low level, minimal layer over posix `pthread_create` and windows `CreateThread`/`_beginthreadex`.
+In `water::threads` a thread is represented by a simple type `thread_t` or `join_t`. A thread is
+started with the `run` function. This is a low level, minimal layer over posix `pthread_create` and
+windows `CreateThread`/`_beginthreadex`.
 
     auto function = [] { do_something(); };
     water::threads::join_t thread;
@@ -118,9 +130,23 @@ In `water::threads` a thread is represented by a simple type `thread_t` or `join
     if(success)
         join(thread);
 
-In this example, notice that `function` is **not** copied. Make sure that the function object passed to threads::run exists as long as the thread is running. For this reason, you usually want a `water::threads::join_t` variable that you can `join` later to know when the thread has finished (There are `run` overloads without a `join_t`).
+In this example, notice that `function` is **not** copied. Make sure that the function object passed
+to threads::run exists as long as the thread is running. For this reason, you usually want a
+`water::threads::join_t` variable that you can `join` later to know when the thread has finished
+(There are `run` overloads without a `join_t`).
 
-You can set priority, stack size and the Apple specific "quality of service" (that can be quite important on iOS) on a thread. If the operating system does not let you set the priority, stack_size or quality of service those options are ignored. This example shows how to use `run` with a regular function plus a pointer:
+The `run_copy` function will always copy the function object (or move it when possible):
+    
+    water::threads::join_t thread;
+    bool success = water::threads::run_copy([]{ do_something(); }, thread);
+    if(success)
+        join(thread);
+    
+
+You can set priority, stack size and the Apple specific "quality of service" (that can be quite
+important on iOS) on a thread. If the operating system does not let you set the priority, stack_size
+or quality of service those options are ignored. This example shows how to use `run` with a regular
+function plus a pointer:
 
     some_type *pointer_to_something = new some_type;
     void function(some_type*);
@@ -180,8 +206,3 @@ These things are expected to never fail
 - `condition` construction (most of them are constexpr)
 - `mutex/read_write` lock
 - `mutex/read_write` unlock
-
-## History
-
-Much of the code here was originally created to work on Windows 2000 and Windows XP that do not have read write locks or condition variables. It was very useful for writing multithreaded code that worked across linux, mac and windows. Since then the C++ standard library has added thread, mutex, condition_variable and you might prefer to use those classes.
-
