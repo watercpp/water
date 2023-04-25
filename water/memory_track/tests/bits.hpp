@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -7,6 +7,12 @@
 #include <water/memory_track/memory_track.hpp>
 #include <water/test.hpp>
 namespace water { namespace memory_track { namespace tests {
+
+
+template<typename ...a_>
+void unused(a_ const&...)
+{}
+
 
 class cookie_copy_callback
 {
@@ -34,14 +40,15 @@ public:
         my.next = my.prev = 0;
     }
 
-    bool free_error(cookie_type const *cookie, void *pointer, size_t bytes, tag const& t, char const* error) noexcept {
+    template<typename name_, typename tag_>
+    bool free_error(cookie_type const *cookie, void* pointer, size_t bytes, size_t align, name_ const& name, tag_ const& tag, char const* error) noexcept {
         // cookie can be 0
         if(cookie)
             free(cookie);
         else
             my = {};
         myerror = error;
-        unused(pointer, bytes, t); // avoid warnings
+        unused(pointer, bytes, align, name, tag);
         return false; // dont breakpoint
     }
 
@@ -52,14 +59,12 @@ public:
     char const* error() const {
         return myerror;
     }
-
-private:
-    template<typename ...a_>
-    void unused(a_ const&...) {}
     
 };
 
+
 using test_memory = memory<void, cookie_copy_callback>;
+
 
 }}}
 #endif

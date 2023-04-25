@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -167,7 +167,7 @@ inline void basic() {
     ___water_test(count == statistics_total.count_now);
     ___water_test(bytes == statistics_total.bytes_now);
     
-    statistics_for_name statistics_name = memory.statistics_for_name(allocator.tag().name());
+    statistics_for_name statistics_name = memory.statistics_for_name(allocator.name());
     ___water_test(statistics_name.count_now);
     
     statistics_for_bytes statistics_bytes = memory.statistics_for_bytes(0);

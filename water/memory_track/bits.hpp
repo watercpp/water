@@ -9,7 +9,10 @@
 #include <water/throw_if.hpp>
 #include <water/types.hpp>
 #include <water/new_here.hpp>
+#include <water/align_max.hpp>
+#include <water/align_with_unalign.hpp>
 namespace water { namespace memory_track {
+
 
 using byte = unsigned char;
 
@@ -24,85 +27,61 @@ inline upointer_t upointer(void const* a) noexcept {
     return reinterpret_cast<upointer_t>(a);
 }
 
+
 struct exception {};
 
-// string must be a literal! this keeps only a pointer to it.
-class tag
+
+size_t constexpr align_allocations = water::align_allocations;
+
+constexpr bool align_differently(size_t align) {
+    return align && (align > align_allocations || align_allocations % align);
+}
+
+
+
+struct no_tag
 {
-    char const *my;
-
-public:
-    constexpr tag(char const *name = 0) noexcept :
-        my(name)
-    {}
-
-    char const* name() const noexcept {
-        return my;
+    constexpr bool operator==(no_tag const&) const noexcept {
+        return true;
     }
 
-    bool operator==(tag t) const noexcept {
-        char const
-            *a = my,
-            *b = t.my;
-        if(a == b)
-            return true;
-        if(!a || !b)
-            return false;
-        while(*a == *b && *a) {
-            ++a;
-            ++b;
-        }
-        return *a == *b;
-    }
-
-    bool operator!=(tag t) const noexcept {
-        return !operator==(t);
-    }
-};
-
-// used by allocators to tag what allocator + function was used to allocate
-class allocator_tag
-{
-    void const *mypointer = 0;
-    void (*myfunction)() = 0;
-
-public:
-    constexpr allocator_tag() = default;
-
-    constexpr allocator_tag(void const *pointer, void (*function)()) noexcept :
-        mypointer(pointer),
-        myfunction(function)
-    {}
-
-    bool operator==(allocator_tag a) const noexcept {
-        return mypointer == a.mypointer && myfunction == a.myfunction;
-    }
-
-    bool operator!=(allocator_tag a) const noexcept {
-        return !operator==(a);
+    constexpr bool operator!=(no_tag const&) const noexcept {
+        return false;
     }
 };
 
 
+
+// the default callback, that does nothing.
+// if you replace it, never use the memory object from it beacuse it will deadlock.
 struct no_callback
 {
     template<typename cookie_>
     bool allocate(cookie_ const* /*cookie*/, size_t /*bytes_allocated_now*/) noexcept {
-        return true; // return false to make allocation fail
+        // return false to make allocation fail
+        // cookie is the current allocation
+        // bytes_allocated_now is total number of bytes allocated now, excluding this allocation
+        return true;
     }
 
     template<typename cookie_>
     void free(cookie_ const* /*cookie*/) noexcept {
+        // free without errors
+        // cookie is the current allocation
     }
 
-    template<typename cookie_, typename tag_>
-    bool free_error(cookie_ const* /*cookie*/, void* /*pointer*/, size_t /*bytes*/, tag_ const& /*tag*/, char const* /*error*/) noexcept {
+    template<typename cookie_, typename name_, typename tag_>
+    bool free_error(cookie_ const* /*cookie*/, void* /*pointer*/, size_t /*bytes*/, size_t /*algin*/, name_ const& /*name*/, tag_ const& /*tag*/, char const* /*error*/) noexcept {
+        // free failed
         // cookie can be 0
         return true; // return true to breakpoint/assert, false is useful for testing
     }
 };
 
+
+
 size_t constexpr pattern_size = sizeof(void*);
+
 
 inline void pattern_set(void *pointer, size_t bytes) {
     if(pointer && bytes) {
@@ -114,6 +93,7 @@ inline void pattern_set(void *pointer, size_t bytes) {
         do *i = dead[d = !d]; while(++i != e);
     }
 }
+
 
 inline void const* pattern_check(void const* pointer, size_t bytes) {
     // return address where it does not match pattern, 0 if it matches
@@ -131,8 +111,10 @@ inline void const* pattern_check(void const* pointer, size_t bytes) {
     return 0;
 }
 
+
+
 template<typename unsigned_>
-void add(unsigned_& a, first<unsigned_> b) {
+void add(unsigned_& a, first<unsigned_> b = 1) {
     if(a > static_cast<unsigned_>(-1) - b)
         a = static_cast<unsigned_>(-1);
     else
@@ -140,24 +122,14 @@ void add(unsigned_& a, first<unsigned_> b) {
 }
 
 template<typename unsigned_>
-void sub(unsigned_& a, first<unsigned_> b) {
+void sub(unsigned_& a, first<unsigned_> b = 1) {
     if(a < b)
         a = 0;
     else
         a -= b;
 }
 
-template<typename unsigned_>
-void add(unsigned_& a) {
-    if(a != static_cast<unsigned_>(-1))
-        ++a;
-}
 
-template<typename unsigned_>
-void sub(unsigned_& a) {
-    if(a)
-        --a;
-}
 
 }}
 #endif

@@ -40,6 +40,7 @@ template<bool exception_ = false>
 struct underlying_allocator
 {
     static bool constexpr is_noexcept = !exception_;
+    
     void* allocate(size_t bytes) noexcept(is_noexcept) {
         #ifdef WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR
         void *r = WATER_MEMORY_TRACK_UNDERLYING_ALLOCATOR().allocate(bytes);

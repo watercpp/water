@@ -4,7 +4,7 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_MEMORY_TRACK_ALLOCATOR_BASE_HPP
 #define WATER_MEMORY_TRACK_ALLOCATOR_BASE_HPP
-#include <water/memory_track/bits.hpp>
+#include <water/memory_track/allocator_tag.hpp>
 namespace water { namespace memory_track {
 
 /*
@@ -12,7 +12,11 @@ namespace water { namespace memory_track {
 Allocates from memory_track::memory
 Keeps track of the allocation function and optionally an "address", free must be made with the matching function + "address"
 
-The address can be useful for testing when something should use the same allocator-object for allocate + free
+IMPORTANT:
+The char const* name_string_literal pointer is stored as is in this, just the pointer.
+So it must point to a literal or something that exists while the allocator does.
+See "String literals" in the readme.md
+
 
 This is a base class, the derived_ class should look like this:
 
@@ -46,15 +50,17 @@ public:
     static bool constexpr is_noexcept = equal<void, exception>;
 
 private:
+    char const* myname = 0;
     tag_type mytag {};
-    void const* myaddress = 0; // keep this 0
+    void const* myaddress = 0;
 
 public:
 
     constexpr allocator_base() = default;
 
-    constexpr allocator_base(tag_type const& tag = {}) :
-        mytag(tag)
+    constexpr allocator_base(char const* name_string_literal, tag_type const& tag = {}) :
+        myname{name_string_literal},
+        mytag{tag}
     {}
     
     bool operator==(allocator_base const& a) const noexcept {
@@ -63,6 +69,15 @@ public:
     
     bool operator!=(allocator_base const& a) const noexcept {
         return !(*this == a);
+    }
+    
+    char const* name() const noexcept {
+        return myname;
+    }
+
+    allocator_base& name(char const* name_string_literal) noexcept {
+        myname = name_string_literal;
+        return *this;
     }
 
     tag_type const& tag() const noexcept {
@@ -74,57 +89,57 @@ public:
         return *this;
     }
 
-    void const* address() const noexcept {
+    void const* allocator_tag_address() const noexcept {
         return myaddress;
     }
 
-    allocator_base& address(void const* a) noexcept {
+    allocator_base& allocator_tag_address(void const* a) noexcept {
         // when freeing, this address must match what it was when memory was allocated. default is 0.
         myaddress = a;
         return *this;
     }
 
     void* allocate(size_t bytes) noexcept(is_noexcept) {
-        return allocate_do(bytes, tag_function<void>);
+        return allocate_do(bytes, 0, tag_function<void>);
     }
 
     void free(void *pointer, size_t bytes) noexcept {
-        free_do(pointer, bytes, tag_function<void>);
+        free_do(pointer, bytes, 0, tag_function<void>);
     }
 
     template<typename type_>
     type_* allocate() noexcept(is_noexcept) {
-        return static_cast<type_*>(allocate_do(sizeof(type_), tag_function<type_>));
+        return static_cast<type_*>(allocate_do(sizeof(type_), alignof(type_), tag_function<type_>));
     }
 
     template<typename type_>
     void free(void *pointer) noexcept {
-        free_do(pointer, sizeof(type_), tag_function<type_>);
+        free_do(pointer, sizeof(type_), alignof(type_), tag_function<type_>);
     }
 
     template<typename type_>
     type_* allocate(size_t count) noexcept(is_noexcept) {
-        return static_cast<type_*>(allocate_do(sizeof(type_) * count, tag_function<type_[1]>));
+        return static_cast<type_*>(allocate_do(sizeof(type_) * count, alignof(type_), tag_function<type_[1]>));
     }
 
     template<typename type_>
     void free(void *pointer, size_t count) noexcept {
-        free_do(pointer, sizeof(type_) * count, tag_function<type_[1]>);
+        free_do(pointer, sizeof(type_) * count, alignof(type_), tag_function<type_[1]>);
     }
 
 private:
 
-    void* allocate_do(size_t bytes, void (*tag)()) noexcept(is_noexcept) {
+    void* allocate_do(size_t bytes, size_t align, void (*tag)()) noexcept(is_noexcept) {
         auto memory = static_cast<derived_*>(this)->memory_pointer();
-        auto pointer = memory ? memory->allocate(bytes, mytag, allocator_tag(myaddress, tag)) : 0;
+        auto pointer = memory ? memory->allocate(bytes, align, myname, mytag, allocator_tag(myaddress ? myaddress : memory, tag)) : 0;
         if(!pointer) throw_if<exception>();
         return pointer;
     }
 
-    void free_do(void *pointer, size_t bytes, void (*tag)()) noexcept {
+    void free_do(void *pointer, size_t bytes, size_t align, void (*tag)()) noexcept {
         auto memory = static_cast<derived_*>(this)->memory_pointer();
         ___water_assert(memory);
-        memory->free(pointer, bytes, mytag, allocator_tag(myaddress, tag));
+        memory->free(pointer, bytes, align, myname, mytag, allocator_tag(myaddress ? myaddress : memory, tag));
     }
 
     template<typename type_>

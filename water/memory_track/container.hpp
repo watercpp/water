@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,8 +8,14 @@
 #include <water/memory_track/underlying_allocator.hpp>
 namespace water { namespace memory_track {
 
-// because water::vector header can depend on this being included before
-// this is also safe to use after its been destroyed
+/*
+
+Simple container for use inside this namesapce. Using vector or something else would be a problem
+if the global operator new and delete have been replaced to use water::memory_track.
+
+This is also safe to use after it has been destroyed.
+
+*/
 
 template<typename value_>
 class container
@@ -24,6 +30,7 @@ private:
         *mycapacity = 0;
 
 public:
+
     constexpr container() = default;
     container(container const&) = delete;
     container& operator=(container const&) = delete;
@@ -71,11 +78,12 @@ public:
         return mybegin == myend;
     }
 
-    value_type* insert(size_t at, value_type v) noexcept {
+    value_type* insert(value_type const* at, value_type const& v) noexcept {
+        auto a = at - mybegin;
         if(myend == mycapacity && !grow(capacity() * 2))
             return 0;
         auto
-            i = mybegin + at,
+            i = mybegin + a,
             e = myend;
         while(i != e) { // move
             e[0] = e[-1];
@@ -85,15 +93,31 @@ public:
         *i = v;
         return i;
     }
+    
+    value_type* push_back(value_type const& v) noexcept {
+        if(myend == mycapacity && !grow(capacity() * 2))
+            return 0;
+        auto i = myend;
+        *i = v;
+        ++myend;
+        return i;
+    }
 
-    value_type* resize(size_t a) {
-        if(capacity() < a && !grow(a))
+    value_type* resize(size_t a) noexcept {
+        if(!reserve(a))
             return 0;
         myend = mybegin + a; // works even if a is 0
         return mybegin;
     }
+    
+    value_type* reserve(size_t a) noexcept {
+        if(capacity() < a && !grow(a))
+            return 0;
+        return mybegin;
+    }
 
 private:
+
     static void swap(value_type*& a, value_type*& b) noexcept {
         value_type* s = a;
         a = b;
@@ -121,6 +145,7 @@ private:
         return true;
     }
 };
+
 
 }}
 #endif

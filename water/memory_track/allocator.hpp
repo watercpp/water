@@ -13,6 +13,11 @@ Allocates from memory_track::memory
 
 The constructor needs a memory_track::memory object or it cannot allocate memory.
 
+IMPORTANT:
+The char const* name_string_literal pointer is stored as is in this, just the pointer.
+So it must point to a literal or something that exists while the allocator does.
+See "String literals" in the readme.md
+
 Look at allocator_base.hpp.
 
 */
@@ -29,8 +34,8 @@ public:
 
     constexpr allocator() = default;
 
-    constexpr allocator(memory_& memory, typename memory_::tag_type const& tag = {}) :
-        base_{tag},
+    constexpr allocator(memory_& memory, char const *name_string_literal, typename memory_::tag_type const& tag = {}) :
+        base_{name_string_literal, tag},
         mymemory{&memory}
     {}
     
