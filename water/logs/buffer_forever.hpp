@@ -5,7 +5,11 @@
 #ifndef WATER_LOGS_BUFFER_FOREVER_HPP
 #define WATER_LOGS_BUFFER_FOREVER_HPP
 #include <water/logs/buffer.hpp>
-#include <water/threads/spin_once.hpp>
+#if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
+    #include <water/threads/spin_once.hpp>
+#else
+    #include <mutex>
+#endif
 namespace water { namespace logs {
 
 // like buffer but no destructor
@@ -22,13 +26,18 @@ public:
     using write_type = write_to_buffer<buffer_forever<output_, tag_, memory_statistics_>>;
 
 private:
-    size_t
-        mypiecesize,
-        myblocksize;
-    threads::spin_once<> myonce; // this has no destructor, a mutex might have
+    size_t mypiecesize;
+    size_t myblocksize;
     char mybuffer[sizeof(buffer)] {};
+    
+    #if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
+    threads::spin_once<> myonce; // this has no destructor
+    #else
+    std::once_flag myonce;
+    #endif
 
 public:
+
     constexpr buffer_forever(size_t piece_size = 0, size_t memory_block_size = 0) :
         mypiecesize(piece_size),
         myblocksize(memory_block_size)
@@ -122,17 +131,17 @@ public:
     }
 
 private:
-    friend struct once;
-    
-    struct once {
-        buffer_forever *my;
-        void operator()() {
-            new(here(my->mybuffer)) buffer(my->mypiecesize, my->myblocksize, false);
-        }
-    };
     
     buffer* get() {
-        myonce(once{this});
+        #if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
+        myonce(
+        #else
+        call_once(myonce,
+        #endif
+            [this]() {
+                new(here(this->mybuffer)) buffer(this->mypiecesize, this->myblocksize, false);
+            }
+        );
         return static_cast<buffer*>(static_cast<void*>(mybuffer));
     }
 };

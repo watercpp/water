@@ -6,6 +6,8 @@ logging-function, `water::logs` could be the solution.
 
 `water::logs` is a highly concurrent buffered log.
 
+`#include <water/logs/logs.hpp>`
+
 Threads write their logs to a `water::logs::buffer` or a `water::logs::buffer_forever`, and then
 one background thread will write the buffer to the actual logging destination.
 

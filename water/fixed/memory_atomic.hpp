@@ -4,7 +4,7 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_FIXED_MEMORY_ATOMIC_HPP
 #define WATER_FIXED_MEMORY_ATOMIC_HPP
-#include <water/threads/mutex.hpp>
+#include <water/mutex.hpp>
 #include <water/allocator_nothrow.hpp>
 #include <water/new_here.hpp>
 #include <water/types.hpp>
@@ -72,7 +72,7 @@ private:
     atomic<block_atomic*>
         mylist {},
         myhint {}; // last seen block with free space
-    threads::mutex<threads::need_constexpr_constructor> mymutex;
+    mutex mymutex;
     allocator_type *myallocator = 0;
     char myallocator_memory[sizeof(allocator_type)] {}; // need {} for constexpr constructor
     size_t
@@ -92,7 +92,7 @@ public:
     ~memory_atomic() {
         block_atomic *list = mylist.load(memory_order_acquire);
         if(list) {
-            auto lock = lock_move(mymutex);
+            lock_guard lock{mymutex};
             do {
                 block_atomic *f = list;
                 list = list->list();
@@ -107,13 +107,13 @@ public:
     }
 
     memory_atomic& block_size(size_t a) {
-        auto lock = lock_move(mymutex);
+        lock_guard lock{mymutex};
         if(a) myblocksize = a;
         return *this;
     }
 
     size_t block_size() {
-        auto lock = lock_move(mymutex);
+        lock_guard lock{mymutex};
         return myblocksize;
     }
 
@@ -139,7 +139,7 @@ public:
 
     bool allocate_block(size_t block_size = 0) {
         // could throw
-        auto lock = lock_move(mymutex);
+        lock_guard lock{mymutex};
         return allocate_block_locked(mylist.load(), block_size) != 0;
     }
 
@@ -214,7 +214,7 @@ private:
             }
             if(lock_free)
                 break;
-            auto lock = lock_move(mymutex);
+            lock_guard lock{mymutex};
             did_lock = true;
             block_atomic *now = mylist.load(memory_order_relaxed);
             if(list == now) {
@@ -230,10 +230,12 @@ private:
     }
 
     block_atomic* allocate_block_locked(block_atomic *list, size_t block_size = 0) {
+        #ifdef WATER_USE_WATER_THREADS
         ___water_threads_statistics(
             if(!mylist.load(memory_order_relaxed))
                 name_if(statistics_pointer(mymutex)) << "water::fixed::memory_atomic bytes=" << mybytes;
         )
+        #endif
         if(!block_size)
             block_size = myblocksize;
         if(!myblocksize)

@@ -8,7 +8,7 @@
 #include <water/logs/write_to_buffer.hpp>
 #include <water/new_here.hpp>
 #include <water/fixed/memory_atomic.hpp>
-#include <water/threads/mutex.hpp>
+#include <water/mutex.hpp>
 #include <water/allocator.hpp>
 #include <water/unicode/utf.hpp>
 #include <water/atomic.hpp>
@@ -73,7 +73,7 @@ private:
 
 private:
     // below locked
-    threads::mutex<threads::need_constexpr_constructor> mylock;
+    mutex mylock;
     output_type myoutput;
     buffer_statistics mystatistics{};
 
@@ -181,7 +181,7 @@ public:
 
     void flush() {
         if(mylist.load(memory_order_acquire)) {
-            auto lock = lock_move(mylock);
+            lock_guard lock{mylock};
             flush_locked();
         }
     }
@@ -189,14 +189,14 @@ public:
     void flush_if_not_flushing() {
         // flush only if nobody else is flushing right now
         // use flush() if it's important that the message just written by the current thread is flushed
-        if(mylist.load(memory_order_acquire) && try_lock(mylock)) {
-            auto unlock = unlock_move(mylock);
+        if(mylist.load(memory_order_acquire) && mylock.try_lock()) {
+            lock_guard lock{mylock, adopt_lock};
             flush_locked();
         }
     }
 
     buffer_statistics statistics() {
-        auto lock = lock_move(mylock);
+        lock_guard lock{mylock};
         return mystatistics;
     }
 
@@ -314,10 +314,12 @@ private:
     }
 
     void statistics_locked(piece_type *piece) {
+        #ifdef WATER_USE_WATER_THREADS
         ___water_threads_statistics(
             if(!mystatistics.piece_count)
                 name_if(statistics_pointer(mylock), "water::logs::buffer");
         )
+        #endif
         size_t
             message_pieces = 0,
             message_length = 0,

@@ -9,6 +9,12 @@
 #include <water/threads/thread.hpp>
 namespace water { namespace logs {
 
+/*
+
+The only way to convert a std::thread::id to text is via std::iostreams or std::hash.
+So this uses water::threads to get the operating system thread id.
+
+*/
 
 class tag_with_thread
 {
