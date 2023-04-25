@@ -7,6 +7,7 @@
 #include <water/water.hpp>
 #include <water/new_here.hpp>
 #include <water/swap.hpp>
+#include <water/types.hpp>
 #ifndef WATER_NO_STD
     #include <type_traits>
 #endif
@@ -95,6 +96,16 @@ public:
     
     constexpr std_allocator(underlying_allocator const& a)  :
         my{a}
+    {}
+    
+    template<typename a_, typename = decltype(underlying_allocator{make_type<a_&&>()})>
+    constexpr std_allocator(a_&& a) :
+        my{static_cast<a_&&>(a)}
+    {}
+    
+    template<typename a_, typename b_, typename ...c_>
+    constexpr std_allocator(a_&& a, b_&& b, c_&&... c) :
+        my{static_cast<a_&&>(a), static_cast<b_&&>(b), static_cast<c_&&>(c)...}
     {}
     
     template<typename other_>

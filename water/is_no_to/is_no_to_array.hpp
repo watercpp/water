@@ -17,6 +17,9 @@ bool constexpr is_array = false;
 template<typename a_, size_t b_>
 bool constexpr is_array<a_[b_]> = true;
 
+template<typename a_>
+bool constexpr is_array<a_[]> = true;
+
 
 
 template<typename a_>
@@ -30,6 +33,15 @@ struct no_array<a_(&)[b_]> : type<a_&> {};
 
 template<typename a_, size_t b_>
 struct no_array<a_(&&)[b_]> : type<a_&&> {};
+
+template<typename a_>
+struct no_array<a_[]> : type<a_> {};
+
+template<typename a_>
+struct no_array<a_(&)[]> : type<a_&> {};
+
+template<typename a_>
+struct no_array<a_(&&)[]> : type<a_&&> {};
 
 
 
@@ -50,6 +62,15 @@ struct to_array_with_size<a_(&)[b_], c_> : type<a_(&)[c_]> {};
 
 template<typename a_, size_t b_, size_t c_>
 struct to_array_with_size<a_(&&)[b_], c_> : type<a_(&&)[c_]> {};
+
+template<typename a_, size_t b_>
+struct to_array_with_size<a_[], b_> : type<a_[b_]> {};
+
+template<typename a_, size_t b_>
+struct to_array_with_size<a_(&)[], b_> : type<a_(&)[b_]> {};
+
+template<typename a_, size_t b_>
+struct to_array_with_size<a_(&&)[], b_> : type<a_(&&)[b_]> {};
 
 
 

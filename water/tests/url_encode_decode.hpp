@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,7 +13,7 @@ namespace water { namespace tests {
 
 template<typename iterator1_, typename iterator2_>
 bool url_encode_decode_equal(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterator2_ e2) {
-    size_t at = 0;
+    //size_t at = 0;
     while(b1 != e1 && b2 != e2) {
         auto c1 = *b1;
         auto c2 = *b2;
@@ -21,7 +21,7 @@ bool url_encode_decode_equal(iterator1_ b1, iterator1_ e1, iterator2_ b2, iterat
         ___water_test(equal);
         if(!equal)
             return false;
-        ++at;
+        //++at;
         ++b1;
         ++b2;
     }

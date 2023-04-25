@@ -166,6 +166,8 @@ static_assert(equal<to_pointer<int* const>, int*>, "");
 static_assert(equal<to_pointer<int*&>, int**>, "");
 static_assert(equal<to_pointer<int[123]>, int(*)[123]>, "");
 
+static_assert(!is_pointer<int[]>, "");
+
 
 
 // pointer to member
@@ -278,6 +280,8 @@ static_assert(equal<to_array_with_size<int, 123>, int[123]>, "");
 
 static_assert(array_size<int const(&)[123][456]>() == 123, "");
 static_assert(array_size<int>() == 0, "");
+
+static_assert(is_array<int[]>, "");
 
 
 

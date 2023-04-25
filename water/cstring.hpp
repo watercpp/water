@@ -24,7 +24,7 @@ class cstring_pointer
     char_ const *my;
 
 public:
-    cstring_pointer(char_ const *a) :
+    constexpr cstring_pointer(char_ const *a) :
         my{a}
     {}
 
