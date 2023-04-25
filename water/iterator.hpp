@@ -7,11 +7,22 @@
 #include <water/water.hpp>
 #include <water/types.hpp>
 #include <water/is_no_to.hpp>
-#ifndef WATER_NO_STD
+
+// Trying to include <iterator> it if it extists.
+// It should be added to the "freestanding" headers with C++23
+// If this does not work, manually define WATER_ITERATOR_NO_STD or WATER_ITERATOR_HAS_STD
+
+#if !defined(WATER_NO_STD) && !defined(WATER_ITERATOR_NO_STD) && !defined(WATER_ITERATOR_HAS_STD)
+    #if defined(__STDC_HOSTED__) && !__STDC_HOSTED__ && __cplusplus < 202300
+        #define WATER_ITERATOR_NO_STD
+    #endif
+#endif
+
+#if !defined(WATER_NO_STD) && !defined(WATER_ITERATOR_NO_STD)
     #include <iterator>
 #else
     namespace std {
-        // this is all that is needed here, but do this only when WATER_NO_STD is defined because in
+        // this is all that is needed here, but do this only when <iterator> does not exist because in
         // the real std library these structs can be declared in a different namespace
         struct input_iterator_tag;
         struct output_iterator_tag;
@@ -21,6 +32,7 @@
         struct contiguous_iterator_tag; // inherits random_access_iterator_tag
 }
 #endif
+
 namespace water {
 
 
@@ -30,7 +42,7 @@ Things to figure out what category a iterator has, what value_type, pointer, ref
 
 This should recognize contiguous_iterator_tag, but water::iterator_category<int*> is random_access_iterator_tag.
 
-When WATER_NO_STD is *not* defined, this will use std::iterator_traits<iterator_> to get the types from the iterator
+When the standard <iterator> heder exists, this will use std::iterator_traits<iterator_> to get the types from the iterator
 
 */
 
@@ -41,7 +53,7 @@ using std::forward_iterator_tag;
 using std::bidirectional_iterator_tag;
 using std::random_access_iterator_tag;
 
-#ifndef WATER_NO_STD
+#if !defined(WATER_NO_STD) && !defined(WATER_ITERATOR_NO_STD)
 
 struct not_contiguous_iterator_tag;
 
