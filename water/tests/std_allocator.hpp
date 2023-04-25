@@ -29,9 +29,13 @@ struct std_allocator_test_allocator
     }
 
     template<typename type_>
-    void free(void *pointer, size_t /*count*/) noexcept {
+    void free(void *pointer, size_t count) noexcept {
         //str::out_trace{} << "free " << str::type_name<type_>() << " pointer=" << pointer << " count=" << count;
+        #ifdef __cpp_sized_deallocation
+        ::operator delete(pointer, sizeof(type_) * count);
+        #else
         ::operator delete(pointer);
+        #endif
     }
     
     bool operator==(std_allocator_test_allocator const&) const {

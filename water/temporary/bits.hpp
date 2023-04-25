@@ -19,7 +19,7 @@ size_t constexpr waste =
     #ifdef WATER_TEMPORARY_WASTE
     WATER_TEMPORARY_WASTE;
     #else
-    align_max;
+    align_allocations;
     #endif
     
 struct sizer {

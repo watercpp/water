@@ -1,4 +1,4 @@
-// Copyright 2018 Johan Paulsson
+// Copyright 2018-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -23,6 +23,16 @@ struct allocator_test_type {
     char array[size_];
 };
 
+template<size_t size_, size_t align_>
+struct alignas(align_) allocator_test_aligned_type {
+    char array[size_];
+};
+
+template<typename type_>
+bool allocator_test_aligned(type_ const* a) {
+    return (reinterpret_cast<size_t>(a) % alignof(type_)) == 0;
+}
+
 inline void allocator_write_0(void *to, size_t size) {
     auto *t = static_cast<char*>(to);
     while(size) t[--size] = 0;
@@ -40,6 +50,7 @@ template<typename type_, typename allocator_>
 void allocator_type(allocator_&& allocator) {
     type_ *pointer = allocator.template allocate<type_>();
     ___water_test(pointer);
+    ___water_test(allocator_test_aligned(pointer));
     allocator_write_0(pointer, sizeof(type_));
     allocator.template free<type_>(pointer);
 }
@@ -48,6 +59,8 @@ template<typename type_, typename allocator_>
 void allocator_type(allocator_&& allocator, size_t count) {
     type_ *pointer = allocator.template allocate<type_>(count);
     ___water_test(pointer);
+    ___water_test(allocator_test_aligned(pointer));
+    ___water_test(count == 1 || allocator_test_aligned(pointer + 1));
     allocator_write_0(pointer, sizeof(type_) * count);
     allocator.template free<type_>(pointer, count);
 }
@@ -63,6 +76,12 @@ void allocator_test(allocator_&& allocator) {
     allocator_type<allocator_test_type<128>>(allocator, 12);
     allocator_type<allocator_test_type<1024>>(allocator);
     allocator_type<allocator_test_type<1024>>(allocator, 12);
+    allocator_type<allocator_test_aligned_type<1, 64>>(allocator);
+    allocator_type<allocator_test_aligned_type<1, 64>>(allocator, 12);
+    allocator_type<allocator_test_aligned_type<128, 128>>(allocator);
+    allocator_type<allocator_test_aligned_type<128, 128>>(allocator, 12);
+    allocator_type<allocator_test_aligned_type<1024, 512>>(allocator);
+    allocator_type<allocator_test_aligned_type<1024, 512>>(allocator, 12);
 }
 
 inline void allocator_all() {

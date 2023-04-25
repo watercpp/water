@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,9 +8,8 @@ namespace water {
 
 /*
 
-This could probably be replaced by alignof(std::max_aling_t) from the C standard library, the maximum
+This could probably be replaced by alignof(std::max_align_t) from the C standard library, the maximum
 alignment of any scalar type.
-
 
 Memory aligned to this should be aligned for all normal c++ types, but maybe not for some types like SIMD vector types.
 If the largest alignment is not a multiple of all other smaller alignments, this will not work
@@ -69,6 +68,13 @@ unsigned constexpr align_max = static_cast<unsigned>(_::align_max_do(
     alignof(int _::align_max_class::*),
     alignof(_::align_max_class)
 ));
+
+unsigned constexpr align_allocations =
+    #ifdef __STDCPP_DEFAULT_NEW_ALIGNMENT__
+    static_cast<unsigned>(__STDCPP_DEFAULT_NEW_ALIGNMENT__) > align_max ?
+    static_cast<unsigned>(__STDCPP_DEFAULT_NEW_ALIGNMENT__) :
+    #endif
+    align_max;
 
 }
 #endif
