@@ -142,7 +142,7 @@ WATER_WINDOWS_FUNCTION(bool_t, InitOnceExecuteOnce, (init_once_t*, bool_t (WATER
 
 #endif
 
-dword_t const
+dword_t constexpr
     wait_forever           = WATER_WINDOWS_SELECT(INFINITE, 0xfffffffful),
     wait_timeout           = WATER_WINDOWS_SELECT(WAIT_TIMEOUT, 0x102),
     event_synchronize      = WATER_WINDOWS_SELECT(SYNCHRONIZE, 0x100000ul),
@@ -157,13 +157,17 @@ dword_t const
     thread_set_information   = WATER_WINDOWS_SELECT(THREAD_SET_INFORMATION, 0x20),
     thread_query_information = WATER_WINDOWS_SELECT(THREAD_QUERY_INFORMATION, 0x40);
 
-int const
+int constexpr
     thread_priority_idle          = WATER_WINDOWS_SELECT(THREAD_PRIORITY_IDLE, -15),
+    thread_priority_lowest        = WATER_WINDOWS_SELECT(THREAD_PRIORITY_LOWEST, -2),
+    thread_priority_below_normal  = WATER_WINDOWS_SELECT(THREAD_PRIORITY_BELOW_NORMAL, -1),
     thread_priority_normal        = WATER_WINDOWS_SELECT(THREAD_PRIORITY_NORMAL, 0),
+    thread_priority_above_normal  = WATER_WINDOWS_SELECT(THREAD_PRIORITY_ABOVE_NORMAL, 1),
+    thread_priority_highest       = WATER_WINDOWS_SELECT(THREAD_PRIORITY_HIGHEST, 2),
     thread_priority_time_critical = WATER_WINDOWS_SELECT(THREAD_PRIORITY_TIME_CRITICAL, 15);
     // THREAD_PRIORITY_ERROR_RETURN is 32-bit int-max
 
-void *const handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
+void *constexpr handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
 
 using handle_atomic = atomic<void*>;
 

@@ -57,13 +57,7 @@ public:
         if(frequency_seconds > 0.)
             myseconds = frequency_seconds;
         threads::run_options options;
-        if(threads::qos_exists)
-            options.qos(threads::qos_utility);
-        else if(threads::priority_exists) {
-            auto priority = threads::priority_default();
-            if(priority > 1)
-                options.priority(--priority);
-        }
+        options.relative_priority(threads::priority_lower);
         using function = threads::member_function<flush_thread_water, &flush_thread_water::thread<buffer_>>;
         bool ok =
             threads::run<function>(this, my, options) ||

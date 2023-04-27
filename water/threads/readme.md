@@ -125,42 +125,41 @@ started with the `run` function. This is a low level, minimal layer over posix `
 windows `CreateThread`/`_beginthreadex`.
 
     auto function = [] { do_something(); };
-    water::threads::join_t thread;
-    bool success = water::threads::run(function, thread);
+    threads::join_t thread;
+    bool success = threads::run(function, thread);
     if(success)
         join(thread);
 
 In this example, notice that `function` is **not** copied. Make sure that the function object passed
 to threads::run exists as long as the thread is running. For this reason, you usually want a
-`water::threads::join_t` variable that you can `join` later to know when the thread has finished
+`threads::join_t` variable that you can `join` later to know when the thread has finished
 (There are `run` overloads without a `join_t`).
 
 The `run_copy` function will always copy the function object (or move it when possible):
     
-    water::threads::join_t thread;
-    bool success = water::threads::run_copy([]{ do_something(); }, thread);
+    threads::join_t thread;
+    bool success = threads::run_copy([]{ do_something(); }, thread);
     if(success)
         join(thread);
     
 
-You can set priority, stack size and the Apple specific "quality of service" (that can be quite
+You can set priority, stack size and the Apple specific "quality of service" (QOS) (that can be quite
 important on iOS) on a thread. If the operating system does not let you set the priority, stack_size
-or quality of service those options are ignored. This example shows how to use `run` with a regular
-function plus a pointer:
+or QOS those options are ignored. This example shows how to use `run` with a regular function plus a
+pointer:
 
     some_type *pointer_to_something = new some_type;
     void function(some_type*);
     
-    water::threads::priority priority;
+    threads::priority priority;
     unsigned average_priority = priority.min() + (priority.max() - priority.min()) / 2;
     
-    water::threads::run_options options;
-    options.priority(average_priority);
+    threads::run_options options;
     options.stack_size(1024 * 1024);
-    options.qos(water::threads::qos_user_interactive);
+    options.priority(average_priority);
     
-    water::threads::join_t thread;
-    bool success = water::threads::run<water::threads::function<some_type, &function>>(
+    threads::join_t thread;
+    bool success = threads::run<threads::function<some_type, &function>>(
         pointer_to_something,
         join,
         options
@@ -169,6 +168,36 @@ function plus a pointer:
         join(thread);
         delete pointer_to_something;
     }
+
+`relative_priority` is a more portable way to set thread priority. It should work well on Windows
+and Apple platforms. On Android and Linux it does nothing, because the priority of normal threads
+cannot be changed. On other pthread platforms it hopefully works fine. On Apple platforms it will
+set the QOS, on other platforms the priority. The priorities have names similar to the Windows
+thread priority constants:
+
+- `priority_lower`: For background work that a user is not waiting for.
+- `priority_low`:
+- `priority_normal`: The default.
+- `priority_high`:
+- `priority_higher`: For things that need to happen at once. Like user input, graphics or sound. 
+
+Example:
+
+    auto function = [] {
+        threads::relative_priority(threads::priority_low);
+        do_something();
+    };
+    
+    threads::run_copy(
+        function,
+        threads::run_options{}.relative_priority(threads::priority_high)
+    );
+    
+
+
+You should only use one of priority, relative_priority and QOS for a thread, combining them will
+not work.
+
 
 See
 

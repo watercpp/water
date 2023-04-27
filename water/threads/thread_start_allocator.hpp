@@ -143,21 +143,17 @@ public:
 namespace _ {
 
     template<typename = void>
-    struct thread_start_static {
-        static thread_start_allocator<> allocator;
-    };
-    template<typename a_>
-    thread_start_allocator<> thread_start_static<a_>::allocator;
+    thread_start_allocator<> thread_start_global_allocator;
 
 }
 
 
 inline void* thread_start_allocate(size_t bytes) {
-    return _::thread_start_static<>::allocator.allocate(bytes);
+    return _::thread_start_global_allocator<>.allocate(bytes);
 }
 
 inline void thread_start_free(void *pointer, size_t bytes) {
-    return _::thread_start_static<>::allocator.free(pointer, bytes);
+    return _::thread_start_global_allocator<>.free(pointer, bytes);
 }
 
 

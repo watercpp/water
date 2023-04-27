@@ -31,7 +31,9 @@ struct join_t {};
 
 bool constexpr
     priority_exists = true,
-    stack_size_exists = true;
+    stack_size_exists = true,
+    qos_exists = true,
+    relative_priority_exists = true;
 
 thread_t thread() noexcept;
 
@@ -45,9 +47,11 @@ bool dont_join(join_t a) noexcept;
 
 class run_options {
 public:
-    run_options& priority(unsigned a) noexcept;
     run_options& stack_size(size_t a) noexcept;
+    run_options& priority(unsigned a) noexcept;
+    run_options& relative_priority(relative_priority_t a) noexcept;
     run_options& qos(qos_t a) noexcept;
+    // use one of priority, qos, relative_priority. they cannot be combined
 };
 
 template<typename call_> bool run(typename call_::pointer pointer, run_options const& options = {}) noexcept;
@@ -91,6 +95,19 @@ inline qos_t qos(thread_t) noexcept;
 inline qos_t qos(join_t) noexcept;
 inline qos_t qos() noexcept;
 inline bool qos(qos_t) noexcept;
+
+// relative_priority, more portable than prioriy or qos.
+// will set qos on apple platforms, priority on other.
+
+enum relative_priority_t {
+    priority_lower,
+    priority_low,
+    priority_normal,
+    priority_high,
+    priority_higher
+};
+
+inline bool relative_priority(relative_priority_t);
 
 #endif
 

@@ -5,6 +5,7 @@
 #ifndef WATER_THREADS_TESTS_THREAD_ALL_HPP
 #define WATER_THREADS_TESTS_THREAD_ALL_HPP
 #include <water/threads/tests/thread_priority.hpp>
+#include <water/threads/tests/thread_relative_priority.hpp>
 #include <water/threads/tests/thread_run.hpp>
 #include <water/threads/tests/thread_run_copy.hpp>
 #include <water/threads/tests/thread_sleep_yield.hpp>
@@ -14,6 +15,7 @@ namespace water { namespace threads { namespace tests {
 
 inline void thread_all() {
     thread_priority();
+    thread_relative_priority();
     thread_run();
     thread_run_copy();
     thread_sleep_yield();

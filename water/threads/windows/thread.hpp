@@ -19,7 +19,8 @@ namespace water { namespace threads {
 bool constexpr
     priority_exists = true,
     stack_size_exists = true,
-    qos_exists = false;
+    qos_exists = false,
+    relative_priority_exists = true;
 
 using thread_t = dword_t;
 // 0 is not a valid thread id because GetThreadId(handle) returns 0 if it fails
@@ -212,6 +213,18 @@ public:
     }
 };
 
+enum relative_priority_t {
+    priority_lower = thread_priority_lowest,
+    priority_low = thread_priority_below_normal,
+    priority_normal = thread_priority_normal,
+    priority_high = thread_priority_above_normal,
+    priority_higher = thread_priority_highest
+};
+
+inline bool relative_priority(relative_priority_t p) {
+    return SetThreadPriority(GetCurrentThread(), p) != 0;
+}
+
 enum qos_t {
     qos_error = 0,
     qos_user_interactive = 1,
@@ -331,6 +344,10 @@ public:
     run_options& priority_windows(int a) noexcept {
         mypriority = a;
         return *this;
+    }
+    
+    run_options& relative_priority(relative_priority_t a) noexcept {
+        return priority_windows(a);
     }
 
     security_attributes_t* security() const noexcept {

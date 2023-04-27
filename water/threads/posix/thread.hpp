@@ -72,9 +72,9 @@ inline bool join(join_t a) noexcept {
 
 class priority_translate // between posix range and water range 1 or more
 {
-    int
-        mymin = 0,
-        mymax = 0;
+    int mymin = 0;
+    int mymax = 0;
+    bool myerror = false;
 
 public:
     priority_translate() noexcept = default;
@@ -84,12 +84,18 @@ public:
         mymax(sched_get_priority_max(sched)) // returns -1 if error
     {
         ___water_assert((mymin == -1 && mymax == -1) || (mymin >= 0 && mymax >= mymin));
+        myerror = mymin < 0 || mymax < mymin;
         if(mymin < 0 || mymax <= mymin)
             mymin = mymax = 0;
     }
 
     explicit operator bool() const noexcept {
+        // returns false if priority cannot be changed. that is not always an error
         return mymin != mymax;
+    }
+
+    bool error() const noexcept {
+        return myerror;
     }
 
     unsigned water_from_posix(int a) const noexcept {
@@ -142,17 +148,18 @@ class priority
     sched_param myparam{};
     priority_translate mytranslate;
     unsigned mypriority = 0;
+    bool myerror = false;
 
 public:
     explicit priority(thread_t a) noexcept :
         my(a)
     {
-        if(
-            !pthread_getschedparam(my, &mysched, &myparam) &&
-            (mytranslate = priority_translate(mysched)) &&
-            mytranslate.posix_is_valid(myparam.sched_priority)
-        ) {
-            mypriority = mytranslate.water_from_posix(myparam.sched_priority);
+        myerror = true;
+        if(!pthread_getschedparam(my, &mysched, &myparam)) {
+            mytranslate = priority_translate(mysched);
+            myerror = mytranslate.error();
+            if(mytranslate && mytranslate.posix_is_valid(myparam.sched_priority))
+                mypriority = mytranslate.water_from_posix(myparam.sched_priority);
         }
     }
 
@@ -163,6 +170,11 @@ public:
     explicit priority(join_t a) noexcept :
         priority(thread(a))
     {}
+
+    bool error() const noexcept {
+        // this can return false, even if get() or max() return 0, if it is not possible to set the priority
+        return myerror;
+    }
 
     operator unsigned() const noexcept {
         return mypriority;
@@ -316,15 +328,91 @@ inline bool qos(qos_t) noexcept {
 
 #endif
 
+enum relative_priority_t {
+    priority_lower = -2,
+    priority_low = -1,
+    priority_normal = 0,
+    priority_high = 1,
+    priority_higher = 2
+};
+
+inline unsigned priority_from_relative_priority(int relative, unsigned normal, unsigned max) {
+    int r = static_cast<int>(normal) - relative;
+    if(r < 1)
+        return 1;
+    if(static_cast<unsigned>(r) > max)
+        return max;
+    return static_cast<unsigned>(r);
+}
+
+#ifdef WATER_THREADS_APPLE
+
+bool constexpr relative_priority_exists = true;
+
+struct qos_from_relative_priority_return {
+    qos_class_t qos = QOS_CLASS_DEFAULT;
+    int relative = 0;
+};
+
+inline qos_from_relative_priority_return qos_from_relative_priority(int p) {
+    qos_from_relative_priority_return r;
+    r.qos = p < priority_normal ? QOS_CLASS_UTILITY :
+        p == priority_high ? QOS_CLASS_USER_INITIATED :
+        p == priority_higher ? QOS_CLASS_USER_INTERACTIVE :
+        QOS_CLASS_DEFAULT;
+    if(p == priority_lower)
+        r.relative = QOS_MIN_RELATIVE_PRIORITY / 2; // min is -15
+    return r;
+}
+
+inline bool relative_priority(relative_priority_t p) {
+    if(&pthread_set_qos_class_self_np == NULL)
+        return true;
+    auto q = qos_from_relative_priority(p);
+    auto e = pthread_set_qos_class_self_np(q.qos, q.relative);
+    ___water_assert(!e && "pthread_set_qos_class_self_np failed");
+    return e == 0;
+}
+
+#elif defined(WATER_POSIX_THREAD_PRIORITY_SCHEDULING)
+
+bool constexpr relative_priority_exists = true;
+
+inline bool relative_priority(relative_priority_t p) {
+    priority set;
+    if(set.max() < 2)
+        return !set.error();
+    return set.set(priority_from_relative_priority(p, priority_default(), set.max()));
+}
+
+#else
+
+bool constexpr relative_priority_exists = false;
+
+bool constexpr relative_priority(relative_priority_t) {
+    return true;
+}
+
+#endif
+
+
 class run_options
 {
     unsigned mypriority = 0;
+    int myrelative = priority_lower - 1;
     size_t mysize = 0;
     qos_t myqos = qos_error;
 
 public:
     run_options& priority(unsigned a) noexcept {
+        ___water_assert(myrelative < priority_lower && myqos == qos_error && "use one of priority, relative_priority, quos");
         mypriority = a;
+        return *this;
+    }
+    
+    run_options& relative_priority(relative_priority_t a) noexcept {
+        ___water_assert(!mypriority && myqos == qos_error && "use one of priority, relative_priority, quos");
+        myrelative = a;
         return *this;
     }
 
@@ -334,20 +422,23 @@ public:
     }
 
     run_options& qos(qos_t a) noexcept {
+        ___water_assert(!mypriority && myrelative < priority_lower && "use one of priority, relative_priority, quos");
         myqos = a;
         return *this;
     }
 
     bool to(pthread_attr_t& a) const noexcept {
         bool r = true;
+        
         #ifdef WATER_POSIX_THREAD_ATTR_STACKSIZE
         r = !mysize || !pthread_attr_setstacksize(&a, mysize);
         #else
         r = mysize == 0;
         ___water_assert(!mysize && "stack size used, but stack_size_exists = false");
         #endif
+        
         #ifdef WATER_POSIX_THREAD_PRIORITY_SCHEDULING
-        if(r && mypriority) {
+        if(r && (mypriority || (myrelative >= priority_lower && !qos_exists))) {
             r = false;
             sched_param p {};
             int s;
@@ -359,9 +450,22 @@ public:
                 !pthread_attr_getschedparam(&a, &p)
             ) {
                 priority_translate t(s);
-                if(t && mypriority <= t.water_max()) {
-                    p.sched_priority = t.posix_from_water(mypriority);
-                    r = pthread_attr_setschedparam(&a, &p) == 0;
+                if(!t)
+                    r = !t.error() && !mypriority; // its ok if relative_priority cannot be set because there is only 1 priority
+                else {
+                    ___water_assert(mypriority <= t.water_max() && "cannot set priority higher than max");
+                    if(myrelative >= priority_lower) {
+                        if(t.posix_is_valid(p.sched_priority)) {
+                            p.sched_priority = priority_from_relative_priority(myrelative, t.water_from_posix(p.sched_priority), t.water_max());
+                            r = true;
+                        }
+                    }
+                    else if(mypriority <= t.water_max()) {
+                        p.sched_priority = t.posix_from_water(mypriority);
+                        r = true;
+                    }
+                    if(r)
+                        r = pthread_attr_setschedparam(&a, &p) == 0;
                 }
             }
         }
@@ -370,8 +474,13 @@ public:
         ___water_assert(!mypriority && "priority used, but priority_exists = false");
         #endif
         #ifdef WATER_THREADS_APPLE
-        if(r && myqos != qos_error && &pthread_attr_set_qos_class_np != NULL) {
-            auto e = pthread_attr_set_qos_class_np(&a, static_cast<qos_class_t>(static_cast<unsigned>(myqos) - 1), 0);
+        if(r && (myqos != qos_error || myrelative >= priority_lower) && &pthread_attr_set_qos_class_np != NULL) {
+            qos_from_relative_priority_return q;
+            if(myrelative >= priority_lower)
+                q = qos_from_relative_priority(myrelative);
+            else
+                q.qos = static_cast<qos_class_t>(static_cast<unsigned>(myqos) - 1);
+            auto e = pthread_attr_set_qos_class_np(&a, q.qos, q.relative);
             ___water_assert(!e && "pthread_attr_set_qos_class_np");
             r = e == 0;
         }
