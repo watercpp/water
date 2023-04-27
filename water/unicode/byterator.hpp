@@ -22,22 +22,25 @@ public:
     using difference_type = decltype(static_cast<uchar_t*>(0) - static_cast<uchar_t*>(0));
 
 private:
-    uchar_t const *my = 0;
-    uchar_t myorder[4] = {0,1,2,3}; // myorder[0] is most significant byte
     static constexpr difference_type bytes_ = static_cast<difference_type>(bits_ / 8 + (bits_ % 8 ? 1 : 0));
     template<difference_type> struct unpack_select;
 
+private:
+    uchar_t const *my = 0;
+    uchar_t myorder[4] = {0,1,2,3}; // myorder[0] is most significant byte
+
 public:
+
     byterator() = default;
 
     byterator(void const* pointer, bool big_endian) :
         my(static_cast<uchar_t const*>(pointer))
     {
         if(!big_endian) {
-            myorder[0] = bytes_ - 1;
-            myorder[1] = bytes_ >= 2 ? bytes_ - 2 : 0;
-            myorder[2] = bytes_ >= 3 ? bytes_ - 3 : 0;
-            myorder[3] = bytes_ >= 4 ? bytes_ - 4 : 0;
+            myorder[0] = static_cast<uchar_t>(bytes_ - 1);
+            myorder[1] = static_cast<uchar_t>(bytes_ >= 2 ? bytes_ - 2 : 0);
+            myorder[2] = static_cast<uchar_t>(bytes_ >= 3 ? bytes_ - 3 : 0);
+            myorder[3] = static_cast<uchar_t>(bytes_ >= 4 ? bytes_ - 4 : 0);
         }
     }
 

@@ -157,7 +157,7 @@ inline void max_digits_test_log2() {
     unsigned radix = 1;
     while(++radix != 65) {
         long
-            mine = max_digits_tests::log2(radix),
+            mine = static_cast<long>(max_digits_tests::log2(radix)),
             correct = static_cast<long>((log(static_cast<double>(radix)) / log(2.)) * 0x10000ul + .5);
         ___water_test(mine == correct);
     }

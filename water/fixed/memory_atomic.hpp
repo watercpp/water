@@ -46,7 +46,8 @@ struct memory_atomic_statistics_if {
             allocate_lock_free_failed.load(memory_order_relaxed),
             allocate_locked.load(memory_order_relaxed),
             allocate_locked_failed.load(memory_order_relaxed),
-            free.load(memory_order_relaxed)
+            free.load(memory_order_relaxed),
+            0
         };
     }
 };

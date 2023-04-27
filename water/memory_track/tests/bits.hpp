@@ -9,11 +9,6 @@
 namespace water { namespace memory_track { namespace tests {
 
 
-template<typename ...a_>
-void unused(a_ const&...)
-{}
-
-
 class cookie_copy_callback
 {
 public:
@@ -48,7 +43,7 @@ public:
         else
             my = {};
         myerror = error;
-        unused(pointer, bytes, align, name, tag);
+        test_unused(pointer, bytes, align, name, tag);
         return false; // dont breakpoint
     }
 

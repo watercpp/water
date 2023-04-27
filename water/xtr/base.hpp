@@ -1065,7 +1065,7 @@ struct char_const_pointer {
     char_const_pointer(char_ const* a) : pointer{a} {}
 };
 
-template<typename type_> struct void_const_pointer_if { using result = void_const_pointer_if; };
+template<typename type_> struct void_const_pointer_if { using result = void; };
 template<> struct void_const_pointer_if<char> {};
 template<> struct void_const_pointer_if<char16_t> {}; // disable here so you know you need utf.hpp
 template<> struct void_const_pointer_if<char32_t> {};
@@ -1074,8 +1074,8 @@ template<> struct void_const_pointer_if<char8_or_not> {};
 
 struct void_const_pointer {
     void const *pointer;
-    template<typename type_>
-    void_const_pointer(type_ const* a, typename void_const_pointer_if<type_>::result = {}) : pointer{a} {}
+    template<typename type_, typename = typename void_const_pointer_if<type_>::result>
+    void_const_pointer(type_ const* a) : pointer{a} {}
 };
 
 template<typename> struct if_bool;

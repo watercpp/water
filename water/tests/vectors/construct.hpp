@@ -286,6 +286,8 @@ struct result_if_equal<a_, a_> {
 
 template<typename value_>
 void construct_with_template_deduction(value_ const& value) {
+    test_unused(value);
+    
     #ifdef __cpp_deduction_guides
 
     water::allocator allocator;

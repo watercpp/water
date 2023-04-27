@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -73,6 +73,7 @@ inline uchar_t* read_string(uchar_t*& from, uchar_t* end) {
                             break;
                         }
                     }
+                    return 0; // avoid warning about fallthrough
                 default: return 0;
             }
         }

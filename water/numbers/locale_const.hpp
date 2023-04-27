@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -62,8 +62,8 @@ struct locale_const_base
 {
     unsigned mybase;
     locale_const_string<char_>
-        myprefix,
-        mysuffix;
+        myprefix {},
+        mysuffix {};
     
     unsigned base() const {
         return mybase;

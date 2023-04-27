@@ -105,8 +105,8 @@ inline void parse_mantissa_exponent() {
         char const *from;
         unsigned base;
         char const *mantissa;
-        char const *exponent;
-        ptrdiff_t size;
+        char const *exponent = 0;
+        ptrdiff_t size = 0;
     } array[] {
         {parse{}, "123.45e-6", 10, "123.45", "-6"},
         {parse{}.group(true).space(true), "123 456.789 012 E - 123 456 789", 10, "123456.789012", "-123456789"},
@@ -150,7 +150,7 @@ inline void parse_number() {
         char const *from;
         unsigned base;
         char const *number;
-        ptrdiff_t size;
+        ptrdiff_t size = 0;
     } array[] {
         {parse{}, "123.45e-6", 10, "123.45"},
         {parse{}.group(true).space(true), "123 456.789 012", 10, "123456.789012"},

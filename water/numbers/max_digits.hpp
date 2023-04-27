@@ -81,7 +81,7 @@ namespace _ {
     template<
         unsigned long a_,
         unsigned long hi_ = hibit<a_>::result,
-        unsigned long f_ = a_ - (1ul << hi_),
+        unsigned long f_ = (a_ - (1ul << hi_)), // parenthesis because GCC 11 warning workaround
         unsigned long l_ = ((f_ << 5) >> hi_), // 5 because lookup-size is 1<<5, 32
         unsigned long m_ = ((f_ << (16 + 5)) >> hi_) & 0xfffful
     >

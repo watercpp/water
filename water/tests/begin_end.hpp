@@ -47,8 +47,6 @@ namespace begin_end_tests {
         begin_end<downgrade_iterators::forward<char*>>
     >, "");
     
-    template<typename ...a_>
-    constexpr void unused(a_&&...) {}
     
     template<typename a_, typename = void>
     bool constexpr has_size = false;
@@ -94,7 +92,7 @@ inline void begin_end_all() {
     auto n5 = begin_end_from(n1.begin(), n1.size());
     auto n6 = begin_end_from(downgrade_iterators::forward_from(n1.begin()), downgrade_iterators::forward_from(n1.end()));
     
-    begin_end_tests::unused(n2, n3, n4, n5, n6);
+    test_unused(n2, n3, n4, n5, n6);
 }
 
 }}

@@ -35,6 +35,7 @@ struct std_allocator_test_allocator
         ::operator delete(pointer, sizeof(type_) * count);
         #else
         ::operator delete(pointer);
+        test_unused(count);
         #endif
     }
     

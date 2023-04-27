@@ -10,6 +10,8 @@ namespace water { namespace temporary { namespace tests {
 
 template<typename value_, typename allocator_>
 void vector_template_deduction(value_ const& value, allocator_ const& a) {
+    test_unused(value, a);
+    
     #ifdef __cpp_deduction_guides
 
     using water::tests::vectors::result_if_equal;

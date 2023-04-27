@@ -42,4 +42,12 @@ The Intel C++ older compiler based on EDG and not LLVM is detected as WATER_COMP
     #define ___water_test(...) do { auto const& water_test_result = (__VA_ARGS__); if(water_test_result) break; WATER_TEST_FAILED(__FILE__, __LINE__, __func__, #__VA_ARGS__); } while(0)
 #endif
 
+namespace water {
+
+    template<typename ...arguments_>
+    constexpr void test_unused(arguments_ const&...)
+    {}
+
+}
+
 #endif

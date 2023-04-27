@@ -78,7 +78,7 @@ public:
     template<typename iterator2_>
     void operator()(iterator2_ begin, iterator2_ end) {
         while(begin != end && myat != myend) {
-            *myat = *begin;
+            *myat = static_cast<char_type>(*begin);
             ++myat;
             ++begin;
         }

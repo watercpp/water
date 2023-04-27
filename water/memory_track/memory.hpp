@@ -214,16 +214,16 @@ private:
         }
         else if(
             (upointer(c->next) % alignof(cookie_type)) ||
-            c->next < mycookie_address_min ||
-            c->next > mycookie_address_max
+            (c->next < mycookie_address_min) || // parenthesis because visual c++ 2017
+            (c->next > mycookie_address_max)
         ) {
             r.where = &c->next;
             r.error = "cookie next pointer";
         }
         else if(
             (upointer(c->prev) % alignof(cookie_type)) ||
-            c->prev < mycookie_address_min ||
-            c->prev > mycookie_address_max
+            (c->prev < mycookie_address_min) ||
+            (c->prev > mycookie_address_max)
         ) {
             r.where = &c->next;
             r.error = "cookie prev pointer";
@@ -436,7 +436,8 @@ public:
                 return;
         }
         // unlock before trace/assert, dont deadlock if they use this
-        ___water_debug(trace << "water::memory_track free error pointer=" << pointer << " bytes=" << bytes << " align=" << align << " name=" << name << " error=" << error;)
+        // hex upointer decimal here is a visual c++ 2017 workaround
+        ___water_debug(trace << "water::memory_track free error pointer=" << xtr::hex << upointer(pointer) << xtr::decimal << " bytes=" << bytes << " align=" << align << " name=" << name << " error=" << error;)
         ___water_assert(!error);
     }
 };

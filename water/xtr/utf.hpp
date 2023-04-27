@@ -74,7 +74,7 @@ public:
     write_utf_char(char_ a) {
         if(unicode::utf_from_char<char_> == 16 ? unicode::utf16_is_1_of_1(a) : unicode::utf32_verify(a)) {
             auto *m = static_cast<unsigned char*>(static_cast<void*>(my));
-            mylength = unicode::utf8_encode_and_move(m, a);
+            mylength = unicode::utf8_encode_and_move(m, static_cast<char32_t>(a));
         }
     }
 
