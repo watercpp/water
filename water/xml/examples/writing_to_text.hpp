@@ -16,8 +16,8 @@ xml::write_size can be used to determine how many characters xml::write will wri
 
 write (and write_size) has 2 optional arguments:
 
-bool xml_declaration (default true)
-When true, writes <?xml ....?>
+xml_declaration (default) or no_declaration
+When xml_declaration, writes <?xml ....?>
 
 unsigned indent_spaces_or_tab (default '\t', integer value 9)
 When its '\t', indents the XML with tab
@@ -61,15 +61,14 @@ inline bool example1() {
 
 
 // Here write_size is used to reserve memory in the vector before writing.
-// And the xml_declaration plus indent_spaces_or_tab arguments are used.
+// And no_declaration plus indent_spaces_or_tab arguments are used.
 
 inline bool example2() {
     xml::memory<> memory;
     auto nodes = read_to_memory(memory)(text, text_size).nodes();
-    bool xml_declaration = false;
     unsigned indent_spaces_or_tab = 0; // do not indent
     
-    size_t size = write_size(nodes, xml_declaration, indent_spaces_or_tab);
+    size_t size = write_size(nodes, no_declaration, indent_spaces_or_tab);
     
     vector<char> destination;
     destination.reserve(size);
@@ -79,7 +78,7 @@ inline bool example2() {
             destination.insert(destination.end(), begin, end);
         },
         nodes,
-        xml_declaration,
+        no_declaration,
         indent_spaces_or_tab
     );
     

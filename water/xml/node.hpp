@@ -215,6 +215,14 @@ public:
                 } while(n);
         return {};
     }
+    
+    node find_any_name_or_value() const {
+        // find the first where name() or value() is not empty, including this one
+        memory_node *n = my;
+        while(n && n->name_begin == n->name_end && n->value_begin == n->value_end)
+            n = n->next;
+        return { mym, n };
+    }
 
     template<typename iterator_>
     node find(iterator_ begin, size_t size) const {

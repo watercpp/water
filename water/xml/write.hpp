@@ -7,6 +7,28 @@
 #include <water/xml/node.hpp>
 namespace water { namespace xml {
 
+
+class xml_declaration_or_not
+{
+    bool my;
+    
+public:
+
+    // constructor not explicit for backwards compatibility, it used to be a bool.
+    constexpr xml_declaration_or_not(bool a) :
+        my{a}
+    {}
+    
+    bool operator==(xml_declaration_or_not const& a) {
+        return my == a.my;
+    }
+};
+
+constexpr xml_declaration_or_not
+    xml_declaration{true},
+    no_declaration{false};
+
+
 namespace _ {
 
     template<typename char_, size_t size_>
@@ -50,16 +72,16 @@ namespace _ {
             to(c.begin(), c.end());
         }
     };
-
+    
 }
 
 template<typename to_, typename char_>
-void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, unsigned indent_spaces_or_tab = '\t' /*is 9*/) {
+void write_unbuffered(to_&& to, node<char_> nodes, xml_declaration_or_not declaration = xml_declaration, unsigned indent_spaces_or_tab = '\t' /*is 9*/) {
     // write nodes as xml to to. to must have function call operators like this:
     //   to(char_ const*, char_ const*)
     //   to(char_)
     //
-    // xml_declaration: if true this will write the <?xml declaration and if UTF 16 or 32 the byte order mark feff.
+    // declaration: if xml_declaration this will write the <?xml declaration and if UTF 16 or 32 the byte order mark feff.
     //
     // indent_spaces_or_tab: indentation.
     // - 0 means dont indent
@@ -70,7 +92,7 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
     //
     // this cannot fail if to() cannot fail
     //
-    if(xml_declaration) {
+    if(declaration == xml_declaration) {
         _::write_xml_declaration<char_, unicode::utf_from_char<char_>>::to(to);
         if(indent_spaces_or_tab)
             to(static_cast<char_>('\n'));
@@ -84,7 +106,7 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
     auto apos = _::write_cstring<char_>("&apos;");
     auto quot = _::write_cstring<char_>("&quot;");
     bool was_text = false;
-    auto n = nodes;
+    auto n = nodes.find_any_name_or_value();
     while(n) {
         if(was_text && !n.name())
             to(static_cast<char_>(' '));
@@ -100,6 +122,7 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
         was_text = false;
         bool tag = false;
         bool one_value = false;
+        node<char_> n_nodes;
         if(n.name()) {
             tag = true;
             to(static_cast<char_>('<'));
@@ -130,14 +153,15 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
                 }
                 to(static_cast<char_>('"'));
             }
-            if(!n.nodes())
+            n_nodes = n.nodes().find_any_name_or_value();
+            if(!n_nodes)
                 to(static_cast<char_>('/'));
             to(static_cast<char_>('>'));
-            one_value = n.nodes() && !n.nodes().next() && !n.nodes().name();
+            one_value = n_nodes && !n_nodes.next().find_any_name_or_value() && !n_nodes.name();
         }
         if(!tag || one_value) {
             // does not really matter if value is empty
-            auto value = one_value ? n.nodes().value() : n.value();
+            auto value = one_value ? n_nodes.value() : n.value();
             auto
                 *vb = value.begin(),
                 *ve = value.end();
@@ -157,12 +181,12 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
                 vb = vi + 1;
             }
         }
-        if(n.nodes() && !one_value) {
+        if(n_nodes && !one_value) {
             if(indent_spaces_or_tab) {
                 to(static_cast<char_>('\n'));
                 ++indent;
             }
-            n = n.nodes();
+            n = n_nodes;
         }
         else {
             if(tag) {
@@ -175,10 +199,12 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
                 if(indent_spaces_or_tab)
                     to(static_cast<char_>('\n'));
             }
-            while(!n.next()) {
+            auto next = n.next().find_any_name_or_value();
+            while(!next) {
                 if(!n.in() || n.in() == nodes.in())
                     return;
                 n = n.in();
+                next = n.next().find_any_name_or_value();
                 if(was_text) {
                     was_text = false; // this is a loop
                     if(indent_spaces_or_tab)
@@ -198,22 +224,22 @@ void write_unbuffered(to_&& to, node<char_> nodes, bool xml_declaration = true, 
                 if(indent_spaces_or_tab)
                     to(static_cast<char_>('\n'));
             }
-            if(!n.next())
+            if(!next)
                 return;
-            n = n.next();
+            n = next;
         }
     }
 }
 
 template<typename to_, typename char_, typename memory_>
-void write_unbuffered(to_&& to, node<char_, memory_> nodes, bool xml_declaration = true, unsigned indent_spaces_or_tab = '\t') { // reduce template bloat?
-    write_unbuffered(to, node<char_>{nodes}, xml_declaration, indent_spaces_or_tab);
+void write_unbuffered(to_&& to, node<char_, memory_> nodes, xml_declaration_or_not declaration = xml_declaration, unsigned indent_spaces_or_tab = '\t') { // reduce template bloat?
+    write_unbuffered(to, node<char_>{nodes}, declaration, indent_spaces_or_tab);
 }
 
 unsigned constexpr write_buffer_size = 1024;
 
 template<typename to_, typename char_, typename memory_>
-size_t write(to_&& to, node<char_, memory_> nodes, bool xml_declaration = true, unsigned indent_spaces_or_tab = '\t') {
+size_t write(to_&& to, node<char_, memory_> nodes, xml_declaration_or_not declaration = xml_declaration, unsigned indent_spaces_or_tab = '\t') {
     // write nodes as xml to to with buffering. to must have:
     //   to(char const* begin, char const* end)
     //
@@ -262,21 +288,21 @@ size_t write(to_&& to, node<char_, memory_> nodes, bool xml_declaration = true, 
     b.to = &to;
     b.at = 0;
     b.size = 0;
-    write_unbuffered(b, nodes, xml_declaration, indent_spaces_or_tab);
+    write_unbuffered(b, nodes, declaration, indent_spaces_or_tab);
     b.flush();
     ___water_assert(b.at == 0);
     return b.size;
 }
 
 template<typename char_, typename memory_>
-size_t write_size(node<char_, memory_> nodes, bool xml_declaration = true, unsigned indent_spaces_or_tab = '\t') {
+size_t write_size(node<char_, memory_> nodes, xml_declaration_or_not declaration = xml_declaration, unsigned indent_spaces_or_tab = '\t') {
     // return the number of characters write or write_unbuffered will write
     struct to_ {
         size_t size = 0;
         void operator()(char_) { ++size; }
         void operator()(char_ const *b, char_ const* e) { size += static_cast<size_t>(e - b); }
     } to;
-    write_unbuffered(to, nodes, xml_declaration, indent_spaces_or_tab);
+    write_unbuffered(to, nodes, declaration, indent_spaces_or_tab);
     return to.size;
 }
 
