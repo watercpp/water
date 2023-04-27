@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -17,14 +17,14 @@ public:
     once& operator=(once const&) = delete;
 
     template<typename function_>
-    void operator()(function_ a) {
+    void operator()(function_&& a) noexcept {
         panic_if_not(InitOnceExecuteOnce(&my, &function<function_>, &a, 0));
     }
 
 private:
     template<typename function_>
     static bool_t WATER_WINDOWS_CALLTYPE function(init_once_t*, void *pointer, void**) noexcept {
-        (*static_cast<function_*>(pointer))();
+        (*static_cast<no_reference<function_>*>(pointer))();
         return 1;
     }
     

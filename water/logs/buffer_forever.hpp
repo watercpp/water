@@ -6,7 +6,7 @@
 #define WATER_LOGS_BUFFER_FOREVER_HPP
 #include <water/logs/buffer.hpp>
 #if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
-    #include <water/threads/spin_once.hpp>
+    #include <water/threads/once.hpp>
 #else
     #include <mutex>
 #endif
@@ -31,7 +31,7 @@ private:
     char mybuffer[sizeof(buffer)] {};
     
     #if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
-    threads::spin_once<> myonce; // this has no destructor
+    threads::once myonce;
     #else
     std::once_flag myonce;
     #endif

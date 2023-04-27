@@ -40,7 +40,7 @@ public:
     }
 
     template<typename function_>
-    bool operator()(function_ function) {
+    bool operator()(function_&& function) {
         auto now = my.load(memory_order_relaxed);
         if(now == 1)
             return true;

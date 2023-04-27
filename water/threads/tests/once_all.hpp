@@ -10,35 +10,90 @@
 #include <water/threads/sleep.hpp>
 namespace water { namespace threads { namespace tests {
 
-template<typename once_>
+template<typename once_, typename extra_>
 struct once_hold {
     static once_ once;
     static unsigned count;
 };
-template<typename once_> once_ once_hold<once_>::once;
-template<typename once_> unsigned once_hold<once_>::count;
+template<typename once_, typename extra_> once_ once_hold<once_, extra_>::once;
+template<typename once_, typename extra_> unsigned once_hold<once_, extra_>::count;
 
-template<typename once_>
+template<typename once_, typename extra_>
 void once_add() {
     sleep(0.5);
-    ++once_hold<once_>::count;
+    ++once_hold<once_, extra_>::count;
 }
 
 template<typename once_>
 struct once_once {
     void operator()() {
-        once_hold<once_>::once(&once_add<once_>);
-        ___water_test(once_hold<once_>::count == 1);
+        once_hold<once_, void>::once(&once_add<once_, void>);
+        ___water_test(once_hold<once_, void>::count == 1);
+    }
+};
+
+template<typename once_>
+struct once_once_lambda {
+    void operator()() {
+        once_hold<once_, short>::once([] { once_add<once_, short>(); });
+        ___water_test(once_hold<once_, short>::count == 1);
+    }
+};
+
+
+template<typename once_>
+struct once_once_heavy {
+    void operator()() {
+        struct { char array[123]; } heavy{};
+        once_hold<once_, long>::once([heavy] {
+            test_unused(heavy);
+            once_add<once_, long>();
+        });
+        ___water_test(once_hold<once_, long>::count == 1);
+    }
+};
+
+template<typename once_>
+struct once_once_reference
+{
+    class function
+    {
+        void *me;
+    public:
+        function() :
+            me{this}
+        {}
+        
+        function(function const&) = delete;
+        function& operator=(function const&) = delete;
+        
+        void operator()() {
+            once_add<once_, function&>();
+            ___water_test(me == this);
+        }
+    };
+    
+    void operator()() {
+        function f;
+        once_hold<once_, function&>::once(f);
+        ___water_test(once_hold<once_, function&>::count == 1);
     }
 };
 
 template<typename once_>
 struct once_all_test {
     once_all_test() {
-        once_once<once_> once;
-        once();
-        once();
-        run_many(once, 10);
+        once_once<once_> o1;
+        run_many(o1, 10);
+        
+        once_once_lambda<once_> o2;
+        run_many(o2, 10);
+        
+        once_once_heavy<once_> o3;
+        run_many(o3, 10);
+        
+        once_once_reference<once_> o4;
+        run_many(o4, 10);
     }
 };
 
