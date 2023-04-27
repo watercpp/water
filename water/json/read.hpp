@@ -144,7 +144,7 @@ public:
 private:
     template<typename iterator_>
     void copy_or_convert_and_parse(iterator_ begin, iterator_ end, uchar_t) {
-        copy_and_parse(begin, size(begin, end));
+        copy_and_parse(begin, size_from(begin, end));
     }
 
     template<typename iterator_>

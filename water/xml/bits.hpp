@@ -9,6 +9,7 @@
 #include <water/is_no_to.hpp>
 #include <water/unicode/utf.hpp>
 #include <water/swap.hpp>
+#include <water/size_from.hpp>
 namespace water { namespace xml {
 
 
@@ -35,63 +36,7 @@ struct memory_node
 
 
 
-namespace _ {
-
-    template<typename iterator_, typename = size_t>
-    struct size_iterators {
-        static size_t do_it(iterator_ begin, iterator_ end) {
-            size_t r = 0;
-            while(begin != end) {
-                ++begin;
-                ++r;
-            }
-            return r;
-        }
-    };
-    
-    template<typename iterator_>
-    struct size_iterators<iterator_, decltype(static_cast<size_t>(make_type<iterator_&>() - make_type<iterator_&>()))> {
-        static size_t do_it(iterator_ begin, iterator_ end) {
-            auto s = end - begin;
-            return s > 0 ? static_cast<size_t>(s) : 0;
-        }
-    };
-    
-}
-
-template<typename iterator_>
-size_t size(iterator_ begin, iterator_ end) {
-    return _::size_iterators<iterator_>::do_it(begin, end);
-}
-
-
-
-namespace _ {
-
-    template<typename range_, typename = size_t>
-    struct range_size {
-        static size_t do_it(range_ const& a) {
-            return xml::size(a.begin(), a.end());
-        }
-    };
-    
-    template<typename range_>
-    struct range_size<range_, decltype(static_cast<size_t>(make_type<range_ const&>().size()))> {
-        static size_t do_it(range_ const& a) {
-            return static_cast<size_t>(a.size());
-        }
-    };
-    
-}
-
-template<typename range_>
-size_t range_size(range_ const& a) {
-    return _::range_size<range_>::do_it(a);
-}
-
-
-
-// this only checks for begin(), because range_size below will use size() and not end() when it can
+// this only checks for begin(), because size_from will use size() and not end() when it can
 template<typename range_>
 using void_if_range = to_void<decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().begin())>;
 

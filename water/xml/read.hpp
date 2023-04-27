@@ -132,7 +132,7 @@ public:
     read& operator()(forward_iterator_ begin, forward_iterator_ end, callback_&& callback) {
         // copy range then parse
         // does not verify that the range is valid unicode
-        return (*this)(begin, xml::size(begin, end), callback);
+        return (*this)(begin, size_from(begin, end), callback);
     }
 
     template<typename forward_iterator_>

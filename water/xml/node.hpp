@@ -148,7 +148,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node attributes(range_ const& name) const {
-        return attributes().find(name.begin(), xml::range_size(name));
+        return attributes().find(name.begin(), size_from(name));
     }
 
     node nodes() const {
@@ -172,7 +172,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node nodes(range_ const& name) const {
-        return nodes().find(name.begin(), xml::range_size(name));
+        return nodes().find(name.begin(), size_from(name));
     }
 
     text_type name() const {
@@ -230,7 +230,7 @@ public:
 
     template<typename iterator_>
     node find(iterator_ begin, iterator_ end) const {
-        return find(begin, size(begin, end));
+        return find(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -240,7 +240,7 @@ public:
 
     template<typename range_>
     node find(range_ const& name) const {
-        return find(name.begin(), xml::range_size(name));
+        return find(name.begin(), size_from(name));
     }
 
     template<typename iterator_>
@@ -260,7 +260,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node next(range_ const& name) const {
-        return next().find(name.begin(), xml::range_size(name));
+        return next().find(name.begin(), size_from(name));
     }
 
     template<typename iterator_>
@@ -275,7 +275,7 @@ public:
 
     template<typename iterator_>
     node previous(iterator_ begin, iterator_ end) const {
-        return previous(begin, size(begin, end));
+        return previous(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -285,7 +285,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node previous(range_ const& name) const {
-        return previous(name.begin(), xml::range_size(name));
+        return previous(name.begin(), size_from(name));
     }
 
 public:
@@ -355,7 +355,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable nodes_or_add(iterator_ begin, iterator_ end) {
-        return nodes_or_add(begin, size(begin, end));
+        return nodes_or_add(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -365,7 +365,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node_if_mutable nodes_or_add(range_ const& name) {
-        return nodes_or_add(name.begin(), xml::range_size(name));
+        return nodes_or_add(name.begin(), size_from(name));
     }
 
     node_if_mutable attributes(node_if_mutable a) {
@@ -402,7 +402,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable attributes_or_add(iterator_ begin, iterator_ end) {
-        return attributes_or_add(begin, size(begin, end));
+        return attributes_or_add(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -412,7 +412,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node_if_mutable attributes_or_add(range_ const& name) {
-        return attributes_or_add(name.begin(), xml::range_size(name));
+        return attributes_or_add(name.begin(), size_from(name));
     }
 
     node_if_mutable push_back(node a) {
@@ -570,7 +570,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable name(iterator_ begin, iterator_ end) {
-        return name(begin, size(begin, end));
+        return name(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -580,7 +580,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node_if_mutable name(range_ const& name) {
-        return this->name(name.begin(), xml::range_size(name));
+        return this->name(name.begin(), size_from(name));
     }
 
     template<typename iterator_>
@@ -637,7 +637,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable value(iterator_ begin, iterator_ end) {
-        return value(begin, size(begin, end));
+        return value(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -647,7 +647,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node_if_mutable value(range_ const& text) {
-        return value(text.begin(), xml::range_size(text));
+        return value(text.begin(), size_from(text));
     }
 
     template<typename iterator_>
@@ -680,7 +680,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable first_value(iterator_ begin, iterator_ end) {
-        return first_value(begin, size(begin, end));
+        return first_value(begin, size_from(begin, end));
     }
 
     template<typename char2_, size_t size_>
@@ -690,7 +690,7 @@ public:
 
     template<typename range_, typename = void_if_range<range_>>
     node_if_mutable first_value(range_ const& text) {
-        return first_value(text.begin(), xml::range_size(text));
+        return first_value(text.begin(), size_from(text));
     }
 
 private:

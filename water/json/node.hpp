@@ -266,7 +266,7 @@ public:
     template<typename iterator_>
     node find(iterator_ begin, iterator_ end) const {
         if(!my) return *this;
-        return find(begin, json::size(begin, end));
+        return find(begin, size_from(begin, end));
     }
 
     template<
@@ -275,7 +275,7 @@ public:
     >
     node find(range_ const& name) const {
         if(!my) return *this;
-        return find(name.begin(), json::range_size(name));
+        return find(name.begin(), size_from(name));
     }
 
     template<typename char_, size_t size_>
@@ -452,7 +452,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable name(iterator_ begin, iterator_ end) {
-        if(my) name(begin, json::size(begin, end));
+        if(my) name(begin, size_from(begin, end));
         return *this;
     }
 
@@ -461,7 +461,7 @@ public:
         typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
     >
     node_if_mutable name(range_ const& a) {
-        if(my) name(a.begin(), json::range_size(a));
+        if(my) name(a.begin(), size_from(a));
         return *this;
     }
 
@@ -499,7 +499,7 @@ public:
 
     template<typename iterator_>
     node_if_mutable string(iterator_ begin, iterator_ end) {
-        if(my) string(begin, json::size(begin, end));
+        if(my) string(begin, size_from(begin, end));
         return *this;
     }
 
@@ -508,7 +508,7 @@ public:
         typename = decltype(make_type<range_ const&>().begin() == make_type<range_ const&>().end())
     >
     node_if_mutable string(range_ const& a) {
-        if(my) string(a.begin(), json::range_size(a));
+        if(my) string(a.begin(), size_from(a));
         return *this;
     }
 

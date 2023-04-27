@@ -6,6 +6,7 @@
 #define WATER_MEMORY_TRACK_NAMES_HPP
 #include <water/memory_track/container.hpp>
 #include <water/cstring.hpp>
+#include <water/size_from.hpp>
 namespace water { namespace memory_track {
 
 
@@ -178,7 +179,7 @@ public:
     
     template<typename range_, typename = decltype(make_type<range_ const&>().begin() != make_type<range_ const&>().end())>
     name find(range_ const& a) const noexcept {
-        return find(a.begin(), static_cast<size_t>(a.end() - a.begin()));
+        return find(a.begin(), size_from(a));
     }
     
     name find(cstring_pointer<char> a) const noexcept {
@@ -187,7 +188,7 @@ public:
     
     template<typename range_, typename = decltype(make_type<range_ const&>().begin() != make_type<range_ const&>().end())>
     name find_or_add(range_ const& a) noexcept {
-        return find_or_add(a.begin(), static_cast<size_t>(a.end() - a.begin()));
+        return find_or_add(a.begin(), size_from(a));
     }
     
     name find_or_add(cstring_pointer<char> a) noexcept {

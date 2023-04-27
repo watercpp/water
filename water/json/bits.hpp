@@ -14,6 +14,7 @@
 #include <water/unicode/byterator.hpp>
 #include <water/swap.hpp>
 #include <water/char8.hpp>
+#include <water/size_from.hpp>
 namespace water { namespace json {
 
 using uchar_t = ifel<is_unsigned<char>, char, unsigned char>;
@@ -61,57 +62,7 @@ struct memory_node {
     uchar_t extra; // used for number, imprecisce
 };
 
-namespace _ {
 
-    template<typename iterator_, typename size_ = void>
-    struct size_do {
-        static size_t do_it(iterator_ begin, iterator_ end) {
-            size_t r = 0;
-            while(begin != end) {
-                ++begin;
-                ++r;
-            }
-            return r;
-        }
-    };
-
-    template<typename iterator_>
-    struct size_do<iterator_, to_void<decltype(make_type<iterator_>() - make_type<iterator_>())>> {
-        static size_t do_it(iterator_ begin, iterator_ end) {
-            return static_cast<size_t>(end - begin);
-        }
-    };
-
-}
-
-template<typename iterator_>
-size_t size(iterator_ begin, iterator_ end) {
-    return _::size_do<iterator_>::do_it(begin, end);
-}
-
-
-namespace _ {
-
-    template<typename range_, typename size_ = void>
-    struct range_size_do {
-        static size_t do_it(range_ const& a) {
-            return json::size(a.begin(), a.end());
-        }
-    };
-    
-    template<typename range_>
-    struct range_size_do<range_, to_void<decltype(make_type<range_ const&>().size())>> {
-        static size_t do_it(range_ const& a) {
-            return static_cast<size_t>(a.size());
-        }
-    };
-    
-}
-
-template<typename range_>
-size_t range_size(range_ const& a) {
-    return _::range_size_do<range_>::do_it(a);
-}
 
 namespace _ {
 

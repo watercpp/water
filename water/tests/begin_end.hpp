@@ -21,38 +21,44 @@ namespace begin_end_tests {
     struct no_equal {};
     
     template<typename a_, typename b_, typename = void>
-    struct can_compare_equal {
-        static bool constexpr result = false;
-    };
+    bool constexpr can_compare_equal = false;
     
     template<typename a_, typename b_>
-    struct can_compare_equal<a_, b_, to_void<decltype(make_type<a_ const&>() == make_type<b_ const&>())>> {
-        static bool constexpr result = true;
-    };
+    bool constexpr can_compare_equal<a_, b_, to_void<decltype(make_type<a_ const&>() == make_type<b_ const&>())>> = true;
     
     static_assert(can_compare_equal<
         begin_end<float const*>,
         begin_end<double*>
-    >::result, "");
+    >, "");
     
     
     static_assert(!can_compare_equal<
         begin_end<no_equal*>,
         begin_end<char*>
-    >::result, "");
+    >, "");
     
     static_assert(can_compare_equal<
         begin_end<downgrade_iterators::forward<int const*>>,
         begin_end<downgrade_iterators::forward<long*>>
-    >::result, "");
+    >, "");
     
     static_assert(!can_compare_equal<
         begin_end<downgrade_iterators::forward<no_equal*>>,
         begin_end<downgrade_iterators::forward<char*>>
-    >::result, "");
+    >, "");
     
     template<typename ...a_>
     constexpr void unused(a_&&...) {}
+    
+    template<typename a_, typename = void>
+    bool constexpr has_size = false;
+    
+    template<typename a_>
+    bool constexpr has_size<a_, to_void<decltype(make_type<a_ const&>().size())>> = true;
+    
+    static_assert(has_size<begin_end<float const*>>, "");
+    static_assert(has_size<begin_end<downgrade_iterators::random_access<float const*>>>, "");
+    static_assert(!has_size<begin_end<downgrade_iterators::forward<float const*>>>, "");
 
 }
 
