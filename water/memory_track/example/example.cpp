@@ -5,6 +5,7 @@
 #include <water/memory_track/example/example.hpp>
 #include <water/later.hpp>
 #include <water/str/out_trace.hpp>
+#include <water/throw_if.hpp>
 #include <mutex>
 #include <new>
 namespace water { namespace memory_track { namespace example {
@@ -41,7 +42,7 @@ namespace water { namespace memory_track { namespace example {
 
     void* operator_new(size_t size, char const* name, char const* allocator_tag, size_t align = 0) {
         void *r = operator_new_nothrow(size, name, allocator_tag, align);
-        if(!r) throw std::bad_alloc{};
+        if(!r) throw_if<std::bad_alloc>();
         return r;
     }
 

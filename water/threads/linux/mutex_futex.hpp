@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -25,11 +25,13 @@ public:
     constexpr mutex_futex() noexcept = default;
     mutex_futex(mutex_futex const&) = delete;
     mutex_futex& operator=(mutex_futex const&) = delete;
+    
+private:
 
-    void lock() noexcept {
+    void lock_do(unsigned value) noexcept {
         ___water_threads_statistics(add_ add(mystatistics, this, "mutex_futex"); add.wait(true);)
         decltype(my.load()) x = 0;
-        if(my.compare_exchange_strong(x, 1, memory_order_acquire))
+        if(my.compare_exchange_strong(x, value, memory_order_acquire))
             return;
         ___water_threads_statistics(add.wait(false));
         pause p = pause_wait();
@@ -37,6 +39,20 @@ public:
             if(int e = futex_wait(my, 2))
                 if(e != futex_again && e != futex_signal)
                     p();
+    }
+
+public:
+
+    void lock() noexcept {
+        lock_do(1);
+    }
+    
+    void lock_after_condition_wait() noexcept {
+        // when condition_futex.wake_all does a futex_cmp_requeue to move threads onto this futex those threads
+        // have not set my=2 to indicate they are waiting. unlock will not know about them and not wake them.
+        // condition_futex.wait uses this function to set my=2 so the first woken thread will wake the next and so on.
+        // (there will be extra unnecessary futex_wake calls here because of it)
+        lock_do(2);
     }
 
     bool lock(deadline_clock<clockid::monotonic_maybe> d) noexcept {

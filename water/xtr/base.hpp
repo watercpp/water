@@ -1432,7 +1432,7 @@ char_array(expression<p_, w_>&& x) -> char_array<expression<p_, w_>::size>;
 
 template<typename p_, typename w_>
 auto string(expression<p_, w_>&& x) -> char_array<expression<p_, w_>::size> {
-    return x;
+    return char_array<expression<p_, w_>::size>{x};
 }
 
 template<typename p_, typename w_>

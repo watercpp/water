@@ -5,6 +5,7 @@
 #ifndef WATER_MEMORY_TRACK_EXAMPLE_EXAMPLE_HPP
 #define WATER_MEMORY_TRACK_EXAMPLE_EXAMPLE_HPP
 #include <water/memory_track/memory_track.hpp>
+#include <water/throw_if.hpp>
 
 /*
 
@@ -81,7 +82,7 @@ namespace water { namespace memory_track { namespace example {
 
 inline void* operator new(std::size_t s, water::memory_track::example::track t) {
     void *r = water::memory_track::example::memory().allocate(s, 0, t.name, {}, "new");
-    if(!r) throw std::bad_alloc{};
+    if(!r) water::throw_if<std::bad_alloc>();
     return r;
 }
 
@@ -95,7 +96,7 @@ inline void operator delete(void *p, water::memory_track::example::track t) noex
 
 inline void* operator new[](std::size_t s, water::memory_track::example::track t) {
     void *r = water::memory_track::example::memory().allocate(s, 0, t.name, {}, "new[]");
-    if(!r) throw std::bad_alloc{};
+    if(!r) water::throw_if<std::bad_alloc>();
     return r;
 }
 

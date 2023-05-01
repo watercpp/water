@@ -167,7 +167,7 @@ int constexpr
     thread_priority_time_critical = WATER_WINDOWS_SELECT(THREAD_PRIORITY_TIME_CRITICAL, 15);
     // THREAD_PRIORITY_ERROR_RETURN is 32-bit int-max
 
-void *constexpr handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
+void *const handle_bad = WATER_WINDOWS_SELECT(INVALID_HANDLE_VALUE, reinterpret_cast<void*>(static_cast<uint_size<sizeof(void*)>>(-1)));
 
 using handle_atomic = atomic<void*>;
 

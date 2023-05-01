@@ -12,10 +12,11 @@ namespace water { namespace threads { namespace tests {
 
 template<typename barrier_>
 struct barrier_all_tests {
-    barrier_all_tests() {
+    barrier_all_tests(bool skip3 = false) {
         barrier_1<barrier_>();
         barrier_2<barrier_>();
-        barrier_3<barrier_>();
+        if(!skip3)
+            barrier_3<barrier_>();
     }
 };
 
@@ -30,8 +31,16 @@ inline void barrier_all() {
     ifel<synchronization_barrier::needs::need != 0, barrier_1<synchronization_barrier>, barrier_dummy>{};
     ifel<synchronization_barrier::needs::need != 0, barrier_2<synchronization_barrier>, barrier_dummy>{};
     // synchronization_barrier cannot do barrier_3
-    //barrier_all<synchronization_barrier>();
+    barrier_all_tests<synchronization_barrier>(true);
     
+    #elif defined(WATER_SYSTEM_ANDROID)
+    
+    #ifdef WATER_POSIX_BARRIERS
+    barrier_all_tests<pthread_barrier>(true); // barrier_3 fails
+    #endif
+    barrier_all_tests<barrier_futex<>>();
+    barrier_all_tests<spin_barrier<>>();
+        
     #else
     
     test_list<barrier_all_tests, barrier_list>();

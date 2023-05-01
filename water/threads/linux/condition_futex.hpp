@@ -1,4 +1,4 @@
-// Copyright 2017 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -28,7 +28,7 @@ public:
         auto value = my.load();
         m.unlock();
         int e = futex_wait(my, value);
-        m.lock();
+        m.lock_after_condition_wait();
         return e == 0;
     }
 
@@ -37,7 +37,7 @@ public:
         auto value = my.load();
         m.unlock();
         int e = futex_wait(my, value, seconds);
-        m.lock();
+        m.lock_after_condition_wait();
         return e == 0;
     }
 
@@ -57,16 +57,12 @@ public:
         // unless mutex is locked by this thread, other threads can read + start wait now
         if(!mymutex || n == 1)
             return futex_wake(my, n) >= 0;
-        int e;
-        while((e = futex_cmp_requeue(my, a1, 1, *mymutex, n - 1)) < 0) {
-            if(e != futex_again)
-                return false;
-            a1 = my;
-        }
-        // if mutex is not 2 the requed threads will not be woken up.
-        if(e > 1 && mymutex->load() != 2)
-            return futex_wake_all(*mymutex) >= 0;
-        return true;
+        int e = futex_cmp_requeue(my, a1, 1, *mymutex, n - 1);
+        if(e >= 0)
+            return true;
+        if(e != futex_again)
+            return false;
+        return futex_wake(my, n) >= 0;
     }
 
     bool wake_all() noexcept {

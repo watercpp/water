@@ -53,7 +53,7 @@ class gcclang
     using ptrdiff_ = ifel<is_pointer<type_>, ptrdiff_t, not_pointer>;
 
 private:
-    type_ my {};
+    alignas(alignof(type_) > sizeof(type_) ? alignof(type_) : sizeof(type_)) type_ my {};
 
 public:
     constexpr gcclang() noexcept = default;
