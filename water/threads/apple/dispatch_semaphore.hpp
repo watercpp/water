@@ -27,10 +27,14 @@ public:
     dispatch_semaphore(dispatch_semaphore const&) = delete;
     dispatch_semaphore& operator=(dispatch_semaphore const&) = delete;
 
+    #ifndef __OBJC__
+    
     ~dispatch_semaphore() noexcept {
         if(my)
             dispatch_release(my);
     }
+    
+    #endif
 
     explicit operator bool() const noexcept {
         return my != 0;
