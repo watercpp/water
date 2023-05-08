@@ -286,9 +286,9 @@ using no_unsigned = typename is_no_to::no_unsigned<type_>::result;
 
 // if is_unsigned<type_> is false, and there is a unsigned version of the same type, this is that type.
 // otherwise its type_ unchanged
-// no_unsigned<short> is unsigned short
-// no_unsigned<wchar_t> is wchar_t even if wchar_t is signed
-// no_unsigned<float> is float
+// to_unsigned<short> is unsigned short
+// to_unsigned<wchar_t> is wchar_t even if wchar_t is signed
+// to_unsigned<float> is float
 template<typename type_>
 using to_unsigned = typename is_no_to::to_unsigned<type_>::result;
 

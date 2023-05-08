@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -81,7 +81,7 @@ public:
         unsigned
             digits = 1,
             max_digits = mydigits ? mydigits : static_cast<unsigned>(-1);
-        if(d < 0) {
+        if(less_than(d, 0)) {
             divide *= static_cast<int_>(-1); // * -1 not -divide for visual c++ unsigned warnings
             d /= static_cast<int_>(mybase) * static_cast<int_>(-1);
             if(d && max_digits != 1) {
@@ -100,7 +100,7 @@ public:
             mybase
         );
         r.base_prefix_suffix(mybase_prefix_suffix);
-        r.sign(i < 0 ? -1 : myplus ? 1 : 0);
+        r.sign(less_than(i, 0) ? -1 : myplus ? 1 : 0);
         return r;
     }
 
@@ -109,6 +109,13 @@ public:
         if(mybool_text)
             r.bool_set(i);
         return r;
+    }
+
+private:
+
+    template<typename int_>
+    static constexpr bool less_than(int_ a, first<int_> b) { // avoid warnings
+        return a < b;
     }
 };
 

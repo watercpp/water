@@ -58,7 +58,7 @@ without a format-string:
 ## None or minimal dependencies
 
 `water/str/base.hpp` contains everything except floating-point, `xtr::fold`, UTF-16 and UTF-32 support.
-This header is self contained, it does not use any code from anywhere else and does not includes any
+This header is self contained, it does not use any code from anywhere else and does not include any
 other header.
 
 `water/xtr/xtr.hpp` includes everything from `base.hpp` and adds support for floating-point, UTF-16,
@@ -340,9 +340,9 @@ a `xout` object that has a << operator that returns a `xtr::expression` that is 
 
 A feature is that it will always end the expression with a `\n`, using the `xtr::configuration`.
 
-    struct xout_struct {};
+    struct xout_type {};
     
-    constexpr xout_struct xout;
+    constexpr xout_type xout;
     
     struct fputs_stdout {
         void operator()(char const* c) {
@@ -359,7 +359,7 @@ A feature is that it will always end the expression with a `\n`, using the `xtr:
     >;
     
     template<typename type_>
-    auto operator<<(trace_class, type_&& a) -> decltype(xout_expression{} << a) {
+    auto operator<<(xout_type, type_&& a) -> decltype(xout_expression{} << a) {
         return xout_expression{} << a;
     }
 

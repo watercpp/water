@@ -19,7 +19,7 @@ compare the strings from 1 and 3
 template<typename type_>
 inline type_ write_read_write_divide_4_maybe(type_ a) {
     bool has_infinity = numeric_limits<type_>::has_infinity; // avoid warning C4127: conditional expression is constant
-    if(has_infinity && (a == numeric_limits<type_>::max() || a == static_cast<type_>(numeric_limits<type_>::max() * -1))) {
+    if(has_infinity && (a == numeric_limits<type_>::max() || a == static_cast<type_>(numeric_limits<type_>::lowest()))) {
         // when precision is small this causes max to be rounded up, and reading it back will be infinity
         return a / 4;
     }

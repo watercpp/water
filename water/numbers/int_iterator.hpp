@@ -42,7 +42,7 @@ public:
 
     int_iterator(int_ a, int_ divide, unsigned base, unsigned leading_zeros = 0) :
         my(a),
-        mydivide(divide ? divide : a >= 0 ? static_cast<int_>(1) : static_cast<int_>(-1)),
+        mydivide(divide ? divide : divide_1_or_minus_1(a, select_{})),
         mybase(static_cast<int_>(base >= 2 ? base : 10)),
         my0(leading_zeros)
     {
@@ -85,6 +85,7 @@ public:
     }
 
 private:
+
     void digit(signed) {
         if(mydivide) {
             if(mydivide == -1)
@@ -100,6 +101,14 @@ private:
             mydigit = static_cast<unsigned>((my / mydivide) % mybase);
             mydivide /= mybase;
         }
+    }
+
+    static constexpr int_ divide_1_or_minus_1(int_ a, signed) {
+        return a < static_cast<int_>(0) ? static_cast<int_>(-1) : static_cast<int_>(1);
+    }
+    
+    static constexpr int_ divide_1_or_minus_1(int_, unsigned) {
+        return static_cast<int_>(1);
     }
 };
 

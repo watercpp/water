@@ -1018,7 +1018,7 @@ public:
         unsigned
             digits = 1,
             digits_fixed = number_format_::digits ? max_digits : 0;
-        if(i < 0) {
+        if(less_than(i, 0)) {
             divide *= minus1;
             i /= b * minus1;
             if(i && digits_fixed != 1) {
@@ -1047,6 +1047,13 @@ public:
             --digits;
         }
     }
+
+private:
+
+    static constexpr bool less_than(type_ a, type_ b) { // avoid warnings
+        return a < b;
+    }
+
 };
 
 

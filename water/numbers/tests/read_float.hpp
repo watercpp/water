@@ -61,6 +61,13 @@ struct read_float_and_compare
 
 
 
+template<typename to_>
+to_ read_float_list_cast(ifel<water::equal<to_, float>, double, to_> a) { // avoiud float truncation warnings
+    return static_cast<to_>(a);
+}
+
+
+
 template<typename float_>
 void read_float_list() {
     struct value_text {
@@ -68,8 +75,8 @@ void read_float_list() {
         char const* text;
         bool skip_long_double;
     };
-    #define WATER_NUMBERS_TESTS_READ_FLOAT(a) {static_cast<float_>(a), #a, false}
-    #define WATER_NUMBERS_TESTS_READ_FLOAT_NO_LONG_DOUBLE(a) {static_cast<float_>(a), #a, true}
+    #define WATER_NUMBERS_TESTS_READ_FLOAT(a) {read_float_list_cast<float_>(a), #a, false}
+    #define WATER_NUMBERS_TESTS_READ_FLOAT_NO_LONG_DOUBLE(a) {read_float_list_cast<float_>(a), #a, true}
     value_text const array[] = {
         WATER_NUMBERS_TESTS_READ_FLOAT(0),
         WATER_NUMBERS_TESTS_READ_FLOAT(1),
