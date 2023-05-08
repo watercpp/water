@@ -211,6 +211,10 @@ The `buffer` and `buffer_forever` constructors have:
 Use `piece_size` to change how many characters each piece can hold. A larger `piece_size` will use
 more memory, but each log write will allocate fewer pieces and that might be faster.
 
+The `piece_size` is the number of bytes used for the characters and the `logs::piece` object. So
+`piece_size - sizeof(buffer<>::piece_type)` is the number of characters in each piece. Using a
+multiple of `std::hardware_destructive_interference_size` is probably best.
+
 Use `memory_block_size` to change the `water::fixed` memory block size, in number of pieces. Fewer
 and larger blocks should make allocation faster, but if the blocks are too large it will just waste
 memory.

@@ -74,4 +74,15 @@ A 100% lock free allocator that returns 0 if its out of memory:
     pointer = lock_free_nothrow.allocate(128);
     if(pointer)
         lock_free_nothrow.free(pointer);
-    
+        
+## Alignment
+
+The blocks are always aligned to `std::hardware_destructive_interference_size`.
+
+Allocations in a block must be a multiple of `sizeof(size_t)`. This is also the minimum alignment.
+
+This means an allocator for *X* byte allocations will be aligned to *X* as long as *X* is a
+multiple of `sizeof(size_t)` and `std::hardware_destructive_interference_size` is a multiple of *X*.
+
+It also means an allocator for a multiple of `std::hardware_destructive_interference_size` bytes
+will always allocate memory aligned to `std::hardware_destructive_interference_size`.

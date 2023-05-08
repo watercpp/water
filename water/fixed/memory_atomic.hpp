@@ -97,7 +97,7 @@ public:
             do {
                 block_atomic *f = list;
                 list = list->list();
-                myallocator->free(f, sizeof(*f) + f->size() * mybytes);
+                f->destroy(myallocator);
             } while(list);
             myallocator->~allocator_type();
         }
@@ -166,10 +166,10 @@ public:
         block_atomic *list = mylist.load(memory_order_acquire);
         size_t r = 0;
         while(list) {
-            r += list->size();
+            r += list->memory_use();
             list = list->list();
         }
-        return r * mybytes;
+        return r;
     }
 
     memory_atomic_statistics statistics() {
@@ -177,10 +177,9 @@ public:
         memory_atomic_statistics r = mystatistics.copy();
         while(list) {
             ++r.blocks;
-            r.memory_use += list->size();
+            r.memory_use += list->memory_use();
             list = list->list();
         }
-        r.memory_use *= mybytes;
         // allocations now is sum of all allocations - free
         r.allocations_now = (r.allocate_quick + r.allocate_lock_free + r.allocate_locked) - r.free;
         return r;
@@ -243,10 +242,9 @@ private:
             return 0;
         if(!myallocator)
             myallocator = new(here(myallocator_memory)) allocator_type; // throws???
-        void *a = myallocator->allocate(mybytes * block_size + sizeof(block_atomic));
-        if(!a)
+        block_atomic *b = block_atomic::create(myallocator, mybytes, block_size, list);
+        if(!b)
             return 0;
-        block_atomic *b = new(here(a)) block_atomic(mybytes, block_size, list);
         mylist.store(b, memory_order_release);
         return b;
     }

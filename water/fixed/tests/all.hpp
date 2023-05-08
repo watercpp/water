@@ -4,11 +4,13 @@
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
 #ifndef WATER_FIXED_TESTS_ALL_HPP
 #define WATER_FIXED_TESTS_ALL_HPP
+#include <water/fixed/tests/alignment.hpp>
 #include <water/fixed/tests/lookup.hpp>
 #include <water/fixed/tests/memory_functions.hpp>
 namespace water { namespace fixed { namespace tests {
 
 inline void all() {
+    alignment();
     lookup();
     memory_functions();
 }

@@ -14,13 +14,12 @@
 #include <water/atomic.hpp>
 #include <water/logs/output_to_trace.hpp>
 #include <water/logs/tag_with_nothing.hpp>
+#include <water/hardware_interference_size.hpp>
 namespace water { namespace logs {
 
 // Log buffer, see readme.md
 
-unsigned constexpr
-    buffer_piece_size = 128,
-    buffer_line_max = 1024; // beyond this will split to two lines
+unsigned constexpr buffer_line_max = 1024; // beyond this will split to two lines
 
 struct buffer_statistics {
     using large_t = uint_largest_t;
@@ -67,25 +66,43 @@ public:
     using write_type = write_to_buffer<buffer<output_, tag_, memory_statistics_>>;
 
 private:
-    fixed::memory_atomic<void, memory_statistics_> mymemory;
-    atomic<piece_type*> mylist {};
-    atomic<ptrdiff_t> myconcurrent {};
 
-private:
+    struct alignas(hardware_destructive_interference_size) aligned
+    {
+        fixed::memory_atomic<void, memory_statistics_> memory;
+        atomic<piece_type*> list {};
+        atomic<ptrdiff_t> concurrent {};
+        
+        constexpr aligned(size_t bytes, size_t block_size, bool concurrent) :
+            memory{bytes, block_size},
+            concurrent{concurrent ? 1 : 0}
+        {}
+    };
+    
+    aligned my;
+    
     // below locked
     mutex mylock;
     output_type myoutput;
     buffer_statistics mystatistics{};
 
+private:
+
+    static constexpr size_t piece_size_round(size_t a) {
+        return
+            !a ? round_up_to_hardware_destructive_interference_size(sizeof(piece_type) + 96) :
+            a >= sizeof(piece_type) + 32 ? a :
+            sizeof(piece_type) + 32;
+    }
+
 public:
+
     constexpr explicit buffer(size_t piece_size = 0, size_t memory_block_size = 0, bool concurrent = true) :
-        mymemory{sizeof(piece_type) + (piece_size ? piece_size : buffer_piece_size), memory_block_size},
-        myconcurrent{concurrent ? 1 : 0}
+        my{piece_size_round(piece_size), memory_block_size, concurrent}
     {}
     
     constexpr explicit buffer(output_type const& o, size_t piece_size = 0, size_t memory_block_size = 0, bool concurrent = true) :
-        mymemory{sizeof(piece_type) + (piece_size ? piece_size : buffer_piece_size), memory_block_size},
-        myconcurrent{concurrent ? 1 : 0},
+        my{piece_size_round(piece_size), memory_block_size, concurrent},
         myoutput{o}
     {}
 
@@ -137,17 +154,17 @@ public:
     }
     
     void concurrent(bool a) noexcept {
-        myconcurrent.fetch_add(a ? 1 : -1);
+        my.concurrent.fetch_add(a ? 1 : -1);
     }
     
     bool concurrent() const noexcept {
-        return myconcurrent.load(memory_order_relaxed) != 0;
+        return my.concurrent.load(memory_order_relaxed) != 0;
     }
 
     piece_type* piece(tag_type const& tag, piece_type *list = 0) {
-        void *a = mymemory.allocate();
+        void *a = my.memory.allocate();
         if(!a) return 0;
-        auto r = new(here(a)) piece_type(tag, mymemory.bytes() - sizeof(piece_type));
+        auto r = new(here(a)) piece_type(tag, my.memory.bytes() - sizeof(piece_type));
         r->list(list);
         return r;
     }
@@ -156,7 +173,7 @@ public:
         while(list) {
             auto free = list;
             list = list->list();
-            mymemory.free(free);
+            my.memory.free(free);
         }
     }
 
@@ -169,9 +186,9 @@ public:
             first = first->list();
         }
         first->first(true);
-        piece_type *now = mylist.load(memory_order_relaxed);
-        do first->list(now); while(!mylist.compare_exchange_weak(now, list));
-        if(!myconcurrent.load(memory_order_relaxed))
+        piece_type *now = my.list.load(memory_order_relaxed);
+        do first->list(now); while(!my.list.compare_exchange_weak(now, list));
+        if(!my.concurrent.load(memory_order_relaxed))
             flush_if_not_flushing();
     }
 
@@ -180,7 +197,7 @@ public:
     }
 
     void flush() {
-        if(mylist.load(memory_order_acquire)) {
+        if(my.list.load(memory_order_acquire)) {
             lock_guard lock{mylock};
             flush_locked();
         }
@@ -189,7 +206,7 @@ public:
     void flush_if_not_flushing() {
         // flush only if nobody else is flushing right now
         // use flush() if it's important that the message just written by the current thread is flushed
-        if(mylist.load(memory_order_acquire) && mylock.try_lock()) {
+        if(my.list.load(memory_order_acquire) && mylock.try_lock()) {
             lock_guard lock{mylock, adopt_lock};
             flush_locked();
         }
@@ -201,16 +218,17 @@ public:
     }
 
     fixed::memory_atomic_statistics memory_statistics() {
-        return mymemory.statistics();
+        return my.memory.statistics();
     }
 
 private:
+
     void flush_locked() {
         // reverse list (make oldest first)
         // then write one line at a time, end a "run" with newline if it does not, run ends when the next piece is "first"
         // free each line at once
         // do not write 0 characters, stop the current run of pieces at the first 0
-        auto piece = mylist.exchange(0); // must pop locked to preserve order
+        auto piece = my.list.exchange(0); // must pop locked to preserve order
         if(!piece)
             return;
         piece = reverse(piece);
@@ -308,7 +326,7 @@ private:
                 piece_at = 0;
                 auto free = piece;
                 piece = auto_free.piece = piece->list();
-                mymemory.free(free);
+                my.memory.free(free);
             }
         } while(piece);
     }

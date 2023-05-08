@@ -15,7 +15,7 @@ namespace water { namespace logs {
 // like buffer but no destructor
 
 template<typename output_ = void, typename tag_ = void, bool memory_statistics_ = false>
-class buffer_forever
+class alignas(hardware_destructive_interference_size) buffer_forever
 {
     using buffer = logs::buffer<output_, tag_, memory_statistics_>;
 
@@ -26,9 +26,9 @@ public:
     using write_type = write_to_buffer<buffer_forever<output_, tag_, memory_statistics_>>;
 
 private:
+    char mybuffer[sizeof(buffer)] {};
     size_t mypiecesize;
     size_t myblocksize;
-    char mybuffer[sizeof(buffer)] {};
     
     #if defined(WATER_NO_STD) || defined(WATER_USE_WATER_THREADS)
     threads::once myonce;
