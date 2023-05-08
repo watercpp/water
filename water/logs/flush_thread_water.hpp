@@ -56,11 +56,9 @@ public:
         mybuffer = &buffer;
         if(frequency_seconds > 0.)
             myseconds = frequency_seconds;
-        threads::run_options options;
-        options.relative_priority(threads::priority_lower);
         using function = threads::member_function<flush_thread_water, &flush_thread_water::thread<buffer_>>;
         bool ok =
-            threads::run<function>(this, my, options) ||
+            threads::run<function>(this, my, threads::priority_lower) ||
             threads::run<function>(this, my);
         if(!ok)
             mybuffer = 0;

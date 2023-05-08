@@ -47,6 +47,8 @@ bool dont_join(join_t a) noexcept;
 
 class run_options {
 public:
+    constexpr run_options() noexcept;
+    constexpr run_options(relative_priority_t a) noexcept;
     run_options& stack_size(size_t a) noexcept;
     run_options& priority(unsigned a) noexcept;
     run_options& relative_priority(relative_priority_t a) noexcept;

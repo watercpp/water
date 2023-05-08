@@ -404,6 +404,12 @@ class run_options
     qos_t myqos = qos_error;
 
 public:
+    constexpr run_options() noexcept = default;
+
+    constexpr run_options(relative_priority_t a) noexcept :
+        myrelative{a}
+    {}
+
     run_options& priority(unsigned a) noexcept {
         ___water_assert(myrelative < priority_lower && myqos == qos_error && "use one of priority, relative_priority, quos");
         mypriority = a;

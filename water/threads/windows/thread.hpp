@@ -318,6 +318,12 @@ class run_options
     size_t mysize = 0;
 
 public:
+    constexpr run_options() noexcept = default;
+
+    constexpr run_options(relative_priority_t a) noexcept :
+        mypriority{a}
+    {}
+
     dword_t flags() const noexcept {
         return myflags;
     }
