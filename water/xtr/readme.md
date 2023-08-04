@@ -240,7 +240,7 @@ Floating-point numbers in base 2, 8 or 16 always use exponent form, the settings
     using namespace water::xtr;
     
     expression<>{}
-        << size<123> // reserve this many additional characters in the string
+        << reserve<123> // reserve this many additional characters in the string
         << bytes(pointer, size_in_bytes) // raw bytes as hex for debugging
         << string; // converts the expression into a xtr::char_array
 
@@ -263,8 +263,8 @@ The size of the char array is the sum of all `xtr::expression` sizes, plus an ex
 - For types without a compile-time size, a fixed value is used. This happens for char pointers or
   for example for std::string. That size is 40.
 
-If you know the size is not big enough, use `<< size<123>` in the expression to manually add that
-many extra characters.
+If you know the size is not big enough, use `<< reserve<123>` in the expression to manually add
+that many extra characters.
 
 Nothing bad happens if the array is too small, except that the string is truncated. It will not be
 truncated in the middle of a UTF-8 sequence.

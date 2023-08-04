@@ -35,14 +35,14 @@ inline void char_and_strings() {
     
     ___water_test(equal(no << char8_or_char{'h'} << constant8[1] << array8[2], "hej"));
     
-    // size<123>
+    // reserve<123>
     
     char longer[1024];
     for(unsigned a = 0; a != sizeof(longer); ++a)
         longer[a] = '0' + (a % 10);
     longer[sizeof(longer) - 1] = 0;
-    ___water_test(equal(no << size<1024> << static_cast<char const*>(longer), longer));
-    ___water_test(equal(no << size<1024> << cstring(longer), longer));
+    ___water_test(equal(no << reserve<1024> << static_cast<char const*>(longer), longer));
+    ___water_test(equal(no << reserve<1024> << cstring(longer), longer));
     
     // bytes
     unsigned char constexpr byte_array[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE};

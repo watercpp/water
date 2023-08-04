@@ -73,7 +73,7 @@ All of the macros can be overridden by defining them before water/macros.hpp is 
             //   void somefunction()
             //
             // do not rewrite this to use array-template arguments instead of char-pointers, compile-times will be long.
-            trace << xtr::size<2048> << what << "\n  " << file << ':' << line << "\n  " << function;
+            trace << xtr::reserve<2048> << what << "\n  " << file << ':' << line << "\n  " << function;
         }
     }
     #endif

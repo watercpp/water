@@ -838,7 +838,7 @@ struct write_size
     
     template<typename write_>
     void operator()(write_&&) const {
-        // this is used by the operator << size<123>
+        // this is used by the operator << reserve<123>
     }
 };
 
@@ -1163,10 +1163,14 @@ auto operator<<(expression<p_, w_>&& x, void_const_pointer a) -> expression<expr
     return {x, reinterpret_cast<size_t>(a.pointer)};
 }
 
-// x << size<123>
+// x << reserve<123>
+// x << size<123> (for backwards compatibility)
 
 template<unsigned>
 struct size_set;
+
+template<unsigned size_>
+size_set<size_>* reserve() { return 0; }
 
 template<unsigned size_>
 size_set<size_>* size() { return 0; }
