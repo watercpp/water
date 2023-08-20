@@ -1,4 +1,4 @@
-// Copyright 2017-2021 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -51,12 +51,12 @@ struct numeric_limits_to_str_values<limits_, false> {
 
 template<typename o_, typename limits_>
 void numeric_limits_to_str(str::out<o_>& o, limits_) {
-    char const *denorm = "unknown";
+    /*char const *denorm = "unknown";
     switch(static_cast<int>(limits_::has_denorm)) {
         case -1: denorm = "denorm_indeterminate"; break;
         case 0: denorm = "denorm_absent"; break;
         case 1: denorm = "denorm_present"; break;
-    }
+    }*/
     char const *round = "unknown";
     switch(static_cast<int>(limits_::round_style)) {
         case -1: round = "round_indeterminate"; break;
@@ -73,7 +73,7 @@ void numeric_limits_to_str(str::out<o_>& o, limits_) {
         << "  is_signed ....... " << limits_::is_signed << '\n'
         << "  is_modulo ....... " << limits_::is_modulo << '\n'
         << "  is_exact ........ " << limits_::is_exact << '\n'
-        << "  has_denorm_loss   " << limits_::has_denorm_loss << '\n'
+        //<< "  has_denorm_loss   " << limits_::has_denorm_loss << '\n'
         << "  has_infinity .... " << limits_::has_infinity << '\n'
         << "  has_quiet_NaN ... " << limits_::has_quiet_NaN << '\n'
         << "  has_signaling_NaN " << limits_::has_signaling_NaN << '\n'
@@ -87,7 +87,7 @@ void numeric_limits_to_str(str::out<o_>& o, limits_) {
         << "  max_exponent10 .. " << limits_::max_exponent10 << '\n'
         << "  min_exponent10 .. " << limits_::min_exponent10 << '\n'
         << "  radix ........... " << limits_::radix << '\n'
-        << "  has_denorm ...... " << static_cast<int>(limits_::has_denorm) << ' ' << denorm << '\n'
+        //<< "  has_denorm ...... " << static_cast<int>(limits_::has_denorm) << ' ' << denorm << '\n'
         << "  round_style ..... " << static_cast<int>(limits_::round_style) << ' ' << round << '\n';
     numeric_limits_to_str_values<limits_>::do_it(o);
     o << str::flush;

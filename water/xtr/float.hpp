@@ -206,7 +206,7 @@ public:
             else if(constant(base == 10)) {
                 e = static_cast<int>(log10(m));
                 int p = e;
-                if((numeric_limits<double_>::is_iec559 || numeric_limits<double_>::has_denorm > 0) && m < numeric_limits<double_>::min())
+                if(m < numeric_limits<double_>::min()) // subnormal
                     do ++p; while((m *= static_cast<double_>(10)) < numeric_limits<double_>::min());
                 m /= pow(static_cast<double_>(10), static_cast<double_>(p));
                 digits = round(m, e, round_last_digit);

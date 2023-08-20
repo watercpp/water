@@ -1,4 +1,4 @@
-// Copyright 2017-2018 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -112,7 +112,7 @@ public:
             else if(constant(base == 10)) {
                 e = static_cast<int>(log10(m));
                 int p = e;
-                if((numeric_limits<type_>::is_iec559 || numeric_limits<type_>::has_denorm > 0) && m < numeric_limits<type_>::min())
+                if(m < numeric_limits<type_>::min()) // subnormal
                     do ++p; while((m *= static_cast<type_>(10)) < numeric_limits<type_>::min());
                 m /= pow(static_cast<type_>(10), static_cast<type_>(p));
                 digits = round(m, e, round_last_digit);

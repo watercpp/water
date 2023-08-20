@@ -40,7 +40,7 @@ public:
                 m = -m;
             mye = static_cast<int32_t>(log10(m));
             auto p = mye;
-            if((numeric_limits<double>::is_iec559 || numeric_limits<double>::has_denorm > 0) && m < numeric_limits<double>::min())
+            if(m < numeric_limits<double>::min()) // subnormal
                 do ++p; while((m *= static_cast<double>(10)) < numeric_limits<double>::min());
             m /= pow(10., p);
             if(m < 1.) {

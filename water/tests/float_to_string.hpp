@@ -175,7 +175,7 @@ private:
             return 0;
         myexponent = static_cast<int>(log10(m));
         int p = myexponent;
-        if((numeric_limits<type_>::is_iec559 || numeric_limits<type_>::has_denorm > 0) && m < numeric_limits<type_>::min())
+        if(m < numeric_limits<type_>::min()) // subnormal
             do ++p; while((m *= static_cast<type_>(10)) < numeric_limits<type_>::min());
         if(method == 1)
             m /= pow(static_cast<type_>(10), static_cast<type_>(p));

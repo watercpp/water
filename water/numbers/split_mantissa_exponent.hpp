@@ -1,4 +1,4 @@
-// Copyright 2017-2022 Johan Paulsson
+// Copyright 2017-2023 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -38,9 +38,8 @@ struct split_mantissa_exponent
         if(base == 10) {
             int p = exponent = static_cast<int>(log10(f));
             // if subnormal, multiply until normal or pow could return 0.
-            // is_iec559 || has_denorm becasue has_denorm was wrong on codewarrior many many years ago
             unsigned limit = 1000;
-            if(p > 0 && (numeric_limits<float_>::is_iec559 || numeric_limits<float_>::has_denorm > 0) && f < numeric_limits<float_>::min())
+            if(p > 0 && f < numeric_limits<float_>::min()) // subnormal
                 do ++p; while((f *= static_cast<float_>(10.)) < numeric_limits<float_>::min() && --limit);
             if(limit)
                 mantissa = f / static_cast<float_>(pow(static_cast<float_>(10.), p));
