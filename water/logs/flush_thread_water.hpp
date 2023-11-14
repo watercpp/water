@@ -62,7 +62,7 @@ public:
             threads::run<function>(this, my);
         if(!ok)
             mybuffer = 0;
-        ___water_assert(ok || "thread did not start");
+        ___water_assert(ok && "thread did not start");
         return ok;
     }
     

@@ -39,7 +39,7 @@ public:
     flush_thread_std& operator=(flush_thread_std const&) = delete;
     
     template<typename buffer_>
-    explicit flush_thread_std(buffer_& buffer, double frequency_seconds = 0.) noexcept {
+    explicit flush_thread_std(buffer_& buffer, double frequency_seconds = 0.) {
         start(buffer, frequency_seconds);
     }
     
@@ -48,7 +48,7 @@ public:
     }
     
     template<typename buffer_>
-    bool start(buffer_& buffer, double frequency_seconds = 0.) noexcept {
+    bool start(buffer_& buffer, double frequency_seconds = 0.) {
         unique_lock lock{mymutex};
         ___water_assert(!mybuffer && "already started");
         if(mybuffer)
@@ -65,7 +65,7 @@ public:
         return true;
     }
     
-    void stop() noexcept {
+    void stop() {
         std::thread x;
         {
             unique_lock lock{mymutex};
