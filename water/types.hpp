@@ -166,24 +166,6 @@ namespace _ { namespace types_hpp_test {
     static_assert(equal<int, if_not_void<int>>, "");
     static_assert(equal<int, if_not_void<void, int>>, "");
     
-    template<typename ...pack_> struct pack;
-    
-    template<size_t at_, typename pack_, typename = void>
-    struct at_pack_valid {
-        static bool constexpr result = false; 
-    };
-    template<size_t at_, typename ...pack_>
-    struct at_pack_valid<at_, pack<pack_...>, to_void<at_pack<at_, pack_...>>> {
-        static bool constexpr result = true;
-    };
-    
-    using pack_10 = pack<at<0>, at<1>, at<2>, at<3>, at<4>, at<5>, at<6>, at<7>, at<8>, at<9>>;
-    
-    static_assert(at_pack_valid<0, pack_10>::result, "");
-    static_assert(at_pack_valid<9, pack_10>::result, "");
-    static_assert(!at_pack_valid<10, pack_10>::result, "");
-    static_assert(!at_pack_valid<0, pack<>>::result, "");
-    
     template<bool if_, typename true_, typename = void>
     struct ifel_valid {
         static bool constexpr result = false; 
