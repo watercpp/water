@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -29,7 +29,7 @@ bool equal(ia_ ab, ia_ ae, ib_ bb, ib_ be) {
         ++a, ++b;
     if(a == ae && b == be)
         return true;
-    trace << "str::tests::equal not equal:\n  A: " << begin_end_from(ab, ae) << "\n  B: " << begin_end_from(bb, be);
+    water::trace << "str::tests::equal not equal:\n  A: " << begin_end_from(ab, ae) << "\n  B: " << begin_end_from(bb, be);
     return false;
 }
 

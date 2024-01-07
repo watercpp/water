@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -44,6 +44,8 @@ struct write_to_stdout
 using out_stdout = out<buffer_lines<write_to_stdout>>;
 
 using out_stdout_simple_buffer = out<buffer<write_to_stdout>>;
+
+constexpr create<out_stdout> sout;
 
 }}
 #endif

@@ -34,16 +34,26 @@ and classes that implicitly convert to a char-pointer will not bee seen as C-str
 
 #### Example: Writing to stdout
 
-For simply writing to `stdout`, use `out_stdout` from `water/str/out_stdout.hpp`
+For simply writing to `stdout`, use `sout` from `water/str/out_stdout.hpp`
 
-    str::out_stdout{} << "hello";
+    str::sout << "hello" << '!';
+    str::sout << "world" << 123;
+
+Each << expression will write one line, so these two expressions write:
+    
+    hello!
+    world123
+
+Or use the `out_stdout` class from `water/str/out_stdout.hpp`
+
+    str::out_stdout{} << "hello" << '!';
     str::out_stdout o;
     o << U"world";
     o << 123;
 
 This will write:
     
-    hello
+    hello!
     world123
 
 This class will automatically add a newline when the string is written to `stdout`, unless the string
@@ -51,6 +61,9 @@ already ends in a newline. And it buffers output. If multiple threads write to `
 thread will write complete lines every time so the output from different threads wont mix. (Provided
 that writing to stdout from different threads at the same time is possible, it should be). Just use
 separate `out_stdout` objects in different threads.
+
+`sout` creates a `out_stdout` for each << expression (see `str::create` below) and can be used from
+multiple threads at the same time, unlike `std::cout`.
 
 
 #### Example: Writing to a char array
@@ -86,6 +99,24 @@ Use `str::insert_at_end` to insert at the end of a container like `std::basic_st
 
     std::string s;
     str::insert_at_end(s) << "hello";
+
+
+### Example: Using str::create to create a str::out for each << expression
+
+Use `str::create<out_type>` to automatically create a temporary `out_type` for each << expression.
+Avoids typing () or {} when the `str::out` object is always used for one expression, and always
+default constructed.
+
+First make a `constexpr str::create` object, in a header:
+
+    constexpr str::create<str::out_stdout> sout;
+
+Then use it anywhere, from any thread:
+
+    sout << "hello!";
+
+This is how `str::sout` from `water/str/out_stdout.hpp` is made.
+
 
 
 ## The base class
@@ -226,9 +257,38 @@ Most of these are exactly the same as the `water::numbers::settings` functions.
     o << flush
       << el // newline + flush
       << repeat('?', 5) // repeat something a number of times, it does not have to be a char
-      << string(begin, end)
-      << bytes(pointer, size_in_bytes)
-      << hexdump(pointer, size_in_bytes)
-      << type_name(some_type_of_thing);
+      << string(begin, end);
       
-    
+
+
+## List << operations
+
+`str::list` writes the elements of a sequence, separated by comma or your own separator. It will
+write char-types as integers. Other types are written with the normal << operator.
+
+    using namespace water::str;
+    out<...> o;
+
+    std::vector<int> v{1, 2, 3};
+
+    o << list(v); // "1, 2, 3"
+    o << list(v.begin(), v.end());
+    o << list(v.begin(), v.size());
+    o << list(v).settings(settings{}.base(16)); // "0x1, 0x2, 0x3"
+    o << list(v).separator("-"); // "1-2-3"
+    o << list(v).separator(4); // "14243", the separator does not have to be a string
+
+
+
+## Debugging << operations
+
+    using namespace water::str;
+    out<...> o;
+
+    o << bytes(pointer, size_in_bytes)
+      << hexdump(pointer, size_in_bytes)
+      << type_name(some_thing),
+      << type_name<some_type>();
+
+These operations are not included by `water/str/str.hpp`. Include them with `water/str/bytes.hpp`,
+`water/str/hexdump.hpp` or `water/str/type_name.hpp`.
