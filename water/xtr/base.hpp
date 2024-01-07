@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -208,6 +208,11 @@ struct configuration_or_default<void> : configuration_default {};
 
 using number_format_default = configuration_default::number_format;
 using settings_default = configuration_default::settings;
+
+using end_with_linebreak = configuration<
+    number_format_default,
+    settings_end<settings_default, static_cast<char>(u'\n')>
+>;
 
 
 using size_t = decltype(sizeof(0));
@@ -1461,20 +1466,44 @@ auto operator<<(expression<p_, w_>&& x, string_convert* (*)()) {
 }
 
 
+
+// expression_return is a workaround for visual c++ 2022. using decltype directly...
+//
+//   template<typename type_>
+//   auto operator<<(anything, type_&& a) -> decltype(expression<>{} << a)
+// 
+// ...fails to complile where the expression << operator is a complex template like the one detecting begin/end.
+// But not always, an identical expression can work or not in different parts of the same program.
+
+template<typename expression_, typename type_>
+using expression_return = decltype(_::make<expression_&&>() << _::make<type_>());
+
+
+
+// create
+// 
+// create an expression from a constant
+//
+//   struct write { void operator()(char const* a) { fputs(a, stdout); } };
+//   constexpr xtr::create<write, xtr::end_with_linebreak> sout;
+//   sout << "hello world!";
+
+template<typename function_ = void, typename configuration_ = void> struct create {};
+
+template<typename function_, typename configuration_, typename type_>
+auto operator<<(create<function_, configuration_>, type_&& a) -> expression_return<expression<function_, configuration_>, type_&&> {
+    return expression<function_, configuration_>{} << a;
+}
+
+
+
 // no
 //
 // usually used like this:
 // string(xtr::no << "hello");
 // xtr::no << "hello" << xtr::string;
 
-struct no_type {};
-
-constexpr no_type no;
-
-template<typename type_>
-auto operator<<(no_type, type_&& b) -> decltype(expression<>{} << b) {
-    return expression<>{} << b;
-}
+constexpr create<> no;
 
 
 
@@ -1509,17 +1538,17 @@ public:
 };
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_buffered<function_, configuration_>& a, type_&& b) -> decltype(expression<function_*, configuration_>{&a.function()} << b) {
+auto operator<<(to_buffered<function_, configuration_>& a, type_&& b) -> expression_return<expression<function_*, configuration_>, type_&&> {
     return expression<function_*, configuration_>{&a.function()} << b;
 }
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_buffered<function_, configuration_>&& a, type_&& b) -> decltype(expression<function_*, configuration_>{&a.function()} << b) {
+auto operator<<(to_buffered<function_, configuration_>&& a, type_&& b) -> expression_return<expression<function_*, configuration_>, type_&&> {
     return expression<function_*, configuration_>{&a.function()} << b;
 }
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_buffered<function_, configuration_> const& a, type_&& b) -> decltype(expression<function_ const*, configuration_>{&a.function()} << b) {
+auto operator<<(to_buffered<function_, configuration_> const& a, type_&& b) -> expression_return<expression<function_ const*, configuration_>, type_&&> {
     return expression<function_ const*, configuration_>{&a.function()} << b;
 }
 
@@ -1555,17 +1584,17 @@ public:
 };
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_unbuffered<function_, configuration_>& a, type_&& b) -> decltype(expression<unbuffered<function_*>, configuration_>{&a.function()} << b) {
+auto operator<<(to_unbuffered<function_, configuration_>& a, type_&& b) -> expression_return<expression<unbuffered<function_*>, configuration_>, type_&&> {
     return expression<unbuffered<function_*>, configuration_>{&a.function()} << b;
 }
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_unbuffered<function_, configuration_>&& a, type_&& b) -> decltype(expression<unbuffered<function_*>, configuration_>{&a.function()} << b) {
+auto operator<<(to_unbuffered<function_, configuration_>&& a, type_&& b) -> expression_return<expression<unbuffered<function_*>, configuration_>, type_&&> {
     return expression<unbuffered<function_*>, configuration_>{&a.function()} << b;
 }
 
 template<typename function_, typename configuration_, typename type_>
-auto operator<<(to_unbuffered<function_, configuration_> const& a, type_&& b) -> decltype(expression<unbuffered<function_ const*>, configuration_>{&a.function()} << b) {
+auto operator<<(to_unbuffered<function_, configuration_> const& a, type_&& b) -> expression_return<expression<unbuffered<function_ const*>, configuration_>, type_&&> {
     return expression<unbuffered<function_ const*>, configuration_>{&a.function()} << b;
 }
 
@@ -1594,18 +1623,13 @@ namespace _  {
 template<typename function_>
 using function_or_pointer = typename _::function_pointer_if_function<_::no_const_reference<function_>>::result;
 
-using line_to_configuration = configuration<
-    typename configuration_default::number_format,
-    settings_end<typename configuration_default::settings, static_cast<char>(u'\n')>
->;
-
 template<typename function_>
 auto to_function(function_&& a) -> to_buffered<function_or_pointer<function_>> {
     return static_cast<function_&&>(a);
 }
 
 template<typename function_>
-auto line_to_function(function_&& a) -> to_buffered<function_or_pointer<function_>, line_to_configuration> {
+auto line_to_function(function_&& a) -> to_buffered<function_or_pointer<function_>, end_with_linebreak> {
     return static_cast<function_&&>(a);
 }
 
@@ -1615,7 +1639,7 @@ auto to_function_unbuffered(function_&& a) -> to_unbuffered<function_or_pointer<
 }
 
 template<typename function_>
-auto line_to_function_unbuffered(function_&& a) -> to_unbuffered<function_or_pointer<function_>, line_to_configuration> {
+auto line_to_function_unbuffered(function_&& a) -> to_unbuffered<function_or_pointer<function_>, end_with_linebreak> {
     return static_cast<function_&&>(a);
 }
 
@@ -1680,12 +1704,12 @@ public:
 };
 
 template<typename iterator_, typename type_>
-auto operator<<(to_iterators<iterator_>& a, type_&& b) -> decltype(expression<unbuffered<to_iterators<iterator_>*>>{&a} << b) {
+auto operator<<(to_iterators<iterator_>& a, type_&& b) -> expression_return<expression<unbuffered<to_iterators<iterator_>*>>, type_&&> {
     return expression<unbuffered<to_iterators<iterator_>*>>{&a} << b;
 }
 
 template<typename iterator_, typename type_>
-auto operator<<(to_iterators<iterator_>&& a, type_&& b) -> decltype(expression<unbuffered<to_iterators<iterator_>*>>{&a} << b) {
+auto operator<<(to_iterators<iterator_>&& a, type_&& b) -> expression_return<expression<unbuffered<to_iterators<iterator_>*>>, type_&&> {
     return expression<unbuffered<to_iterators<iterator_>*>>{&a} << b;
 }
 
@@ -1703,6 +1727,7 @@ template<typename char_, size_t size_>
 to_iterators<char_*> to_begin_end(char_ (&array)[size_]) {
     return {array, array + size_};
 }
+
 
 
 }}

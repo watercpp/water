@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -78,16 +78,10 @@ public:
 
 constexpr trace_class trace;
 
-using trace_expression = xtr::expression<
-    trace_class,
-    xtr::configuration<
-        xtr::configuration_default::number_format,
-        xtr::settings_end<xtr::configuration_default::settings, '\n'>
-    >
->;
+using trace_expression = xtr::expression<trace_class, xtr::end_with_linebreak>;
 
 template<typename type_>
-auto operator<<(trace_class, type_&& a) noexcept -> decltype(trace_expression{} << a) {
+auto operator<<(trace_class, type_&& a) noexcept -> xtr::expression_return<trace_expression, type_&&> {
     return trace_expression{} << a;
 }
 

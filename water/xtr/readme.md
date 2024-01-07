@@ -65,7 +65,7 @@ other header.
 UTF-32 and `xtr::fold`. It depends on a few standard C library math functions, `std::numeric_limits` plus 
 `water::unicode` and some other parts of `water`.
 
-Note that `water/str/base.hpp` has UTF-8 support, and the generated string is always UTF-8. UTF-16
+Note that `water/xtr/base.hpp` has UTF-8 support, and the generated string is always UTF-8. UTF-16
 and UTF-32 characters and strings can only be written to the string.
 
 The intention is that `water::xtr` should be useful in places where additional dependencies are
@@ -194,6 +194,16 @@ When the written string is not empty, and not truncated, it converts to true:
     to << "hello" << '\0'; // zero-terminated
     if(to)
         fputs(array, stdout);
+
+
+
+## xtr::sout for writing to stdout
+
+`xtr::sout` is in the `water/xtr/stdout.hpp` header, and writes to `stdout`. It will add a
+linebreak at the end if the expression does not end with a linebreak. It can be used from multiple
+threads at the same time.
+
+    xtr::sout << "hello";
 
 
 
@@ -336,13 +346,50 @@ pointer to the `thing` because that thing will always have a longer lifetime tha
 ## Making your own "cout" like object using water::xtr
 
 `xtr::expression` objects are temporary, and only used during the << expression. This example makes
-a `xout` object that has a << operator that returns a `xtr::expression` that is written to `stdout`.
+a `sout` object that has a << operator that returns a `xtr::expression` that is written to `stdout`.
 
-A feature is that it will always end the expression with a `\n`, using the `xtr::configuration`.
-
-    struct xout_type {};
+A feature is that it will always end the expression with a `\n`, using the `xtr::end_with_newline`.
     
-    constexpr xout_type xout;
+    struct fputs_stdout {
+        void operator()(char const* c) {
+            fputs(c, stdout);
+        }
+    };
+
+    constexpr xtr::create<fputs_stdout, xtr::end_with_newline> sout;
+
+Use it like this:
+
+    sout << "hello world" << 123 << '!';
+    
+    sout << "a newline\n";
+    
+A newline is added to the first expression, but not the second because it already ends with a newline.
+
+Multiple threads can use the `sout` object at the same time without locks. Each thread writes one
+line at a time, so the output is never mixed in the middle of a line. (`fputs` should be safe to
+call from multiple threads at the same time.)
+
+Using `std::cout` from multiple threads without locks is not a good idea.
+
+This is exactly how `xtr::sout` in the `water/xtr/stdout.hpp` is made.
+
+
+
+## Making your own "cout" again, but using xtr::expression directly
+
+This example creates a `sout` that works exactly like the `sout` from the example above.
+
+Instead of using `xtr::create` it uses `xtr::expression` directly. It shows how to make the initial
+<< operator that creates the `xtr::expression`.
+
+Instead of using `xtr::end_with_newline`, it uses `xtr::configuration` directly to make the exact
+same thing as `xtr::end_with_newline`. You can configure the number format and more, look at the
+`water/xtr/base.hpp` header.
+
+    struct sout_type {};
+    
+    constexpr sout_type sout;
     
     struct fputs_stdout {
         void operator()(char const* c) {
@@ -350,7 +397,7 @@ A feature is that it will always end the expression with a `\n`, using the `xtr:
         }
     };
     
-    using xout_expression = xtr::expression<
+    using sout_expression = xtr::expression<
         fputs_stdout,
         xtr::configuration<
             xtr::configuration_default::number_format,
@@ -359,20 +406,7 @@ A feature is that it will always end the expression with a `\n`, using the `xtr:
     >;
     
     template<typename type_>
-    auto operator<<(xout_type, type_&& a) -> decltype(xout_expression{} << a) {
-        return xout_expression{} << a;
+    auto operator<<(sout_type, type_&& a) -> decltype(sout_expression{} << a) {
+        return sout_expression{} << a;
     }
 
-Use it like this:
-
-    xout << "hello world" << 123 << '!';
-    
-    xout << "a newline\n";
-    
-A newline is added to the first expression, but not the second because it already ends with a newline.
-
-Multiple threads can use the `xout` object at the same time without locks. Each thread writes one
-line at a time, so the output is never mixed in the middle of a line. (`fputs` should be safe to
-call from multiple threads at the same time.)
-
-Using `std::cout` from multiple threads without locks is not a good idea.
