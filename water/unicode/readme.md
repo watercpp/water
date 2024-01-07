@@ -5,8 +5,8 @@ Tools for converting between UTF-8, UTF-16 and UTF-32. The most useful are:
 ### Detecting UTF type of an iterator or char type:
 
     #include <water/unicode/unicode.hpp>
-    unsigned constexpr a = water::unicode::utf_from_iterator<char const*>::result; // is 8
-    unsigned constexpr b = water::unicode::utf_from_char<char16_t>::result; // is 16
+    unsigned constexpr a = water::unicode::utf_from_iterator<char const*>; // is 8
+    unsigned constexpr b = water::unicode::utf_from_char<char16_t>; // is 16
 
 
 ### UTF conversion iterators to convert to another UTF encoding:

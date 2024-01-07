@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -328,30 +328,6 @@ struct no_numeric_limits
     static constexpr a_ round_error()   noexcept { return _::no_numeric_limits::round_error<a_>(); }
     static constexpr a_ signaling_NaN() noexcept { return _::no_numeric_limits::nan<a_>(); }
 };
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_bounded;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_exact;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_iec559;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_integer;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_modulo;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_signed;
-template<typename a_> bool constexpr no_numeric_limits<a_>::is_specialized;
-template<typename a_> bool constexpr no_numeric_limits<a_>::has_denorm_loss;
-template<typename a_> bool constexpr no_numeric_limits<a_>::has_infinity;
-template<typename a_> bool constexpr no_numeric_limits<a_>::has_quiet_NaN;
-template<typename a_> bool constexpr no_numeric_limits<a_>::has_signaling_NaN;
-template<typename a_> bool constexpr no_numeric_limits<a_>::tinyness_before;
-template<typename a_> bool constexpr no_numeric_limits<a_>::traps;
-template<typename a_> int constexpr no_numeric_limits<a_>::digits;
-template<typename a_> int constexpr no_numeric_limits<a_>::digits10;
-template<typename a_> int constexpr no_numeric_limits<a_>::max_digits10;
-template<typename a_> int constexpr no_numeric_limits<a_>::max_exponent;
-template<typename a_> int constexpr no_numeric_limits<a_>::min_exponent;
-template<typename a_> int constexpr no_numeric_limits<a_>::max_exponent10;
-template<typename a_> int constexpr no_numeric_limits<a_>::min_exponent10;
-template<typename a_> int constexpr no_numeric_limits<a_>::radix;
-template<typename a_> no_float_denorm_style constexpr no_numeric_limits<a_>::has_denorm;
-template<typename a_> no_float_round_style constexpr no_numeric_limits<a_>::round_style;
-
 
 template<typename a_> struct no_numeric_limits<a_ const> : no_numeric_limits<a_> {};
 template<typename a_> struct no_numeric_limits<a_ volatile> : no_numeric_limits<a_> {};

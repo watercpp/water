@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -55,6 +55,24 @@ defined(WATER_COMPILER_CLANG)
     // https://gcc.gnu.org/onlinedocs/gcc/Type-Traits.html
     // http://clang.llvm.org/docs/LanguageExtensions.html
     // https://msdn.microsoft.com/en-us/library/ms177194.aspx
+    
+    // clang has deprecated __has_something and replaced them with __is_something
+    #if defined(WATER_COMPILER_CLANG) && __has_builtin(__is_trivially_assignable)
+    
+    #include <water/is_no_to.hpp>
+    
+    namespace water {
+        bool constexpr type_traits_exist = true;
+        //template<typename a_> bool constexpr has_trivial_constructor      = __is_trivially_constructible(a_);
+        template<typename a_> bool constexpr has_trivial_copy_assign      = has_copy_assign<a_> && __is_trivially_assignable(to_reference<a_>, to_reference<to_const<a_>>);
+        template<typename a_> bool constexpr has_trivial_copy_constructor = has_copy_constructor<a_> && __is_trivially_copyable(a_);
+        template<typename a_> bool constexpr has_trivial_destructor       = __is_trivially_destructible(a_);
+        template<typename a_> bool constexpr has_nothrow_copy_assign      = has_copy_assign<a_> && __is_nothrow_assignable(to_reference<a_>, to_reference<to_const<a_>>);
+        template<typename a_> bool constexpr has_nothrow_copy_constructor = has_copy_constructor<a_> && __is_nothrow_constructible(a_, to_reference<to_const<a_>>);
+    }
+    
+    #else
+    
     namespace water {
         bool constexpr type_traits_exist = true;
         //template<typename a_> bool constexpr has_trivial_constructor      = __has_trivial_constructor(a_);
@@ -64,8 +82,12 @@ defined(WATER_COMPILER_CLANG)
         template<typename a_> bool constexpr has_nothrow_copy_assign      = has_copy_assign<a_> && __has_nothrow_assign(a_);
         template<typename a_> bool constexpr has_nothrow_copy_constructor = has_copy_constructor<a_> && __has_nothrow_copy(a_);
     }
+    
+    #endif
 
 #else
+
+    #include <water/is_no_to.hpp>
 
     namespace water {
         bool constexpr type_traits_exist = false;
