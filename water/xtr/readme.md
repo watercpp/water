@@ -18,8 +18,8 @@ Example:
 - Finally that string is, in this example, written to `stdout` using `fputs`. Two calls are made to
   `fputs`, one for each expression.
 
-This example will write "hello world 123 0x1.806p13", a newline, then "line 2!" and a newline. The
-double is written as hexadecimal because of the xtr::base<16> before it.
+This example will write "hello world 123 0x1.806p13", a linebreak, then "line 2!" and a linebreak.
+The double is written as hexadecimal because of the xtr::base<16> before it.
 
 You can also write an expression directly into your own string, plus much more. A few examples:
 
@@ -116,8 +116,8 @@ terminated c-string, and also have `begin()`, `end()`, `size()` and subscript.
 ## xtr::to_function & xtr::line_to_function
 
 `xtr::to_function` and `xtr::line_to_function` write the `xtr::expression` to a function. The only
-difference is that `xtr::line_to_function` will add an newline `\n` to the end of the string if it
-does not already end with one.
+difference is that `xtr::line_to_function` will add an linebreak `\n` to the end of the string if
+it does not already end with one.
 
 The function is called **once** with the entire expression formatted into a non-empty zero terminated
 string. It should be something that can be called in one of these ways:
@@ -348,7 +348,7 @@ pointer to the `thing` because that thing will always have a longer lifetime tha
 `xtr::expression` objects are temporary, and only used during the << expression. This example makes
 a `sout` object that has a << operator that returns a `xtr::expression` that is written to `stdout`.
 
-A feature is that it will always end the expression with a `\n`, using the `xtr::end_with_newline`.
+A feature is that it will always end the expression with a `\n`, using the `xtr::end_with_linebreak`.
     
     struct fputs_stdout {
         void operator()(char const* c) {
@@ -356,15 +356,16 @@ A feature is that it will always end the expression with a `\n`, using the `xtr:
         }
     };
 
-    constexpr xtr::create<fputs_stdout, xtr::end_with_newline> sout;
+    constexpr xtr::create<fputs_stdout, xtr::end_with_linebreak> sout;
 
 Use it like this:
 
     sout << "hello world" << 123 << '!';
     
-    sout << "a newline\n";
+    sout << "a linebreak\n";
     
-A newline is added to the first expression, but not the second because it already ends with a newline.
+A linebreak is added to the first expression, but not the second because it already ends with a
+linebreak.
 
 Multiple threads can use the `sout` object at the same time without locks. Each thread writes one
 line at a time, so the output is never mixed in the middle of a line. (`fputs` should be safe to
@@ -383,8 +384,8 @@ This example creates a `sout` that works exactly like the `sout` from the exampl
 Instead of using `xtr::create` it uses `xtr::expression` directly. It shows how to make the initial
 << operator that creates the `xtr::expression`.
 
-Instead of using `xtr::end_with_newline`, it uses `xtr::configuration` directly to make the exact
-same thing as `xtr::end_with_newline`. You can configure the number format and more, look at the
+Instead of using `xtr::end_with_linebreak`, it uses `xtr::configuration` directly to make the exact
+same thing as `xtr::end_with_linebreak`. You can configure the number format and more, look at the
 `water/xtr/base.hpp` header.
 
     struct sout_type {};
