@@ -37,6 +37,8 @@ public:
         my{&temporary}
     {}
     
+    constexpr create_on_copy& operator=(create_on_copy const&) = default;
+    
     out_* out() const {
         return my;
     }
@@ -59,7 +61,8 @@ struct create :
     create_on_copy<out_>
 {   
     constexpr create() = default;
-    constexpr create(create const&) {} // does not create a temporary
+    constexpr create(create const&) : create_on_copy<out_>{} {} // does not create a temporary
+    constexpr create& operator=(create const&) = default;
 };
 
 
