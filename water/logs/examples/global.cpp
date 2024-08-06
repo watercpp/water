@@ -1,4 +1,4 @@
-// Copyright 2023 Johan Paulsson
+// Copyright 2023-2024 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -70,7 +70,7 @@ void global_output::stop() {
 // flush the log from main like this:
 
 void main() {
-    water::logs::flush_thread{water::logs::examples::global};
+    water::logs::flush_thread flush{water::logs::examples::global};
     water::logs::examples::global("Hello world!");
 }
 

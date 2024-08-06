@@ -90,9 +90,9 @@ unsigned constexpr
 // pointers are always written in base 16
 //
 // digits_
-// 0: use as many digits as needed
+// 0: use as many digits as needed for integers, floatingpoint is rounded to the default number of significant digts
 // -1: always use the maximum number of digits for that type (same as 0 for floatingpoint)
-// 1...n: use exactly this many digits. floatingpoint will not round, and with no_exponent_max_ > 0 might write more digits
+// 1...n: use exactly this many digits for integers. floatingpoint is rounded to this many significant digts
 //
 // no_exponent_min_ <= 0 (only used for base 10 floating point)
 // 0: always use exponent when exponent < 0
@@ -123,7 +123,7 @@ struct number_format {
         flags = flags_;
     static constexpr int
         no_exponent_min = no_exponent_min_ < 0 ? no_exponent_min_ : 0,
-        no_exponent_max = no_exponent_max_ > -1 ? no_exponent_max_ : -1, // -1 means use exponent when it is withing the types signifcant digits
+        no_exponent_max = no_exponent_max_ > -1 ? no_exponent_max_ : -1, // -1 means do not use exponent when it is within the types signifcant digits (12.34 instead of 1.234E1)
         digits = digits_ < 0 ? -1 : digits_;
     static constexpr bool
         uppercase = (flags & number_mixedcase) == number_uppercase,

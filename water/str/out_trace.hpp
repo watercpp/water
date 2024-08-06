@@ -5,6 +5,7 @@
 #ifndef WATER_STR_OUT_TRACE_HPP
 #define WATER_STR_OUT_TRACE_HPP
 #include <water/str/buffer_lines.hpp>
+#include <water/str/create.hpp>
 #include <water/trace.hpp>
 namespace water { namespace str {
 
@@ -12,9 +13,11 @@ namespace water { namespace str {
 
 Easy way to write to water::trace
 
-str::out_trace{} << "hello world!";
+    str::trace << "hello world";
 
-str::trace << "hello world";
+or
+
+    str::out_trace{} << "hello world!";
 
 Note that this will add a newline by itself, see buffer_lines.hpp
 
