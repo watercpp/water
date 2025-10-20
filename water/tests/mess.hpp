@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2025 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -8,8 +8,10 @@ define some macros and see what happens
 
 */
 
+#include <water/configuration.hpp> // the linux/unix macros below would break the configuration
+
 #ifndef WATER_TESTS_MESS
-    #define WATER_TESTS_MESS(name) ___ ## name ## _is_a_macro, ___water_tests_mess_hpp =,
+    #define WATER_TESTS_MESS(name) name ## _is_a_macro_from_water_tests_mess_hpp =,
 #endif
 
 // iso646
@@ -50,11 +52,14 @@ define some macros and see what happens
 */
 
 // windows.h
-#ifndef max
-    #define max(a, b) WATER_TESTS_MESS(max)
-#endif
-#ifndef min
-    #define min(a, b) WATER_TESTS_MESS(min)
+#ifdef WATER_TESTS_MESS_MIN_MAX
+    // everyone disables the min max macros?    
+    #ifndef max
+        #define max(a, b) WATER_TESTS_MESS(max)
+    #endif
+    #ifndef min
+        #define min(a, b) WATER_TESTS_MESS(min)
+    #endif
 #endif
 #ifndef far
     #define far WATER_TESTS_MESS(far)
@@ -116,3 +121,24 @@ define some macros and see what happens
 #ifndef unix
     #define unix WATER_TESTS_MESS(unix)
 #endif
+
+// unreal
+#ifndef check
+    #define check(a) WATER_TESTS_MESS(check)
+#endif
+#ifndef checkf
+    #define checkf(a, b, ...) WATER_TESTS_MESS(checkf)
+#endif
+#ifndef ensure
+    #define ensure(a) WATER_TESTS_MESS(ensure)
+#endif
+#ifndef verify
+    #define verify(a) WATER_TESTS_MESS(verify)
+#endif
+#ifndef vefifyf
+    #define verifyf(a, b, ...) WATER_TESTS_MESS(verifyf)
+#endif
+#ifndef unimplemented
+    #define unimplemented() WATER_TESTS_MESS(unimplemented)
+#endif
+

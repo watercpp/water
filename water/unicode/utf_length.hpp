@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2025 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -88,13 +88,15 @@ private:
     struct no_verify {
         bool operator()(char32_t) { return true; }
     };
+
+    // avoid verify(something) because verify can be a macro function
     
     template<typename iterator_, typename verify_>
-    void length(uchar_t*, iterator_ b, size_t s, verify_&& verify) {
+    void length(uchar_t*, iterator_ b, size_t s, verify_&& verify_function) {
         while(s) {
             char32_t c;
             unsigned n = utf8_decode_verify_and_move(c, b, s);
-            if(!n || !verify(c)) {
+            if(!n || !verify_function(c)) {
                 myok = false;
                 return;
             }
@@ -105,11 +107,11 @@ private:
     }
 
     template<typename iterator_, typename verify_>
-    void length(uchar_t*, iterator_ b, iterator_ e, verify_&& verify) {
+    void length(uchar_t*, iterator_ b, iterator_ e, verify_&& verify_function) {
         while(b != e) {
             char32_t c;
             unsigned n = utf8_decode_verify_and_move(c, b, e);
-            if(!n || !verify(c)) {
+            if(!n || !verify_function(c)) {
                 myok = false;
                 return;
             }
@@ -120,11 +122,11 @@ private:
     }
 
     template<typename iterator_, typename verify_>
-    void length(char16_t*, iterator_ b, size_t s, verify_&& verify) {
+    void length(char16_t*, iterator_ b, size_t s, verify_&& verify_function) {
         while(s) {
             char32_t c;
             unsigned n = utf16_decode_verify_and_move(c, b, s);
-            if(!n || !verify(c)) {
+            if(!n || !verify_function(c)) {
                 myok = false;
                 return;
             }
@@ -135,11 +137,11 @@ private:
     }
 
     template<typename iterator_, typename verify_>
-    void length(char16_t*, iterator_ b, iterator_ e, verify_&& verify) {
+    void length(char16_t*, iterator_ b, iterator_ e, verify_&& verify_function) {
         while(b != e) {
             char32_t c;
             unsigned n = utf16_decode_verify_and_move(c, b, e);
-            if(!n || !verify(c)) {
+            if(!n || !verify_function(c)) {
                 myok = false;
                 return;
             }
@@ -164,8 +166,8 @@ private:
     }
 
     template<typename char_, typename verify_>
-    bool lenght32(char_ c, verify_& verify) {
-        if(!utf32_verify(c) || !verify(static_cast<char32_t>(c)))
+    bool lenght32(char_ c, verify_& verify_function) {
+        if(!utf32_verify(c) || !verify_function(static_cast<char32_t>(c)))
             return myok = false;
         if(c > 0xffff) {
             my8 += 4;
