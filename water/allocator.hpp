@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2025 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -77,7 +77,13 @@ struct allocator
         auto align = alignof(type_);
         if(align > align_allocations) {
             #ifdef __cpp_aligned_new
-            ::operator delete(pointer, sizeof(type_) * count, static_cast<std::align_val_t>(align));
+            ::operator delete(
+                pointer,
+                #ifdef __cpp_sized_deallocation
+                sizeof(type_) * count,
+                #endif
+                static_cast<std::align_val_t>(align)
+            );
             #else
             free(unalign(pointer), sizeof(type_) * count + align);
             #endif

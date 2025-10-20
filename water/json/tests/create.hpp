@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2025 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -37,6 +37,8 @@ inline void create() {
     root.push_back().string(string<char const*>(s, 6));
     
     ___water_test(root[1]);
+    ___water_test(root == root);
+    ___water_test(root != root[1]);
     
     // add an object
     auto object = root.push_back().object(10);
