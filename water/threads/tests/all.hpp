@@ -1,4 +1,4 @@
-// Copyright 2017-2023 Johan Paulsson
+// Copyright 2017-2026 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -13,6 +13,7 @@
 #include <water/threads/tests/read_write_all.hpp>
 #include <water/threads/tests/semaphore_all.hpp>
 #include <water/threads/tests/thread_all.hpp>
+#include <water/threads/tests/thread_name.hpp>
 #include <water/threads/tests/trivial.hpp>
 namespace water { namespace threads { namespace tests {
 
@@ -34,6 +35,7 @@ inline void all() {
     read_write_all();
     semaphore_all();
     thread_all();
+    thread_name_all();
     trivial();
     #ifdef WATER_SYSTEM_WINDOWS
     timeEndPeriod(1);
