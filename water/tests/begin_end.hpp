@@ -1,4 +1,4 @@
-// Copyright 2023 Johan Paulsson
+// Copyright 2023-2026 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -57,6 +57,40 @@ namespace begin_end_tests {
     static_assert(has_size<begin_end<float const*>>, "");
     static_assert(has_size<begin_end<downgrade_iterators::random_access<float const*>>>, "");
     static_assert(!has_size<begin_end<downgrade_iterators::forward<float const*>>>, "");
+    
+    template<typename iterator_, typename const_iterator_ = iterator_>
+    struct other {
+        iterator_ begin() { return{}; }
+        iterator_ end() { return{}; }
+        const_iterator_ begin() const { return{}; }
+        const_iterator_ end() const { return{}; }
+    };
+    
+    struct iterator_convert {
+        iterator_convert() {}
+        iterator_convert(int const*) {}
+    };
+    
+    static_assert(equal<
+        decltype(begin_end_from(other<int*, float const*>{})),
+        begin_end<int*>
+    >);
+    static_assert(equal<
+        decltype(begin_end_from(make_type<other<int*, float const*>&>())),
+        begin_end<int*>
+    >);
+    static_assert(equal<
+        decltype(begin_end_from(make_type<other<int*, float const*> const&>())),
+        begin_end<float const*>
+    >);
+    
+    using other1 = decltype(begin_end<int*>{other<int*>{}});
+    using other2 = decltype(begin_end<int const*>{other<int*>{}});
+    using other3 = decltype(begin_end<int*>{make_type<other<int*, float const*>&>()});
+    using other4 = decltype(begin_end<int const*>{make_type<other<int*, float const*>&>()});
+    using other5 = decltype(begin_end<float*>{make_type<other<int*, float*> const&>()});
+    using other6 = decltype(begin_end<float const*>{make_type<other<int*, float*> const&>()});
+    using other7 = decltype(begin_end<iterator_convert>{other<int*, float*>{}});
 
 }
 
@@ -93,6 +127,32 @@ inline void begin_end_all() {
     auto n6 = begin_end_from(downgrade_iterators::forward_from(n1.begin()), downgrade_iterators::forward_from(n1.end()));
     
     test_unused(n2, n3, n4, n5, n6);
+    
+    using begin_end_tests::other;
+    
+    other<int*, float*> other_reference;
+    auto const& other_const_reference = other_reference;
+    
+    
+    begin_end<int*> other1 = other<int*>{};
+    begin_end<int const*> other2 = other<int*>{};
+    other2 = other1;
+    begin_end<int*> other3 = other_reference;
+    begin_end<int const*> other4 = other_reference;
+    other4 = other3;
+    begin_end<float*> other5 = other_const_reference;
+    begin_end<float const*> other6 = other_const_reference;
+    other6 = other5;
+    begin_end<begin_end_tests::iterator_convert> other7 = other<int*, float*>{};
+    other7 = other1;
+    
+    #ifdef __cpp_deduction_guides
+    
+    begin_end d1{hello16, hello16 + 5};
+    begin_end d2{hello16, 5};
+    begin_end d3{d1.begin(), d1.end()};
+    
+    #endif
 }
 
 }}

@@ -1,4 +1,4 @@
-// Copyright 2022-2023 Johan Paulsson
+// Copyright 2022-2026 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -55,6 +55,24 @@ public:
         myend{begin + size}
     {}
     
+    constexpr begin_end(begin_end const&) = default;
+    constexpr begin_end(begin_end&&) = default;
+    
+    constexpr begin_end& operator=(begin_end const&) = default;
+    constexpr begin_end& operator=(begin_end&&) = default;
+    
+    template<
+        typename other_,
+        typename = to_void<
+            decltype(iterator{make_type<other_&&>().begin()}),
+            decltype(iterator{make_type<other_&&>().end()})
+        >
+    >
+    begin_end(other_&& other) :
+        mybegin{other.begin()},
+        myend{other.end()}
+    {}
+    
     explicit operator bool() const {
         return mybegin != myend;
     }
@@ -89,6 +107,11 @@ begin_end<iterator_> begin_end_from(iterator_ begin, size_t size) {
 template<typename type_, size_t size_>
 begin_end<type_*> begin_end_from(type_ (&array)[size_]) {
     return {array, size_};
+}
+
+template<typename other_>
+auto begin_end_from(other_&& other) -> ifel<equal<decltype(other.begin()), decltype(other.end())>, begin_end<decltype(other.begin())>> {
+    return {other.begin(), other.end()};
 }
 
 
