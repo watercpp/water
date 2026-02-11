@@ -1,4 +1,4 @@
-// Copyright 2023 Johan Paulsson
+// Copyright 2023-2026 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -22,6 +22,7 @@ The container_ type needs only the insert and end functions, nothing else.
 template<typename container_>
 class insert_at_end_of_container
 {
+public:
     using char_type = no_const_or_reference<decltype(*make_type<container_*>()->end())>;
 
 private:
