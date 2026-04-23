@@ -1,4 +1,4 @@
-// Copyright 2023 Johan Paulsson
+// Copyright 2023-2026 Johan Paulsson
 // This file is part of the Water C++ Library. It is licensed under the MIT License.
 // See the license.txt file in this distribution or https://watercpp.com/license.txt
 //\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_/\_
@@ -76,7 +76,9 @@ inline void std_allocator_all() {
     using vector = std::vector<int>;
     std_allocator<vector, std_allocator_test_allocator> a;
     vector *v = a.allocate(1);
-    a.construct(v, 1, 2, 3);
+    //a.construct(v, 1, 2, 3); // no initializer lists
+    a.construct(v, 1);
+    a.construct(v, 1.f); // conversion
     a.destroy(a.address(*v));
     a.deallocate(v, 1);
     
@@ -90,7 +92,8 @@ inline void std_allocator_all() {
     static_assert(!traits::is_always_equal::value, "");
     
     v = traits::allocate(a, 1);
-    traits::construct(a, v, 1, 2, 3);
+    traits::construct(a, v, 1);
+    traits::construct(a, v, 1.f);
     traits::destroy(a, v);
     traits::deallocate(a, v, 1);
 }
