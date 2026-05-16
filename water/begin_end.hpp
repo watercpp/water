@@ -56,9 +56,11 @@ public:
     {}
     
     constexpr begin_end(begin_end const&) = default;
+    constexpr begin_end(begin_end&) = default;
     constexpr begin_end(begin_end&&) = default;
     
     constexpr begin_end& operator=(begin_end const&) = default;
+    constexpr begin_end& operator=(begin_end&) = default;
     constexpr begin_end& operator=(begin_end&&) = default;
     
     template<
@@ -117,18 +119,36 @@ auto begin_end_from(other_&& other) -> ifel<equal<decltype(other.begin()), declt
 
 
 namespace _ {
-
+    
     template<typename a_, typename b_, typename = bool>
-    struct begin_end_size_is_different {
-        static constexpr bool do_it(a_ const&, b_ const&) {
-            return false;
+    struct begin_end_equal {
+        static constexpr bool do_it(a_ const& a, b_ const& b) {
+            auto ai = a.begin();
+            auto bi = b.begin();
+            while(ai != a.end() && bi != b.end()) {
+                if(!(*ai == *bi))
+                    return false;
+                ++ai;
+                ++bi;
+            }
+            return ai == a.end() && bi == b.end();
         }
     };
     
     template<typename a_, typename b_>
-    struct begin_end_size_is_different<a_, b_, decltype(make_type<a_ const&>().size() != make_type<b_ const&>().size())> {
+    struct begin_end_equal<a_, b_, decltype(make_type<a_ const&>().size() != make_type<b_ const&>().size())> {
         static bool do_it(a_ const& a, b_ const& b) {
-            return a.size() != b.size();
+            if(a.size() != b.size())
+                return false;
+            auto ai = a.begin();
+            auto bi = b.begin();
+            while(ai != a.end()) {
+                if(!(*ai == *bi))
+                    return false;
+                ++ai;
+                ++bi;
+            }
+            return true;
         }
     };
     
@@ -137,17 +157,7 @@ namespace _ {
 
 template<typename a_, typename b_>
 auto operator==(begin_end<a_> const& a, begin_end<b_> const& b) -> decltype(static_cast<bool>(*a.begin() == *b.begin())) {
-    if(_::begin_end_size_is_different<begin_end<a_>, begin_end<b_>>::do_it(a, b))
-        return false;
-    auto ai = a.begin();
-    auto bi = b.begin();
-    while(ai != a.end() && bi != b.end()) {
-        if(!(*ai == *bi))
-            return false;
-        ++ai;
-        ++bi;
-    }
-    return true;
+    return _::begin_end_equal<begin_end<a_>, begin_end<b_>>::do_it(a, b);
 }
 
 template<typename a_, typename b_>

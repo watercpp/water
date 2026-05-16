@@ -118,6 +118,11 @@ inline void begin_end_all() {
     ___water_test(f1 == f2);
     ___water_test(f2 != f3);
     
+    auto p1_short = decltype(p1){p1.begin(), p1.end() - 1};
+    auto f1_short = decltype(f1){downgrade_iterators::forward_from(p1_short.begin()), downgrade_iterators::forward_from(p1_short.end())};
+    ___water_test(p1 != p1_short);
+    ___water_test(f1 != f1_short);
+    
     begin_end_tests::no_equal no[3] {};
     auto n1 = begin_end_from(no);
     auto n2 = begin_end_from(no, 3);
